@@ -15,7 +15,6 @@ class Dialogue:
         self.choice_dict = {}
 
 
-
 dialogue_text = """left\tnoaction\tЯ студент и я умею говорить!
 right\tnoaction\tА я монстр, но я пока не знаю, как меня зовут.
 left\tnoaction\tЗато я знаю, сейчас скажу)
