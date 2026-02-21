@@ -2,11 +2,16 @@ import pygame
 
 from src.levelBuilding import Maze
 from src.Util import WallPattern, Border
-from src import AssetsLoading
+from src import AssetsCreation
+from src.AssetsCreation import Transformer
 
 
 # Константы
 TILE_SIZE = 25 # чем меньше, тем мельче клетки, и тем больше их может уместиться на экране
+
+
+# Трансформер спрайтов
+transformer = Transformer()
 
 
 class MazeState:
@@ -17,20 +22,20 @@ class MazeState:
         """Загрузка изображений для отрисовки и создание кеша трансформированных изображений"""
 
         # Базовые тайлы
-        self.base_tiles = AssetsLoading.load_wall_tiles()
-        self.floor_tile = AssetsLoading.load_floor_tile()
+        self.base_tiles = AssetsCreation.load_wall_tiles()
+        self.floor_tile = AssetsCreation.load_floor_tile()
 
         # Тайлы для входа и выхода
-        self.entrance_tile, self.exit_tile = AssetsLoading.load_entrance_exit_tiles()
+        self.entrance_tile, self.exit_tile = AssetsCreation.load_entrance_exit_tiles()
 
         # Тайл для игрока
-        self.player_tile = AssetsLoading.load_player_tile()
+        self.player_tile = AssetsCreation.load_player_tile()
 
         # Кэш для отражённых тайлов
-        self.flipped_tiles_cache = {}
+        self.flipped_cache = {}
 
         # Кэш для повёрнутых тайлов
-        self.rotated_tiles_cache = {}
+        self.rotated_cache = {}
 
         # Кэш для стен
         self.wall_cache = {}
@@ -45,6 +50,9 @@ class MazeState:
         self.maze.generate_maze(more_random, curving)
         self.player_pos = [self.maze.start.x, self.maze.start.y]
 
+        self.wall_cache.clear()
+        self.precalculate_walls()
+
     def check_win(self):
         # Проверка победы
         return self.player_pos[0] == self.maze.end_door.x and self.player_pos[1] == self.maze.end_door.y
@@ -53,38 +61,7 @@ class MazeState:
     Функции модификации и кеширования тайлов
     """
 
-    def get_flipped_tile(self, pattern, flip_x=False, flip_y=False):
-        """Получение отражённого тайла с кэшированием"""
-        cache_key = (pattern, flip_x, flip_y)
-
-        if cache_key not in self.flipped_tiles_cache:
-            base_tile = self.base_tiles[pattern]
-            if flip_x or flip_y:
-                transformed = pygame.transform.flip(base_tile, flip_x, flip_y)
-                self.flipped_tiles_cache[cache_key] = transformed
-            else:
-                self.flipped_tiles_cache[cache_key] = base_tile
-
-        return self.flipped_tiles_cache[cache_key]
-
-    def get_rotated_wall(self, pattern, rotation):
-        """Получение повёрнутого тайла стены с кэшированием"""
-        cache_key = (pattern, rotation)
-
-        if cache_key not in self.rotated_tiles_cache:
-            base_tile = self.base_tiles[pattern]
-            if rotation != 0:
-                rotated = pygame.transform.rotate(base_tile, rotation)
-                rotated_rect = rotated.get_rect(center=(TILE_SIZE // 2, TILE_SIZE // 2))
-                final_tile = pygame.Surface((TILE_SIZE, TILE_SIZE), pygame.SRCALPHA)
-                final_tile.blit(rotated, rotated_rect)
-                self.rotated_tiles_cache[cache_key] = final_tile
-            else:
-                self.rotated_tiles_cache[cache_key] = base_tile
-
-        return self.rotated_tiles_cache[cache_key]
-
-    def get_wall_pattern_and_transforms(self, x, y):
+    def get_wall_patterns_and_transforms(self, x, y):
         """Определение паттерна стены и необходимых трансформаций"""
 
         def is_floor(nx, ny):
@@ -102,89 +79,72 @@ class MazeState:
         south_west = is_floor(x - 1, y + 1)
         south_east = is_floor(x + 1, y + 1)
 
-        # Считаем количество проходов
-        count = sum([north, south, west, east])
-
-        flip_x = False
-        flip_y = False
-        rotation = 0
-        pattern = WallPattern.SINGLE
+        # Задаём хранение слоев и их трансформаций
+        x_flips = [False]
+        rotations = [0]
+        patterns = [WallPattern.SINGLE]
 
         # Определяем паттерн и трансформации
-        if count == 0:
-            pattern = WallPattern.SINGLE
+        if north:  # Проход сверху
+            patterns.append(WallPattern.STRAIGHT)
+            x_flips.append(False)
+            rotations.append(0)
+        if east:  # Проход справа
+            patterns.append(WallPattern.STRAIGHT)
+            x_flips.append(False)
+            rotations.append(90)
+        if west:  # Проход слева
+            patterns.append(WallPattern.STRAIGHT)
+            x_flips.append(False)
+            rotations.append(270)
+        if south:  # Проход снизу (ОПРЕДЕЛЯЕМ В ПОСЛЕДНЮЮ ОЧЕРЕДЬ!)
+            patterns.append(WallPattern.STRAIGHT_SOUTH)
+            x_flips.append(False)
+            rotations.append(0)
 
-        elif count == 1:
-            # Тупик
-            if south:  # Проход снизу - стена смотрит вверх
-                pattern = WallPattern.DEAD_END_NORTH
-            elif north:  # Проход сверху - стена смотрит вниз
-                pattern = WallPattern.DEAD_END_OTHER
-                rotation = 180
-            elif east:  # Проход справа - стена смотрит влево
-                pattern = WallPattern.DEAD_END_OTHER
-                rotation = 90
-            elif west:  # Проход слева - стена смотрит вправо
-                pattern = WallPattern.DEAD_END_OTHER
-                rotation = 270
+        if north_west and not (north or west):
+            patterns.append(WallPattern.CORNER)
+            x_flips.append(False)
+            rotations.append(0)
+        if north_east and not (north or east):
+            patterns.append(WallPattern.CORNER)
+            x_flips.append(True)
+            rotations.append(0)
+        if south_west and not (south or west):
+            patterns.append(WallPattern.CORNER_SOUTH)
+            x_flips.append(False)
+            rotations.append(0)
+        if south_east and not (south or east):
+            patterns.append(WallPattern.CORNER_SOUTH)
+            x_flips.append(True)
+            rotations.append(0)
 
-        elif count == 2:
-            # Проверяем, прямая это или угол
-            if (north and south) or (west and east):
-                # Прямая стена
-                if north and south:
-                    pattern = WallPattern.STRAIGHT_VERTICAL
-                else:  # west and east
-                    pattern = WallPattern.STRAIGHT_HORIZONTAL
-            else:
-                # Угол - определяем тип и отражения
-                if south and east:  # Пол снизу и справа
-                    pattern = WallPattern.CORNER_BOTTOM
-                    flip_x, flip_y = False, False
-                elif south and west:  # Пол снизу и слева
-                    pattern = WallPattern.CORNER_BOTTOM
-                    flip_x = True  # Отражаем по горизонтали
-                elif north and east:  # Пол сверху и справа
-                    pattern = WallPattern.CORNER_TOP
-                    flip_x, flip_y = False, False
-                elif north and west:  # Пол сверху и слева
-                    pattern = WallPattern.CORNER_TOP
-                    flip_x = True  # Отражаем по горизонтали
+        return patterns, x_flips, rotations
 
-        elif count == 3:
-            # Т-образная
-            if not north:
-                pattern = WallPattern.T_SHAPE_NORTH
-            elif not south:
-                pattern = WallPattern.T_SHAPE_SOUTH
-            elif not east:
-                pattern = WallPattern.T_SHAPE_SIDE
-            elif not west:
-                pattern = WallPattern.T_SHAPE_SIDE
-                flip_x = True  # Отражаем по горизонтали для лева
-
-        elif count == 4:
-            pattern = WallPattern.CROSS
-
-        return pattern, flip_x, flip_y, rotation
-
-    def get_transformed_tile(self, pattern, flip_x=False, flip_y=False, rotation=0):
+    def get_transformed_tile(self, patterns, x_flips=(False,), rotations=(0,)):
         """Получение трансформированного тайла (сначала отражение, потом поворот)"""
-        if rotation == 0:
-            return self.get_flipped_tile(pattern, flip_x, flip_y)
-        else:
-            # Для поворота сначала применяем отражение, потом поворот
-            flipped = self.get_flipped_tile(pattern, flip_x, flip_y)
-            cache_key = (pattern, flip_x, flip_y, rotation)
+        layers = []
 
-            if cache_key not in self.rotated_tiles_cache:
-                rotated = pygame.transform.rotate(flipped, rotation)
-                rotated_rect = rotated.get_rect(center=(TILE_SIZE // 2, TILE_SIZE // 2))
-                final_tile = pygame.Surface((TILE_SIZE, TILE_SIZE), pygame.SRCALPHA)
-                final_tile.blit(rotated, rotated_rect)
-                self.rotated_tiles_cache[cache_key] = final_tile
+        # Трансформация границ (сначала применяем отражение, потом поворот)
+        for p_id, pattern in enumerate(patterns):
+            if p_id == 0:
+                # Копирование основания стены, чтобы границы всех стен не наложились на одну
+                base_tile_copy = pygame.Surface((TILE_SIZE, TILE_SIZE), pygame.SRCALPHA)
+                base_tile_copy.blit(self.base_tiles[patterns[p_id]], (0, 0))
+                layers.append(base_tile_copy)
+            else:
+                tile = self.base_tiles[patterns[p_id]]
+                if rotations[p_id] == 0:
+                    layers.append(transformer.get_flipped(tile, x_flips[p_id]))
+                else:
+                    flipped = transformer.get_flipped(tile, x_flips[p_id])
+                    rotated = transformer.get_rotated(flipped, rotations[p_id])
+                    layers.append(rotated)
 
-            return self.rotated_tiles_cache[cache_key]
+                # Наложение границ на основание стены
+                layers[0].blit(layers[p_id], (0, 0))
+
+        return layers[0]
 
     def precalculate_walls(self):
         """Предварительный расчёт всех стен для оптимизации"""
@@ -192,8 +152,8 @@ class MazeState:
             for x in range(self.maze.width):
                 if self.maze.pattern[y][x] == 1:
                     cache_key = (x, y)
-                    pattern, flip_x, flip_y, rotation = self.get_wall_pattern_and_transforms(x, y)
-                    self.wall_cache[cache_key] = self.get_transformed_tile(pattern, flip_x, flip_y, rotation)
+                    patterns, x_flips, rotations = self.get_wall_patterns_and_transforms(x, y)
+                    self.wall_cache[cache_key] = self.get_transformed_tile(patterns, x_flips, rotations)
 
     """
     Базовые функции состояния
@@ -229,25 +189,25 @@ class MazeState:
             for x in range(self.maze.width):
                 if self.maze.pattern[y][x] == 1:
                     cache_key = (x, y)
-                    if cache_key not in self.wall_cache:
-                        pattern, flip_x, flip_y, rotation = self.get_wall_pattern_and_transforms(x, y)
-                        self.wall_cache[cache_key] = self.get_transformed_tile(pattern, flip_x, flip_y, rotation)
+                    if cache_key not in self.wall_cache: # TODO: should this thing care about caching if precalculate_walls exists?
+                        patterns, x_flips, rotations = self.get_wall_patterns_and_transforms(x, y)
+                        self.wall_cache[cache_key] = self.get_transformed_tile(patterns, x_flips, rotations)
 
                     screen.blit(self.wall_cache[cache_key], (x * TILE_SIZE, y * TILE_SIZE))
 
-        # Отрисовываем игрока
+        # Отрисовываем вход и выход
+        self.draw_exits(screen)
+
+        # Отрисовываем игрока (поверх всего!)
         screen.blit(self.player_tile,
                          (self.player_pos[0] * TILE_SIZE,
                           self.player_pos[1] * TILE_SIZE))
-
-        # Отрисовываем вход и выход
-        self.draw_exits(screen)
 
         if self.check_win():
             self.show_win_message(screen)
 
     """
-    Вспомогательные функции для прорисовки
+    Вспомогательные функции для отрисовки
     """
 
     def draw_exits(self, screen):

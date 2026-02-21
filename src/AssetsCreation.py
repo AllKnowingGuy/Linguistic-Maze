@@ -67,17 +67,11 @@ def load_wall_tiles():
     wall_tiles = {}
 
     tile_files = {
-        WallPattern.STRAIGHT_VERTICAL: 'wall_straight_vertical.png',
-        WallPattern.STRAIGHT_HORIZONTAL: 'wall_straight_horizontal.png',
-        WallPattern.CORNER_BOTTOM: 'wall_corner_bottom.png',  # Базовый: пол снизу и справа
-        WallPattern.CORNER_TOP: 'wall_corner_top.png',  # Базовый: пол сверху и справа
-        WallPattern.T_SHAPE_NORTH: 'wall_t_up.png',
-        WallPattern.T_SHAPE_SOUTH: 'wall_t_down.png',
-        WallPattern.T_SHAPE_SIDE: 'wall_t_side.png',
-        WallPattern.CROSS: 'wall_cross.png',
-        WallPattern.DEAD_END_NORTH: 'wall_dead_end_up.png',
-        WallPattern.DEAD_END_OTHER: 'wall_dead_end_other.png',
-        WallPattern.SINGLE: 'wall_single.png'
+        WallPattern.SINGLE: 'wall_single.png',
+        WallPattern.STRAIGHT: 'wall_straight.png',
+        WallPattern.STRAIGHT_SOUTH: 'wall_straight_south.png',
+        WallPattern.CORNER: 'wall_corner.png',
+        WallPattern.CORNER_SOUTH: 'wall_corner_south.png'
     }
 
     for pattern, filename in tile_files.items():
@@ -93,3 +87,37 @@ def load_wall_tiles():
                 print(f"Ошибка загрузки {filename}: {e}")
 
     return wall_tiles
+
+
+class Transformer:
+    """
+    Умеет кешировать отражённые и повёрнутые спрайты. Не требует больше одной инстанции
+    """
+    flipped_cache = {}
+    rotated_cache = {}
+
+    def get_flipped(self, sprite, flip_x=False, flip_y=False):
+        """Получение отражённого спрайта"""
+        cache_key = (sprite, flip_x, flip_y)
+
+        if cache_key not in self.flipped_cache:
+            if flip_x or flip_y:
+                flipped = pygame.transform.flip(sprite, flip_x, flip_y)
+                self.flipped_cache[cache_key] = flipped
+            else:
+                self.flipped_cache[cache_key] = sprite
+
+        return self.flipped_cache[cache_key]
+
+    def get_rotated(self, sprite, rotation=0):
+        """Получение повёрнутого спрайта"""
+        cache_key = (sprite, rotation)
+
+        if cache_key not in self.rotated_cache:
+            if rotation != 0:
+                rotated = pygame.transform.rotate(sprite, -rotation)
+                self.rotated_cache[cache_key] = rotated
+            else:
+                self.rotated_cache[cache_key] = sprite
+
+        return self.rotated_cache[cache_key]

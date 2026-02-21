@@ -2,14 +2,14 @@ from typing import Any
 
 
 class Dialogue:
-    text: list[str]
+    lines: list[str]
     character: str
     starts_challenge: str | None
     choice_dict: dict[str, Any]
 
-    def __init__(self, text: list[str], character: str, starts_challenge: str = None) -> None:
+    def __init__(self, lines: list[str], character: str, starts_challenge: str = None):
         # Переменные конкретного диалога
-        self.text = text
+        self.lines = lines
         self.character = character
         self.starts_challenge = starts_challenge
         self.choice_dict = {}

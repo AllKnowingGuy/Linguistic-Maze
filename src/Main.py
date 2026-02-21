@@ -31,11 +31,11 @@ class Main:
 
         self.maze = MazeState.MazeState()
         # добавляйте другие состояния таким же образом (не забудьте об уважении к другим, давая названия переменным)
+
         self.maze.setup_maze(31, 19,
                              (Border.WEST, Border.EAST),
                              (1, 17),
                              True, True)
-
         self.current_state = State.MAZE
 
     def handle_input(self):
@@ -59,9 +59,8 @@ class Main:
 
     def run(self):
         """Главный цикл игры"""
-        self.maze.precalculate_walls()
-
-        clock = pygame.time.Clock()
+        # TODO: check how clock works and if Main's clock is enough
+        # clock = pygame.time.Clock()
         running = True
 
         while running:
@@ -77,14 +76,12 @@ class Main:
                                              (Border.WEST, Border.EAST),
                                              (1, 17),
                                              True, True)
-                        self.maze.wall_cache.clear()
-                        self.maze.precalculate_walls()
 
             self.handle_input()
             self.draw()
             if self.maze.check_win():
                 running = False
-            clock.tick(10)
+            self.clock.tick(10)
 
         pygame.quit()
         sys.exit()

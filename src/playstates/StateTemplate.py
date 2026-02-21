@@ -3,7 +3,7 @@
 """
 
 import pygame
-from src import AssetsLoading
+from src import AssetsCreation
 """
 В AssetsLoading нужно будет написать функции для загрузки нужных ассетов,
 если вы не переиспользуете ассеты из других состояний
