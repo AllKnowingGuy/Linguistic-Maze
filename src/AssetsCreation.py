@@ -1,8 +1,10 @@
 import os
 import pygame
 
-from src.Util import WallPattern, SCREEN_WIDTH, SCREEN_HEIGHT, TILE_SIZE
+from src.Util import * # screw it - Vsevolod
 
+
+# TODO: rewrite all functions to use templates for loading 1 or multiple assets, there's code duplication EVERYWHERE!
 
 """
 Для MazeState
@@ -145,6 +147,32 @@ def load_character_speak_sprite():
     except Exception as e:
         print(f"Ошибка загрузки monster.png: {e}")
     return char_speaks
+
+
+def load_choice_buttons():
+    """Загрузка всех вариантов кнопки"""
+    buttons_path = '../assets/dialogue/buttons'
+    buttons = {}
+
+    button_files = {
+        ButtonType.REGULAR: 'choice_button.png',
+        ButtonType.HOVERED: 'choice_button_hovered.png',
+        ButtonType.PRESSED: 'choice_button_pressed.png'
+    }
+
+    for pattern, filename in button_files.items():
+        filepath = os.path.join(buttons_path, filename)
+
+        if os.path.exists(filepath):
+            try:
+                button = pygame.image.load(filepath)
+                button = pygame.transform.scale(button, (CHOICE_BUTTON_SIZE, CHOICE_BUTTON_SIZE))
+                buttons[pattern] = button
+                print(f"Загружен {filename}")
+            except Exception as e:
+                print(f"Ошибка загрузки {filename}: {e}")
+
+    return buttons
 
 
 class Transformer:

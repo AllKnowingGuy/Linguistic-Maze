@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-02-23 - Interactive dialogue update
+
+- Implemented choice buttons and input field for dialogues (choice and input saving is on the way)
+- Implemented mouse event handling in Main.py and playstates
+- Optimized pressed key checks, now they activate on corresponding game events and not everytime
+- Temporarily made the maze character only move on key presses and not holds (as a result of the previous change)
+- Set FPS to stable 60 to prevent button lightening lag and reduce wait time between maze character movements
+- Made keypad and mouse handling functions able to send commands to the main game loop, just like execute functions
+
 ## 2026-02-22 - Poly-logue update
 
 - Implemented dialogue drawing and by-letter text outputting (inputting is on the way), as well as proper dialogue initiation

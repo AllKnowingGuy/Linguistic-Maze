@@ -22,14 +22,15 @@ pygame.init()
 dialogue_text = """left\tnoaction\tЯ студент и я умею говорить; только не знаю, что сказать(
 right\tnoaction\tА я монстр, но я пока не знаю, как меня зовут.
 left\tnoaction\tО, зато я знаю, сейчас скажу)
-nochar\tsavetyped\tА как зовут монстра? Напишите ответ: здесь есть (нет) поле ввода
-nochar\tchoosefrom{Да, Нет}\tВы уверены, что это правда?"""
+nochar\tsavetyped\tА как зовут монстра? Напишите ответ: здесь есть (ура) поле ввода
+nochar\tchoosefrom{Да, Нет}\tВы уверены, что это правда?
+right\tnoaction\tСпасибо! ^-^"""
 
 
 class Main:
     current_state_type: StateType
     current_state: BaseState
-    framerate: int = 10
+    framerate: int = 60
 
     def __init__(self):
         self.running = True
@@ -45,12 +46,12 @@ class Main:
         # добавляйте другие состояния таким же образом (не забудьте отредактировать associate_current_state!)
 
         # Текущее состояние (пока игра в нём, ей неважно, что происходит в других состояниях)
-        self.current_state_type = StateType.DIALOGUE # StateType.MAZE
+        self.current_state_type = StateType.MAZE # StateType.MAZE
         self.associate_current_state()
 
         # TODO: create a game script in a different file to set up stages and change current state following the plot
         self.maze.setup_maze(31, 19, (Border.WEST, Border.EAST), (1, 17), True, True)
-        self.dialogue.setup_dialogue(dialogue_text.split('\n'), 'Говорящий монстр')
+        # self.dialogue.setup_dialogue(dialogue_text.split('\n'), 'Говорящий монстр')
 
     def associate_current_state(self):
         """Добавление текущего состояния в специальную переменную для полиморфного использования"""
@@ -59,11 +60,25 @@ class Main:
         elif self.current_state_type == StateType.DIALOGUE:
             self.current_state = self.dialogue
 
-    def handle_input(self):
+    def handle_input(self, event):
         """Обработка ввода с клавиатуры"""
         # TODO: create customizable keybinds
-        keys = pygame.key.get_pressed()
-        self.current_state.handle_input(keys)
+        pressed_keys = pygame.key.get_pressed()
+        supposed_command = self.current_state.handle_input(event, pressed_keys)
+        return supposed_command
+
+    def handle_mouse_motion(self):
+        """Обработка движений курсора"""
+        # TODO: try to optimise
+        mouse_pos = pygame.mouse.get_pos()
+        supposed_command = self.current_state.handle_mouse_motion(mouse_pos)
+        return supposed_command
+
+    def handle_mouse_click(self):
+        """Обработка щелчка ЛКМ"""
+        pressed_buttons = pygame.mouse.get_pressed()
+        supposed_command = self.current_state.handle_mouse_click(pressed_buttons)
+        return supposed_command
 
     def draw(self):
         """Отрисовка игры"""
@@ -74,7 +89,7 @@ class Main:
     def run(self):
         """Главный цикл игры"""
 
-        def process_command(command: tuple[Command, int]):
+        def process_command(command: tuple[Command, int] | None):
             """
             Игровые состояния могут отправлять команды главному циклу (грубо говоря, игровому окну).
             Эта функция позволяет обрабатывать такие команды в разные моменты обновления окна.
@@ -92,8 +107,10 @@ class Main:
                 # Обработка выхода из игры
                 if event.type == pygame.QUIT:
                     running = False
+
+                # Обработка нажатий кнопок
                 elif event.type == pygame.KEYDOWN:
-                    # Обработка выхода через кнопку Esc
+                    # Выход через кнопку Esc
                     if event.key == pygame.K_ESCAPE:
                         running = False
 
@@ -104,8 +121,18 @@ class Main:
                                              (1, 17),
                                              True, True)
 
-            # Обработка прочих нажатых кнопок
-            self.handle_input()
+                    # Прочие кнопки
+                    process_command(self.handle_input(event))
+
+                # Обработка движения мыши
+                elif event.type == pygame.MOUSEMOTION:
+                    if self.current_state_type == StateType.DIALOGUE: # не проверяем мышь, когда она не используется
+                        process_command(self.handle_mouse_motion())
+
+                # Обработка щелчка мышью
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    if self.current_state_type == StateType.DIALOGUE: # не проверяем мышь, когда она не используется
+                        process_command(self.handle_mouse_click())
 
             # Прорисовка
             process_command(self.current_state.execute_before_draw())
@@ -115,6 +142,8 @@ class Main:
             # Временная проверка прохождения
             if self.current_state_type == StateType.MAZE and self.maze.check_win():
                 running = False
+
+            # Обновление всего, что на экране
             self.clock.tick(self.framerate)
 
         pygame.quit()

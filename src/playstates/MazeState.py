@@ -156,18 +156,18 @@ class MazeState(BaseState):
     Переписанные функции состояния
     """
 
-    def handle_input(self, keys):
+    def handle_input(self, event, pressed_keys):
         """Обработка кнопок перемещения"""
         # TODO: for real make keybind customization
         new_pos = list(self.player_pos)
 
-        if keys[pygame.K_LEFT] or keys[pygame.K_a]:
+        if pressed_keys[pygame.K_LEFT] or pressed_keys[pygame.K_a]:
             new_pos[0] -= 1
-        if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
+        if pressed_keys[pygame.K_RIGHT] or pressed_keys[pygame.K_d]:
             new_pos[0] += 1
-        if keys[pygame.K_UP] or keys[pygame.K_w]:
+        if pressed_keys[pygame.K_UP] or pressed_keys[pygame.K_w]:
             new_pos[1] -= 1
-        if keys[pygame.K_DOWN] or keys[pygame.K_s]:
+        if pressed_keys[pygame.K_DOWN] or pressed_keys[pygame.K_s]:
             new_pos[1] += 1
 
         nx, ny = new_pos

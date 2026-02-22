@@ -4,6 +4,7 @@ from enum import Enum
 SCREEN_WIDTH = 1400
 SCREEN_HEIGHT = 650
 TILE_SIZE = 25
+CHOICE_BUTTON_SIZE = 30
 
 
 class Command(Enum):
@@ -28,3 +29,10 @@ class Border(Enum):
     WEST = 'WEST'  # Левая граница
     EAST = 'EAST'  # Правая граница
     SOUTH = 'SOUTH'  # "Нижняя" граница
+
+
+class ButtonType(Enum):
+    """Состояния кнопки"""
+    REGULAR = 1
+    HOVERED = 2
+    PRESSED = 3
