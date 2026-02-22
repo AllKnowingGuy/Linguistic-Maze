@@ -22,19 +22,19 @@ class Maze:
         self.end_door = Tile()
 
         for door_ind, door in enumerate(((self.start, self.start_door), (self.end, self.end_door))):
-            if doors_near_borders[door_ind].value == Border.WEST.value:
+            if doors_near_borders[door_ind].name == Border.WEST.name:
                 door[0].x = 1
                 door[1].x = 0
                 door[0].y = door[1].y = other_door_coords[door_ind]
-            elif doors_near_borders[door_ind].value == Border.EAST.value:
+            elif doors_near_borders[door_ind].name == Border.EAST.name:
                 door[0].x = self.width - 2
                 door[1].x = self.width - 1
                 door[0].y = door[1].y = other_door_coords[door_ind]
-            elif doors_near_borders[door_ind].value == Border.NORTH.value:
+            elif doors_near_borders[door_ind].name == Border.NORTH.name:
                 door[0].x = door[1].x = other_door_coords[door_ind]
                 door[0].y = 1
                 door[1].y = 0
-            elif doors_near_borders[door_ind].value == Border.SOUTH.value:
+            elif doors_near_borders[door_ind].name == Border.SOUTH.name:
                 door[0].x = door[1].x = other_door_coords[door_ind]
                 door[0].y = self.height - 2
                 door[1].y = self.height - 1

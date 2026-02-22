@@ -1,11 +1,12 @@
 import os
 import pygame
 
-from src.Util import WallPattern
+from src.Util import WallPattern, SCREEN_WIDTH, SCREEN_HEIGHT, TILE_SIZE
 
 
-# Константы
-TILE_SIZE = 25 # чем меньше, тем мельче клетки, и тем больше их может уместиться на экране
+"""
+Для MazeState
+"""
 
 
 def load_entrance_exit_tiles():
@@ -87,6 +88,63 @@ def load_wall_tiles():
                 print(f"Ошибка загрузки {filename}: {e}")
 
     return wall_tiles
+
+
+"""
+Для DialogueState
+"""
+
+
+def load_dialogue_bg():
+    """Загрузка фона диалога"""
+    bg_path = '../assets/dialogue/bg.png'
+    dialogue_bg = None
+    try:
+        dialogue_bg = pygame.image.load(bg_path)
+        dialogue_bg = pygame.transform.scale(dialogue_bg, (SCREEN_WIDTH, SCREEN_HEIGHT))
+        print("Загружен bg.png")
+    except Exception as e:
+        print(f"Ошибка загрузки bg.png: {e}")
+    return dialogue_bg
+
+
+def load_dialogue_box():
+    """Загрузка диалоговой плашки"""
+    box_path = '../assets/dialogue/box.png'
+    dialogue_box = None
+    try:
+        dialogue_box = pygame.image.load(box_path)
+        dialogue_box = pygame.transform.scale(dialogue_box, (SCREEN_WIDTH, SCREEN_HEIGHT // 2))
+        print("Загружен box.png")
+    except Exception as e:
+        print(f"Ошибка загрузки box.png: {e}")
+    return dialogue_box
+
+
+def load_player_speak_sprite():
+    """Загрузка диалоговой плашки"""
+    player_path = '../assets/dialogue/student.png' # TODO: rename (or not)
+    player_speaks = None
+    try:
+        player_speaks = pygame.image.load(player_path)
+        player_speaks = pygame.transform.scale(player_speaks, (300, 400))
+        print("Загружен student.png")
+    except Exception as e:
+        print(f"Ошибка загрузки student.png: {e}")
+    return player_speaks
+
+
+def load_character_speak_sprite():
+    """Загрузка диалоговой плашки"""
+    char_path = '../assets/dialogue/monster.png' # TODO: make the function scan the folder with characters (like in wall loading)
+    char_speaks = None
+    try:
+        char_speaks = pygame.image.load(char_path)
+        char_speaks = pygame.transform.scale(char_speaks, (300, 400))
+        print("Загружен monster.png")
+    except Exception as e:
+        print(f"Ошибка загрузки monster.png: {e}")
+    return char_speaks
 
 
 class Transformer:

@@ -1,28 +1,30 @@
 import pygame
 
 from src.levelBuilding import Maze
-from src.Util import WallPattern, Border
+from src.Util import WallPattern, Border, TILE_SIZE
 from src import AssetsCreation
 from src.AssetsCreation import Transformer
-
-
-# Константы
-TILE_SIZE = 25 # чем меньше, тем мельче клетки, и тем больше их может уместиться на экране
+from src.playstates.BaseState import BaseState
 
 
 # Трансформер спрайтов
 transformer = Transformer()
 
 
-class MazeState:
+class MazeState(BaseState):
     maze: Maze.Maze
     player_pos: list[int]
 
     def __init__(self):
         """Загрузка изображений для отрисовки и создание кеша трансформированных изображений"""
 
-        # Базовые тайлы
-        self.base_tiles = AssetsCreation.load_wall_tiles()
+        # Inheritance is so stupid, the super class contains literally nothing - Vsevolod
+        super().__init__()
+
+        # Тайлы для основания и границ стен
+        self.wall_tiles = AssetsCreation.load_wall_tiles()
+
+        # Тайл для пола
         self.floor_tile = AssetsCreation.load_floor_tile()
 
         # Тайлы для входа и выхода
@@ -30,12 +32,6 @@ class MazeState:
 
         # Тайл для игрока
         self.player_tile = AssetsCreation.load_player_tile()
-
-        # Кэш для отражённых тайлов
-        self.flipped_cache = {}
-
-        # Кэш для повёрнутых тайлов
-        self.rotated_cache = {}
 
         # Кэш для стен
         self.wall_cache = {}
@@ -50,6 +46,7 @@ class MazeState:
         self.maze.generate_maze(more_random, curving)
         self.player_pos = [self.maze.start.x, self.maze.start.y]
 
+        # Кеширование стен для отрисовки
         self.wall_cache.clear()
         self.precalculate_walls()
 
@@ -130,10 +127,10 @@ class MazeState:
             if p_id == 0:
                 # Копирование основания стены, чтобы границы всех стен не наложились на одну
                 base_tile_copy = pygame.Surface((TILE_SIZE, TILE_SIZE), pygame.SRCALPHA)
-                base_tile_copy.blit(self.base_tiles[patterns[p_id]], (0, 0))
+                base_tile_copy.blit(self.wall_tiles[patterns[p_id]], (0, 0))
                 layers.append(base_tile_copy)
             else:
-                tile = self.base_tiles[patterns[p_id]]
+                tile = self.wall_tiles[patterns[p_id]]
                 if rotations[p_id] == 0:
                     layers.append(transformer.get_flipped(tile, x_flips[p_id]))
                 else:
@@ -156,11 +153,12 @@ class MazeState:
                     self.wall_cache[cache_key] = self.get_transformed_tile(patterns, x_flips, rotations)
 
     """
-    Базовые функции состояния
+    Переписанные функции состояния
     """
 
     def handle_input(self, keys):
-        """Обработка ввода с клавиатуры"""
+        """Обработка кнопок перемещения"""
+        # TODO: for real make keybind customization
         new_pos = list(self.player_pos)
 
         if keys[pygame.K_LEFT] or keys[pygame.K_a]:
@@ -179,6 +177,8 @@ class MazeState:
     def draw(self, screen):
         """Отрисовка лабиринта"""
 
+        # TODO: make camera move along with the character for mazes that exceed screen bounds
+
         # Отрисовываем пол
         for y in range(self.maze.height):
             for x in range(self.maze.width):
@@ -189,10 +189,6 @@ class MazeState:
             for x in range(self.maze.width):
                 if self.maze.pattern[y][x] == 1:
                     cache_key = (x, y)
-                    if cache_key not in self.wall_cache: # TODO: should this thing care about caching if precalculate_walls exists?
-                        patterns, x_flips, rotations = self.get_wall_patterns_and_transforms(x, y)
-                        self.wall_cache[cache_key] = self.get_transformed_tile(patterns, x_flips, rotations)
-
                     screen.blit(self.wall_cache[cache_key], (x * TILE_SIZE, y * TILE_SIZE))
 
         # Отрисовываем вход и выход
