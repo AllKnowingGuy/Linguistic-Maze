@@ -22,16 +22,16 @@ class MazeState(BaseState):
         super().__init__()
 
         # Тайлы для основания и границ стен
-        self.wall_tiles = AssetsCreation.load_wall_tiles()
+        self.wall_tiles = AssetsCreation.add_wall_tiles()
 
         # Тайл для пола
-        self.floor_tile = AssetsCreation.load_floor_tile()
+        self.floor_tile = AssetsCreation.add_floor_tile()
 
         # Тайлы для входа и выхода
-        self.entrance_tile, self.exit_tile = AssetsCreation.load_entrance_exit_tiles()
+        self.entrance_tile, self.exit_tile = AssetsCreation.add_entrance_exit_tiles()
 
         # Тайл для игрока
-        self.player_tile = AssetsCreation.load_player_tile()
+        self.player_tile = AssetsCreation.add_player_tile()
 
         # Кэш для стен
         self.wall_cache = {}

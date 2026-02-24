@@ -82,19 +82,19 @@ class DialogueState(BaseState):
         self.current_input_text = ''
 
         # Фон диалога
-        self.dialogue_bg = AssetsCreation.load_dialogue_bg()
+        self.dialogue_bg = AssetsCreation.add_dialogue_bg()
 
         # Плашка диалога
-        self.dialogue_box = AssetsCreation.load_dialogue_box()
+        self.dialogue_box = AssetsCreation.add_dialogue_box()
 
         # Игрок
-        self.left_speaker = AssetsCreation.load_player_speak_sprite()
+        self.left_speaker = AssetsCreation.add_player_speak_sprite()
 
         # Собеседник
-        self.right_speaker = AssetsCreation.load_character_speak_sprite()
+        self.right_speaker = AssetsCreation.add_character_speak_sprite()
 
         # Кнопки выбора
-        self.choice_buttons = AssetsCreation.load_choice_buttons()
+        self.choice_buttons = AssetsCreation.add_choice_buttons()
 
         # Шрифт диалога
         # TODO: it's probably better to create this in Main where Pygame is initiated

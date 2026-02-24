@@ -4,71 +4,59 @@ import pygame
 from src.Util import * # screw it - Vsevolod
 
 
-# TODO: rewrite all functions to use templates for loading 1 or multiple assets, there's code duplication EVERYWHERE!
+def load_one_object(path: str, width: float, height: float):
+    loaded_object = None
+    try:
+        loaded_object = pygame.image.load(path)
+        loaded_object = pygame.transform.scale(loaded_object, (width, height))
+        print(f"Загружен {path}")
+    except Exception as e:
+        print(f"Ошибка загрузки {path}: {e}")
+    return loaded_object
+
+
+def load_all_objects(root_path: str, path_map: dict[Enum, str], widths_heights_map: dict[Enum, tuple[float, float]]):
+    loaded_objects = {}
+    for obj_type, filename in path_map.items():
+        filepath = os.path.join(root_path, filename)
+        if os.path.exists(filepath):
+            width, height = widths_heights_map[obj_type]
+            image = load_one_object(filepath, width, height)
+            loaded_objects[obj_type] = image
+    return loaded_objects
+
 
 """
 Для MazeState
 """
 
 
-def load_entrance_exit_tiles():
+def add_entrance_exit_tiles():
     """Загрузка кастомных изображений для входа и выхода"""
 
-    # Загрузка изображения входа
     entrance_path = '../assets/tiles/entrance.png'
-    entrance_tile = None
-    try:
-        entrance_tile = pygame.image.load(entrance_path)
-        entrance_tile = pygame.transform.scale(entrance_tile, (TILE_SIZE, TILE_SIZE))
-        print("Загружен entrance.png")
-    except Exception as e:
-        print(f"Ошибка загрузки entrance.png: {e}")
-
-    # Загрузка изображения выхода
+    entrance_tile = load_one_object(entrance_path, TILE_SIZE, TILE_SIZE)
     exit_path = '../assets/tiles/exit.png'
-    exit_tile = None
-    try:
-        exit_tile = pygame.image.load(exit_path)
-        exit_tile = pygame.transform.scale(exit_tile, (TILE_SIZE, TILE_SIZE))
-        print("Загружен exit.png")
-    except Exception as e:
-        print(f"Ошибка загрузки exit.png: {e}")
-        # TODO: maybe remove try-except and let players use their brain
+    exit_tile = load_one_object(exit_path, TILE_SIZE, TILE_SIZE)
 
     return entrance_tile, exit_tile
 
 
-def load_player_tile():
+def add_player_tile():
     """Загрузка тайла игрока"""
     player_path = '../assets/tiles/player.png'
-    player_tile = None
-    try:
-        player_tile = pygame.image.load(player_path)
-        player_tile = pygame.transform.scale(player_tile, (TILE_SIZE, TILE_SIZE))
-        print("Загружен player.png")
-    except Exception as e:
-        print(f"Ошибка загрузки player.png: {e}")
-    return player_tile
+    return load_one_object(player_path, TILE_SIZE, TILE_SIZE)
 
 
-def load_floor_tile():
+def add_floor_tile():
     """Загрузка тайла пола"""
     floor_path = '../assets/tiles/floor.png'
-    floor_tile = None
-    try:
-        floor_tile = pygame.image.load(floor_path)
-        floor_tile = pygame.transform.scale(floor_tile, (TILE_SIZE, TILE_SIZE))
-        print("Загружен floor.png")
-    except Exception as e:
-        print(f"Ошибка загрузки floor.png: {e}")
-    return floor_tile
+    return load_one_object(floor_path, TILE_SIZE, TILE_SIZE)
 
 
-def load_wall_tiles():
+def add_wall_tiles():
     """Загрузка тайлов стен"""
     tiles_path = '../assets/tiles/walls'
-    wall_tiles = {}
-
     tile_files = {
         WallPattern.SINGLE: 'wall_single.png',
         WallPattern.STRAIGHT: 'wall_straight.png',
@@ -76,20 +64,14 @@ def load_wall_tiles():
         WallPattern.CORNER: 'wall_corner.png',
         WallPattern.CORNER_SOUTH: 'wall_corner_south.png'
     }
-
-    for pattern, filename in tile_files.items():
-        filepath = os.path.join(tiles_path, filename)
-
-        if os.path.exists(filepath):
-            try:
-                image = pygame.image.load(filepath)
-                image = pygame.transform.scale(image, (TILE_SIZE, TILE_SIZE))
-                wall_tiles[pattern] = image
-                print(f"Загружен {filename}")
-            except Exception as e:
-                print(f"Ошибка загрузки {filename}: {e}")
-
-    return wall_tiles
+    tile_sizes = {
+        WallPattern.SINGLE: (TILE_SIZE, TILE_SIZE),
+        WallPattern.STRAIGHT: (TILE_SIZE, TILE_SIZE),
+        WallPattern.STRAIGHT_SOUTH: (TILE_SIZE, TILE_SIZE),
+        WallPattern.CORNER: (TILE_SIZE, TILE_SIZE),
+        WallPattern.CORNER_SOUTH: (TILE_SIZE, TILE_SIZE)
+    }
+    return load_all_objects(tiles_path, tile_files, tile_sizes)
 
 
 """
@@ -97,82 +79,44 @@ def load_wall_tiles():
 """
 
 
-def load_dialogue_bg():
+def add_dialogue_bg():
     """Загрузка фона диалога"""
     bg_path = '../assets/dialogue/bg.png'
-    dialogue_bg = None
-    try:
-        dialogue_bg = pygame.image.load(bg_path)
-        dialogue_bg = pygame.transform.scale(dialogue_bg, (SCREEN_WIDTH, SCREEN_HEIGHT))
-        print("Загружен bg.png")
-    except Exception as e:
-        print(f"Ошибка загрузки bg.png: {e}")
-    return dialogue_bg
+    return load_one_object(bg_path, SCREEN_WIDTH, SCREEN_HEIGHT)
 
 
-def load_dialogue_box():
+def add_dialogue_box():
     """Загрузка диалоговой плашки"""
     box_path = '../assets/dialogue/box.png'
-    dialogue_box = None
-    try:
-        dialogue_box = pygame.image.load(box_path)
-        dialogue_box = pygame.transform.scale(dialogue_box, (SCREEN_WIDTH, SCREEN_HEIGHT // 2))
-        print("Загружен box.png")
-    except Exception as e:
-        print(f"Ошибка загрузки box.png: {e}")
-    return dialogue_box
+    return load_one_object(box_path, SCREEN_WIDTH, SCREEN_HEIGHT // 2)
 
 
-def load_player_speak_sprite():
+def add_player_speak_sprite():
     """Загрузка диалоговой плашки"""
     player_path = '../assets/dialogue/student.png' # TODO: rename (or not)
-    player_speaks = None
-    try:
-        player_speaks = pygame.image.load(player_path)
-        player_speaks = pygame.transform.scale(player_speaks, (300, 400))
-        print("Загружен student.png")
-    except Exception as e:
-        print(f"Ошибка загрузки student.png: {e}")
-    return player_speaks
+    return load_one_object(player_path, 300, 400)
 
 
-def load_character_speak_sprite():
+def add_character_speak_sprite():
     """Загрузка диалоговой плашки"""
     char_path = '../assets/dialogue/monster.png' # TODO: make the function scan the folder with characters (like in wall loading)
-    char_speaks = None
-    try:
-        char_speaks = pygame.image.load(char_path)
-        char_speaks = pygame.transform.scale(char_speaks, (300, 400))
-        print("Загружен monster.png")
-    except Exception as e:
-        print(f"Ошибка загрузки monster.png: {e}")
-    return char_speaks
+    return load_one_object(char_path, 300, 400)
 
 
-def load_choice_buttons():
+def add_choice_buttons():
     """Загрузка всех вариантов кнопки"""
     buttons_path = '../assets/dialogue/buttons'
-    buttons = {}
-
     button_files = {
         ButtonType.REGULAR: 'choice_button.png',
         ButtonType.HOVERED: 'choice_button_hovered.png',
         ButtonType.PRESSED: 'choice_button_pressed.png'
     }
-
-    for pattern, filename in button_files.items():
-        filepath = os.path.join(buttons_path, filename)
-
-        if os.path.exists(filepath):
-            try:
-                button = pygame.image.load(filepath)
-                button = pygame.transform.scale(button, (CHOICE_BUTTON_SIZE, CHOICE_BUTTON_SIZE))
-                buttons[pattern] = button
-                print(f"Загружен {filename}")
-            except Exception as e:
-                print(f"Ошибка загрузки {filename}: {e}")
-
-    return buttons
+    button_sizes = {
+        ButtonType.REGULAR: (CHOICE_BUTTON_SIZE, CHOICE_BUTTON_SIZE),
+        ButtonType.HOVERED: (CHOICE_BUTTON_SIZE, CHOICE_BUTTON_SIZE),
+        ButtonType.PRESSED: (CHOICE_BUTTON_SIZE, CHOICE_BUTTON_SIZE)
+    }
+    return load_all_objects(buttons_path, button_files, button_sizes)
 
 
 class Transformer:
