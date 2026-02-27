@@ -34,9 +34,9 @@ def load_all_objects(root_path: str, path_map: dict[Enum, str], widths_heights_m
 def add_entrance_exit_tiles():
     """Загрузка кастомных изображений для входа и выхода"""
 
-    entrance_path = '../assets/tiles/entrance.png'
+    entrance_path = '..\\assets\\tiles\\entrance.png'
     entrance_tile = load_one_object(entrance_path, TILE_SIZE, TILE_SIZE)
-    exit_path = '../assets/tiles/exit.png'
+    exit_path = '..\\assets\\tiles\\exit.png'
     exit_tile = load_one_object(exit_path, TILE_SIZE, TILE_SIZE)
 
     return entrance_tile, exit_tile
@@ -44,19 +44,19 @@ def add_entrance_exit_tiles():
 
 def add_player_tile():
     """Загрузка тайла игрока"""
-    player_path = '../assets/tiles/player.png'
+    player_path = '..\\assets\\tiles\\player.png'
     return load_one_object(player_path, TILE_SIZE, TILE_SIZE)
 
 
 def add_floor_tile():
     """Загрузка тайла пола"""
-    floor_path = '../assets/tiles/floor.png'
+    floor_path = '..\\assets\\tiles\\floor.png'
     return load_one_object(floor_path, TILE_SIZE, TILE_SIZE)
 
 
 def add_wall_tiles():
     """Загрузка тайлов стен"""
-    tiles_path = '../assets/tiles/walls'
+    tiles_path = '..\\assets\\tiles\\walls'
     tile_files = {
         WallPattern.SINGLE: 'wall_single.png',
         WallPattern.STRAIGHT: 'wall_straight.png',
@@ -81,31 +81,31 @@ def add_wall_tiles():
 
 def add_dialogue_bg():
     """Загрузка фона диалога"""
-    bg_path = '../assets/dialogue/bg.png'
+    bg_path = '..\\assets\\dialogue\\bg.png'
     return load_one_object(bg_path, SCREEN_WIDTH, SCREEN_HEIGHT)
 
 
 def add_dialogue_box():
     """Загрузка диалоговой плашки"""
-    box_path = '../assets/dialogue/box.png'
+    box_path = '..\\assets\\dialogue\\box.png'
     return load_one_object(box_path, SCREEN_WIDTH, SCREEN_HEIGHT // 2)
 
 
 def add_player_speak_sprite():
     """Загрузка диалоговой плашки"""
-    player_path = '../assets/dialogue/student.png' # TODO: rename (or not)
+    player_path = '..\\assets\\dialogue\\student.png' # TODO: rename (or not)
     return load_one_object(player_path, 300, 400)
 
 
 def add_character_speak_sprite():
     """Загрузка диалоговой плашки"""
-    char_path = '../assets/dialogue/monster.png' # TODO: make the function scan the folder with characters (like in wall loading)
+    char_path = '..\\assets\\dialogue\\monster.png' # TODO: make the function scan the folder with characters (like in wall loading)
     return load_one_object(char_path, 300, 400)
 
 
 def add_choice_buttons():
     """Загрузка всех вариантов кнопки"""
-    buttons_path = '../assets/dialogue/buttons'
+    buttons_path = '..\\assets\\dialogue\\buttons'
     button_files = {
         ButtonType.REGULAR: 'choice_button.png',
         ButtonType.HOVERED: 'choice_button_hovered.png',

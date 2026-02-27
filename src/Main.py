@@ -46,12 +46,12 @@ class Main:
         # добавляйте другие состояния таким же образом (не забудьте отредактировать associate_current_state!)
 
         # Текущее состояние (пока игра в нём, ей неважно, что происходит в других состояниях)
-        self.current_state_type = StateType.MAZE # StateType.MAZE
+        self.current_state_type = StateType.DIALOGUE # StateType.MAZE
         self.associate_current_state()
 
         # TODO: create a game script in a different file to set up stages and change current state following the plot
         self.maze.setup_maze(31, 19, (Border.WEST, Border.EAST), (1, 17), True, True)
-        # self.dialogue.setup_dialogue(dialogue_text.split('\n'), 'Говорящий монстр')
+        self.dialogue.setup_dialogue(dialogue_text.split('\n'), 'Говорящий монстр')
 
     def associate_current_state(self):
         """Добавление текущего состояния в специальную переменную для полиморфного использования"""
@@ -139,8 +139,12 @@ class Main:
             self.draw()
             process_command(self.current_state.execute_after_draw())
 
-            # Временная проверка прохождения
+            # Временная проверка прохождения лабиринта
             if self.current_state_type == StateType.MAZE and self.maze.check_win():
+                running = False
+
+            # Временная проверка завершения диалога
+            if self.current_state_type == StateType.DIALOGUE and self.dialogue.finished:
                 running = False
 
             # Обновление всего, что на экране

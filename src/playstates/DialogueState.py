@@ -16,7 +16,7 @@ TEXT_X = 100
 TEXT_Y = SCREEN_HEIGHT // 2 + 100
 CHOICE_BUTTON_X = 100
 CHOICE_BUTTON_Y = SCREEN_HEIGHT // 2 + 160
-CHOICE_BUTTON_DIST = CHOICE_BUTTON_SIZE + 10
+CHOICE_BUTTON_DIST = CHOICE_BUTTON_SIZE + 10 # расстояние между кнопками выбора
 
 
 class Awaiting(Enum):
@@ -31,55 +31,31 @@ class Speaker(Enum):
     RIGHT = 3
 
 
-# Code that might be too useful to remove - Vsevolod
-"""
-# Поле ввода
-input_rect = pygame.Rect(30, SCREEN_HEIGHT // 2 + 30, 140, 32)
-text_surface = base_font.render(user_text, True, (255, 255, 255))
-"""
-
-"""
-stopped = False
-user_text = ''
-while not stopped:
-    for event in pygame.event.get():
-        if event.type == pygame.KEYDOWN:
-            # Check for backspace
-            if event.key == pygame.K_BACKSPACE:
-                user_text = user_text[:-1]
-            # Check for enter
-            elif event.key == pygame.K_RETURN:
-                stopped = True
-            # Unicode standard is used for string formation
-            else:
-                user_text += event.unicode
-        draw()
-return user_text
-"""
-
-
 class DialogueState(BaseState):
     dialogue: Dialogue.Dialogue
     current_line_ind: int
+    current_line: str
     playing_line: bool = False
     line_cursor: int
     cursor_sym: str
+    current_choice_options: list
+    choice_button_states: list
 
     def __init__(self):
         """Загрузка изображений для отрисовки и создание шрифтов"""
         super().__init__()
 
         # Атрибуты, меняющиеся с каждой строчкой диалогового файла
-        self.finished = False
+        self.finished = False # показатель того, что диалог закончился
+        self.now_speaking = Speaker.NO_ONE # кто говорит текущую строчку
+        self.awaiting = Awaiting.CONTINUE # действие игрока после выведения строчки
+        # self.current_line = ''
 
-        self.now_speaking = Speaker.NO_ONE
-        self.awaiting = Awaiting.CONTINUE
-        self.current_line = ''
-
-        self.current_choice_options = []
+        # Состояния кнопок
         self.choice_button_states = [] # необходимо очищать каждый раз, когда нажимается кнопка
 
-        self.current_input_text = ''
+        # Текст поля ввода
+        self.current_input_text = '' # необходимо очищать каждый раз, когда нажимается кнопка
 
         # Фон диалога
         self.dialogue_bg = AssetsCreation.add_dialogue_bg()
@@ -141,28 +117,16 @@ class DialogueState(BaseState):
 
         if action == 'savetyped':
             self.awaiting = Awaiting.INPUT
-            # our_answer = self.input_line()
-            # while not len(our_answer.strip()):
-            #     self.output_line('Пожалуйста, введите что-нибудь внятное: ')
-            #     our_answer = self.input_line()
-            # self.dialogue.choice_dict[real_text] = our_answer #TODO: better save naming
-
         elif action[:10] == 'choosefrom' and action[10] == '{' and action[-1] == '}':
+            # получаем варианты ответа и создаём список кнопок
             self.current_choice_options = action[11:-1].split(', ')
             for _ in self.current_choice_options:
                 self.choice_button_states.append(ButtonType.REGULAR)
             self.awaiting = Awaiting.CHOOSE
-            # self.output_line('\n')
-            # for chid, choice in enumerate(choices):
-            #     self.output_line(str(chid + 1) + ': ' + choice + '\n')
-            # our_choice = ''
-            # while not our_choice.isdigit(): #TODO: check if the digit is no larger than the number of choices
-            #     self.output_line('Пожалуйста, введите цифру ответа: ')
-            #     our_choice = self.input_line()
-            # self.dialogue.choice_dict[real_text] = our_choice #TODO: better save naming
-
-        else:
+        elif action == 'noaction':
             self.awaiting = Awaiting.CONTINUE
+        else:
+            raise ValueError('Invalid dialogue format or this action cannot be processed')
 
     """
     Переписанные функции состояния
@@ -173,8 +137,10 @@ class DialogueState(BaseState):
 
         if not self.finished and not self.playing_line and not self.awaiting.name == Awaiting.CHOOSE.name:
             if event.key == pygame.K_RETURN:
+                if self.awaiting.name == Awaiting.INPUT.name:
+                    self.dialogue.saved_inputs[self.current_line] = self.current_input_text
+                    self.current_input_text = ''
                 self.advance()
-                # TODO: implement input saving in input mode
             elif self.awaiting.name == Awaiting.INPUT.name:
                 if event.key == pygame.K_BACKSPACE:
                     self.current_input_text = self.current_input_text[:-1]
@@ -203,7 +169,8 @@ class DialogueState(BaseState):
             if pressed_buttons[0] and b_state == ButtonType.HOVERED:
                 # TODO: rework to not press the button by running into it with LMB pressed
                 # self.choice_button_states[b_ind] = ButtonType.PRESSED
-                self.advance()  # TODO: implement choice saving
+                self.dialogue.saved_choices[self.current_line] = self.current_choice_options[b_ind]
+                self.advance()
                 self.choice_button_states.clear()
 
     def draw(self, screen):
