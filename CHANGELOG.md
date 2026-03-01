@@ -1,4 +1,7 @@
 # Changelog
+## 2026-03-01
+
+- KolkiRik joined the project
 
 ## 2026-02-27
 
