@@ -33,37 +33,38 @@ class Speaker(Enum):
 
 class DialogueState(BaseState):
     dialogue: Dialogue.Dialogue
+    finished: bool
+
     current_line_ind: int
     current_line: str
+    now_speaking: Speaker
+    awaiting: Awaiting
+
     playing_line: bool = False
     line_cursor: int
     cursor_sym: str
+
     current_choice_options: list
     choice_button_states: list
 
     def __init__(self):
-        """Загрузка изображений для отрисовки и создание шрифтов"""
+        """Задание некоторых атрибутов, загрузка изображений для отрисовки и создание шрифтов"""
         super().__init__()
 
-        # Атрибуты, меняющиеся с каждой строчкой диалогового файла
-        self.finished = False # показатель того, что диалог закончился
-        self.now_speaking = Speaker.NO_ONE # кто говорит текущую строчку
-        self.awaiting = Awaiting.CONTINUE # действие игрока после выведения строчки
-        # self.current_line = ''
-
         # Состояния кнопок
-        self.choice_button_states = [] # необходимо очищать каждый раз, когда нажимается кнопка
+        self.choice_button_states = [] # необходимо очищать каждый раз, когда нажимаем кнопку
 
         # Текст поля ввода
-        self.current_input_text = '' # необходимо очищать каждый раз, когда нажимается кнопка
+        self.current_input_text = '' # необходимо очищать каждый раз, когда нажимаем Enter
 
+        """Графика"""
         # Фон диалога
         self.dialogue_bg = AssetsCreation.add_dialogue_bg()
 
         # Плашка диалога
         self.dialogue_box = AssetsCreation.add_dialogue_box()
 
-        # Игрок
+        # Студент
         self.left_speaker = AssetsCreation.add_player_speak_sprite()
 
         # Собеседник
@@ -77,6 +78,9 @@ class DialogueState(BaseState):
         self.dialogue_font = pygame.font.Font(None, 35)
 
     def setup_dialogue(self, lines: list[str], character: str = 'foobar', starts_challenge: str = None):
+        """Задание структурных данных диалога, сброс параметров проигрывания"""
+        # TODO: enable switching to a preloaded dialogue and specifying current line index
+
         self.dialogue = Dialogue.Dialogue(lines, character, starts_challenge)
         self.finished = False
         self.current_line_ind = 0
@@ -87,7 +91,11 @@ class DialogueState(BaseState):
         self.line_cursor = 0
         self.cursor_sym = ''
 
+        return self.dialogue
+
     def advance(self, jump_to: int = None):
+        """Продвижение диалога на одну строчку или на определённую позицию"""
+
         if jump_to:
             self.current_line_ind = jump_to
         else:
@@ -98,14 +106,19 @@ class DialogueState(BaseState):
             self.line_cursor = 0
 
     def get_line_fields(self):
+        """Получение данных из строчки диалогового файла"""
+
+        # Когда перебрали все строчки, завершаем диалог
         if self.finished or self.current_line_ind >= len(self.dialogue.lines):
             self.finished = True
             return
 
+        # Извлекаем данные
         char = self.dialogue.get_line_speaker(self.current_line_ind)
         action = self.dialogue.get_line_action(self.current_line_ind)
         self.current_line = self.dialogue.get_line_text(self.current_line_ind)
 
+        # Преобразуем данные в формат, поддерживаемый DialogueState
         if char == 'left':
             self.now_speaking = Speaker.LEFT
         elif char == 'right':
@@ -135,17 +148,24 @@ class DialogueState(BaseState):
     def handle_input(self, event, pressed_keys):
         """Обработка ввода с клавиатуры и нажатия Enter для продолжения"""
 
+        # Ограничения (диалог не завершён и не печатается, не требуется нажать на кнопку мышкой)
         if not self.finished and not self.playing_line and not self.awaiting.name == Awaiting.CHOOSE.name:
+            # Нажатие пробела
             if event.key == pygame.K_RETURN:
                 if self.awaiting.name == Awaiting.INPUT.name:
                     self.dialogue.saved_inputs[self.current_line] = self.current_input_text
                     self.current_input_text = ''
                 self.advance()
+                return (Command.CHECK_PROGRESS, None),
+
+            # Нажатие других кнопок (когда есть поле ввода)
             elif self.awaiting.name == Awaiting.INPUT.name:
                 if event.key == pygame.K_BACKSPACE:
                     self.current_input_text = self.current_input_text[:-1]
                 else:
                     self.current_input_text = self.current_input_text + event.unicode
+
+        return None # bruuuh - Vsevolod
 
     def handle_mouse_motion(self, mouse_pos):
         """Обработка наведения курсора на кнопки выбора"""
@@ -165,13 +185,16 @@ class DialogueState(BaseState):
     def handle_mouse_click(self, pressed_buttons):
         """Обработка нажатия на кнопки выбора"""
 
-        for b_ind, b_state in enumerate(self.choice_button_states):
-            if pressed_buttons[0] and b_state == ButtonType.HOVERED:
-                # TODO: rework to not press the button by running into it with LMB pressed
-                # self.choice_button_states[b_ind] = ButtonType.PRESSED
-                self.dialogue.saved_choices[self.current_line] = self.current_choice_options[b_ind]
-                self.advance()
-                self.choice_button_states.clear()
+        if not self.playing_line and self.awaiting.name == Awaiting.CHOOSE.name:
+            for b_ind, b_state in enumerate(self.choice_button_states):
+                if pressed_buttons[0] and b_state == ButtonType.HOVERED:
+                    # TODO: rework to not press the button by running into it with LMB pressed
+                    self.choice_button_states[b_ind] = ButtonType.PRESSED
+                    self.dialogue.saved_choices[self.current_line] = self.current_choice_options[b_ind]
+                    self.advance()
+                    self.choice_button_states.clear() # TODO: clear later to let button press animation play
+                    return (Command.CHECK_PROGRESS, None),
+        return None
 
     def draw(self, screen):
         """Отрисовка диалога"""
@@ -196,6 +219,7 @@ class DialogueState(BaseState):
 
             # Отрисовываем кнопки выбора (если они есть)
             if self.awaiting.name == Awaiting.CHOOSE.name:
+                # TODO: make this a separate function and add multi-column placement if more than 3 buttons
                 for b_ind in range(len(self.current_choice_options)):
 
                     # Сами кнопки
@@ -209,18 +233,20 @@ class DialogueState(BaseState):
 
             # Отрисовываем вводимый текст (если можно вводить)
             if self.awaiting.name == Awaiting.INPUT.name:
-                input_text_sprite = self.dialogue_font.render(' - ' + self.current_input_text, True, (0, 0, 0))
+                # TODO: make BG for input field?
+                input_text_sprite = self.dialogue_font.render(' - Ввод: ' + self.current_input_text, True, (0, 0, 0))
                 screen.blit(input_text_sprite, (TEXT_X, TEXT_Y + 100))
 
     def execute_after_draw(self):
         """Регулировка скорости печатания и пауз по аналогии с паузами в речи"""
         # TODO: what if we put special symbols in the dialogue that won't be printed but will change talking speed?
+
         if self.playing_line:
             # TODO: try avoiding time.wait
             if self.cursor_sym in '.?!':
-                return Command.WAIT, SENTENCE_END_HOLD
-            elif self.cursor_sym in ':;': # i thought it would look fine with commas - Vsevolod
-                return Command.WAIT, PHRASE_END_HOLD
+                return (Command.WAIT, SENTENCE_END_HOLD),
+            elif self.cursor_sym in ':;':
+                return (Command.WAIT, PHRASE_END_HOLD),
         return None
 
     """
@@ -228,6 +254,8 @@ class DialogueState(BaseState):
     """
 
     def draw_text_by_letter(self, screen):
+        """Приятный глазу эффект выведения текста по буковке"""
+
         if self.line_cursor == len(self.current_line):
             self.playing_line = False
         else:

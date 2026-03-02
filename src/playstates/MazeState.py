@@ -1,7 +1,7 @@
 import pygame
 
 from src.levelBuilding import Maze
-from src.Util import WallPattern, Border, TILE_SIZE
+from src.Util import Command, WallPattern, Border, TILE_SIZE
 from src import AssetsCreation
 from src.AssetsCreation import Transformer
 from src.playstates.BaseState import BaseState
@@ -40,7 +40,8 @@ class MazeState(BaseState):
                    doors_near_borders: tuple = (Border.WEST, Border.EAST),
                    other_door_coords: tuple[int, int] = (1, 1),
                    more_random: bool = False, curving: bool = False):
-        """Инициация структурных данных лабиринта и его генерация, задание позиции игрока"""
+        """Задание структурных данных лабиринта и его генерация, задание позиции игрока"""
+        # TODO: enable switching to a preloaded maze and specifying player position
 
         self.maze = Maze.Maze(width, height, doors_near_borders, other_door_coords)
         self.maze.generate_maze(more_random, curving)
@@ -49,6 +50,8 @@ class MazeState(BaseState):
         # Кеширование стен для отрисовки
         self.wall_cache.clear()
         self.precalculate_walls()
+
+        return self.maze
 
     def check_win(self):
         # Проверка победы
@@ -174,6 +177,8 @@ class MazeState(BaseState):
         if (0 <= nx < self.maze.width and 0 <= ny < self.maze.height) and self.maze.pattern[ny][nx] == 0:
             self.player_pos = new_pos
 
+        return (Command.CHECK_PROGRESS, None),
+
     def draw(self, screen):
         """Отрисовка лабиринта"""
 
@@ -199,9 +204,6 @@ class MazeState(BaseState):
                          (self.player_pos[0] * TILE_SIZE,
                           self.player_pos[1] * TILE_SIZE))
 
-        if self.check_win():
-            self.show_win_message(screen)
-
     """
     Вспомогательные функции для отрисовки
     """
@@ -217,8 +219,8 @@ class MazeState(BaseState):
         screen.blit(self.exit_tile,
                          (self.maze.end_door.x * TILE_SIZE, self.maze.end_door.y * TILE_SIZE))
 
+    """
     def show_win_message(self, screen):
-        """Показ сообщения о победе"""
         width = screen.get_width()
         height = screen.get_height()
 
@@ -239,29 +241,4 @@ class MazeState(BaseState):
         pygame.display.flip()
 
         pygame.time.wait(1500)
-
-        # Temporarily disabled this for multimodule game testing - Vsevolod
-        """
-        # Создание нового лабиринта
-        other_side_border: dict[str, str] = {'LEFT': 'RIGHT', 'UP': 'DOWN', 'RIGHT': 'LEFT', 'DOWN': 'UP'}
-        start_near_border = random.choice(list(other_side_border.keys()))
-
-        other_start_coord = random.randint(1,
-                                           (self.maze.width
-                                            if start_near_border in ('LEFT', 'RIGHT')
-                                            else self.maze.height) - 2)
-        if other_start_coord % 2 == 0: other_start_coord -= 1
-        other_end_coord = random.randint(1,
-                                        (self.maze.width
-                                        if start_near_border in ('LEFT', 'RIGHT')
-                                        else self.maze.height) - 2)
-        if other_end_coord % 2 == 0: other_end_coord -= 1
-
-        self.maze = Maze.Maze(self.maze.width, self.maze.height,
-                              (start_near_border, other_side_border[start_near_border]),
-                              (other_start_coord, other_end_coord))
-        self.maze = self.maze.generate_maze(more_random=True)
-        self.player_pos = [self.maze.start.x, self.maze.start.y]
-
-        self.wall_cache.clear()
-        """
+    """
