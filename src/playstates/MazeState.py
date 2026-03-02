@@ -185,6 +185,7 @@ class MazeState(BaseState):
         # TODO: make camera move along with the character for mazes that exceed screen bounds
 
         # Отрисовываем пол
+        # TODO: check if there's no wall to not draw the floor under walls (it's not seen anyway)
         for y in range(self.maze.height):
             for x in range(self.maze.width):
                 screen.blit(self.floor_tile, (x * TILE_SIZE, y * TILE_SIZE))

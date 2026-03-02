@@ -11,6 +11,15 @@
 - Added docstrings and todos to some modules
 - Made **CHANGELOG** and **README** look prettier and updated some of their info
 
+## 2026-02-27
+
+- Implemented choice and input saving to the Dialogue class (preformed in DialogueState)
+- Changed slashes to backslashes in AssetsCreation paths
+
+## 2026-02-25
+
+- Reorganized AssetsCreation.py to reduce code duplication
+
 ## 2026-02-23 - Interactive dialogue update
 
 - Implemented **choice buttons** and **input field** for dialogues (choice and input saving is on the way)
