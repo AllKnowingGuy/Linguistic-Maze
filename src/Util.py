@@ -1,17 +1,33 @@
 from enum import Enum
 
+"""
+Для всей игры
+"""
 
 SCREEN_WIDTH = 1400
 SCREEN_HEIGHT = 650
-TILE_SIZE = 25
-CHOICE_BUTTON_SIZE = 30
+
+
+class StateType(Enum):
+    """Тип состояний, в которых находится игра"""
+    MAZE = 1
+    DIALOGUE = 2
+    CHALLENGE = 3
 
 
 class Command(Enum):
     """Команды циклу игры"""
     STOP = 1 # Прекратить себя
-    WAIT = 2 # Временно перестать реагировать
-    SET_FPS = 3 # Изменить частоту реагирования
+    WAIT = 2 # Временно перестать обновляться
+    SET_FPS = 3 # Изменить частоту обновления
+    CHECK_PROGRESS = 4 # Проверить и обновить прогресс
+
+
+"""
+Для Maze и MazeState
+"""
+
+TILE_SIZE = 25
 
 
 class WallPattern(Enum):
@@ -29,6 +45,13 @@ class Border(Enum):
     WEST = 'WEST'  # Левая граница
     EAST = 'EAST'  # Правая граница
     SOUTH = 'SOUTH'  # "Нижняя" граница
+
+
+"""
+Для Dialogue и DialogueState
+"""
+
+CHOICE_BUTTON_SIZE = 30
 
 
 class ButtonType(Enum):
