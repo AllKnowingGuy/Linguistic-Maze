@@ -150,7 +150,7 @@ class DialogueState(BaseState):
 
         # Ограничения (диалог не завершён и не печатается, не требуется нажать на кнопку мышкой)
         if not self.finished and not self.playing_line and not self.awaiting.name == Awaiting.CHOOSE.name:
-            # Нажатие пробела
+            # Нажатие Enter
             if event.key == pygame.K_RETURN:
                 if self.awaiting.name == Awaiting.INPUT.name:
                     self.dialogue.saved_inputs[self.current_line] = self.current_input_text
