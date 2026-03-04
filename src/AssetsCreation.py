@@ -31,32 +31,32 @@ def load_all_objects(root_path: str, path_map: dict[Enum, str], widths_heights_m
 """
 
 
-def add_entrance_exit_tiles():
+def add_entrance_exit_tiles(level=1):
     """Загрузка кастомных изображений для входа и выхода"""
 
-    entrance_path = '..\\assets\\tiles\\entrance.png'
+    entrance_path = f'..\\assets\\tiles\\level_{level}\\entrance.png'
     entrance_tile = load_one_object(entrance_path, TILE_SIZE, TILE_SIZE)
-    exit_path = '..\\assets\\tiles\\exit.png'
+    exit_path = f'..\\assets\\tiles\\level_{level}\\exit.png'
     exit_tile = load_one_object(exit_path, TILE_SIZE, TILE_SIZE)
 
     return entrance_tile, exit_tile
 
 
-def add_player_tile():
+def add_player_tile(level=1):
     """Загрузка тайла игрока"""
-    player_path = '..\\assets\\tiles\\player.png'
+    player_path = f'..\\assets\\tiles\\level_{level}\\player.png'
     return load_one_object(player_path, TILE_SIZE, TILE_SIZE)
 
 
-def add_floor_tile():
+def add_floor_tile(level=1):
     """Загрузка тайла пола"""
-    floor_path = '..\\assets\\tiles\\floor.png'
+    floor_path = f'..\\assets\\tiles\\level_{level}\\floor.png'
     return load_one_object(floor_path, TILE_SIZE, TILE_SIZE)
 
 
-def add_wall_tiles():
+def add_wall_tiles(level=1):
     """Загрузка тайлов стен"""
-    tiles_path = '..\\assets\\tiles\\walls'
+    tiles_path = f'..\\assets\\tiles\\level_{level}\\walls'
     tile_files = {
         WallPattern.SINGLE: 'wall_single.png',
         WallPattern.STRAIGHT: 'wall_straight.png',

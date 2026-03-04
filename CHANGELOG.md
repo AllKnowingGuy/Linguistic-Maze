@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-03-04 - Multiple levels update
+
+- Multiple levels with different skins is now possible
+- `StoryScript` now takes note of the levels already completed
+- `MazeState` now has a set_level() method, as well as self.current_level added to __init__which takes not of the current level and changes the set of tiles needed for it
+- Each function in `AssetCreation` now has a level parameter associated with it
+- Directory changes: asset/tiles -> asset/tiles/level_[1,2,3...] 
+
 ## 2026-03-03 - True story update
 
 - Created `StoryScript.py` for defining how the story should go, in what order states are switched and how special actions are processed
