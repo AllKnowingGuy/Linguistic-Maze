@@ -7,8 +7,12 @@ class BaseState:
     Базовые функции состояния
     """
 
-    def handle_input(self, event, pressed_keys):
+    def handle_input(self, event):
         """Обработка нажатия кнопок"""
+        pass
+
+    def handle_hold_input(self, pressed_keys):
+        """Обработка нажатия и удержания кнопок"""
         pass
 
     def handle_mouse_motion(self, mouse_pos):

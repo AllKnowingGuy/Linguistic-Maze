@@ -43,8 +43,13 @@ class Main: # TODO: maybe rename to Game
     def handle_input(self, event):
         """Обработка ввода с клавиатуры"""
         # TODO: create customizable keybinds
+        supposed_commands = self.current_state.handle_input(event)
+        return supposed_commands
+
+    def handle_hold_input(self):
+        """Обработка зажатых кнопок"""
         pressed_keys = pygame.key.get_pressed()
-        supposed_commands = self.current_state.handle_input(event, pressed_keys)
+        supposed_commands = self.current_state.handle_hold_input(pressed_keys)
         return supposed_commands
 
     def handle_mouse_motion(self):
@@ -69,6 +74,8 @@ class Main: # TODO: maybe rename to Game
 
     def run(self):
         """Главный цикл игры"""
+
+        pressed_btns_amount = 0
 
         def process_commands(commands: tuple[tuple[Command, int] | None]):
             """
@@ -97,6 +104,7 @@ class Main: # TODO: maybe rename to Game
 
                 # Обработка нажатий кнопок
                 elif event.type == pygame.KEYDOWN:
+                    pressed_btns_amount += 1
 
                     # Выход через кнопку Esc
                     # TODO: change to exit with Close button instead of Esc
@@ -105,6 +113,11 @@ class Main: # TODO: maybe rename to Game
 
                     # Прочие кнопки
                     process_commands(self.handle_input(event))
+
+                # Обработка отпусков кнопок
+                elif event.type == pygame.KEYUP:
+                    pressed_btns_amount -= 1
+                    # TODO: maybe add playstate release handling but I don't see how it could be used
 
                 # Обработка движения мыши
                 elif event.type == pygame.MOUSEMOTION:
@@ -115,6 +128,10 @@ class Main: # TODO: maybe rename to Game
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     if self.current_state_type == StateType.DIALOGUE: # не проверяем мышь, когда она не используется
                         process_commands(self.handle_mouse_click())
+
+            # Обработка держания кнопок
+            if pressed_btns_amount > 0:
+                process_commands(self.handle_hold_input())
 
             # Прорисовка
             process_commands(self.current_state.execute_before_draw())

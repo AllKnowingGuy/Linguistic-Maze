@@ -145,7 +145,7 @@ class DialogueState(BaseState):
     Переписанные функции состояния
     """
 
-    def handle_input(self, event, pressed_keys):
+    def handle_input(self, event):
         """Обработка ввода с клавиатуры и нажатия Enter для продолжения"""
 
         # Ограничения (диалог не завершён и не печатается, не требуется нажать на кнопку мышкой)

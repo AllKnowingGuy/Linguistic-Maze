@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-03 - Smooth walking update
+
+- Reimplemented held button processing in form of a `handle_hold_input` function for playstates
+- Revamped maze player position system, it is now based on screen pixels rather than maze structure coordinates
+- Made the maze player "slide" through the maze when holding buttons
+- Made player size different from tile size
+
 ## 2026-03-03 - True story update
 
 - Created `StoryScript.py` for defining how the story should go, in what order states are switched and how special actions are processed
