@@ -148,6 +148,10 @@ class DialogueState(BaseState):
     def handle_input(self, event):
         """Обработка ввода с клавиатуры и нажатия Enter для продолжения"""
 
+        # Вывод всего сообщения сразу
+        if self.playing_line and event.key ==pygame.K_ESCAPE:
+            self.line_cursor = len(self.current_line)
+
         # Ограничения (диалог не завершён и не печатается, не требуется нажать на кнопку мышкой)
         if not self.finished and not self.playing_line and not self.awaiting.name == Awaiting.CHOOSE.name:
             # Нажатие Enter
