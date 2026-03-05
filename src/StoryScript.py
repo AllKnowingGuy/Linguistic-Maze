@@ -25,7 +25,7 @@ right\tnoaction\tНу давай, пока!"""
 
 class StoryScript:
     def __init__(self):
-        self.current_level = 1 # Yeah, levels are in here
+        self.current_level = 1 # Yeah, levels are in here - Nikita
         self.progress = {
             'started_game': False,
             'answered_intro_question': False,
@@ -34,7 +34,7 @@ class StoryScript:
             'finished_outro': False,
             'level_1_completed': False,
             'level_2_completed': False,
-            'level_3_completed': False # Could make a dictionary for levels completed but im not sure for now
+            'level_3_completed': False # Could make a dictionary for levels completed but im not sure for now - Nikita
         }
 
         # Объекты в порядке следования
@@ -91,7 +91,7 @@ class StoryScript:
                 elif self.intro_said_no:
                     game.running = False
 
-        # Когда игрок в тестовом лабиринте
+        # Когда игрок в одном из тестовых лабиринтов
         if (self.progress['finished_intro']
             and game.current_state_type.name == StateType.MAZE.name
             and game.maze_manager.maze is self.maze):
@@ -107,9 +107,9 @@ class StoryScript:
                     self.outro = game.dialogue_manager.setup_dialogue(outro_dialogue_text.split('\n'), 'Говорящий монстр')
                     game.associate_current_state()
                 else:
-                    #Going to the next level
+                    # Going to the next level
                     self.current_level += 1
-                    # Seva what do I put here I don't know the character has amnesia and is meeting the same monster for now
+                    # Seva what do I put here I don't know the character has amnesia and is meeting the same monster for now - Nikita
                     game.current_state_type = StateType.DIALOGUE
                     self.intro = game.dialogue_manager.setup_dialogue(intro_dialogue_text.split('\n'),
                                                                       'Говорящий монстр')

@@ -45,7 +45,7 @@ def add_entrance_exit_tiles(level=1):
 def add_player_tile(level=1):
     """Загрузка тайла игрока"""
     player_path = f'..\\assets\\tiles\\level_{level}\\player.png'
-    return load_one_object(player_path, TILE_SIZE, TILE_SIZE)
+    return load_one_object(player_path, PLAYER_SIZE, PLAYER_SIZE)
 
 
 def add_floor_tile(level=1):

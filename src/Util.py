@@ -9,7 +9,7 @@ SCREEN_HEIGHT = 650
 
 
 class StateType(Enum):
-    """Тип состояний, в которых находится игра"""
+    """Типы состояний, в которых находится игра"""
     MAZE = 1
     DIALOGUE = 2
     CHALLENGE = 3
@@ -28,6 +28,7 @@ class Command(Enum):
 """
 
 TILE_SIZE = 25
+PLAYER_SIZE = 15
 
 
 class WallPattern(Enum):

@@ -1,7 +1,7 @@
 import pygame
 
 from src.levelBuilding import Maze
-from src.Util import Command, WallPattern, Border, TILE_SIZE
+from src.Util import Command, WallPattern, Border, TILE_SIZE, PLAYER_SIZE
 from src import AssetsCreation
 from src.AssetsCreation import Transformer
 from src.playstates.BaseState import BaseState
@@ -11,9 +11,13 @@ from src.playstates.BaseState import BaseState
 transformer = Transformer()
 
 
+# Константы
+HALF_PLAYER = PLAYER_SIZE / 2
+
+
 class MazeState(BaseState):
     maze: Maze.Maze
-    player_pos: list[int]
+    player_pos: list[int] # в целых пикселях, так как дроби в Python дают огромные погрешности
     current_level: int
 
     def __init__(self):
@@ -22,7 +26,7 @@ class MazeState(BaseState):
         # Inheritance is so stupid, the super class contains literally nothing - Vsevolod
         super().__init__()
 
-        # Current level, wow, who could have thought
+        # Текущий уровень
         self.current_level = 1
 
         # Тайлы для основания и границ стен. Используют именно current level
@@ -64,7 +68,8 @@ class MazeState(BaseState):
 
         self.maze = Maze.Maze(width, height, doors_near_borders, other_door_coords)
         self.maze.generate_maze(more_random, curving)
-        self.player_pos = [self.maze.start.x, self.maze.start.y]
+        self.player_pos = [int((self.maze.start.x + 0.5) * TILE_SIZE),
+                           int((self.maze.start.y + 0.5) * TILE_SIZE)]
 
         # Кеширование стен для отрисовки
         self.wall_cache.clear()
@@ -74,7 +79,8 @@ class MazeState(BaseState):
 
     def check_win(self):
         # Проверка победы
-        return self.player_pos[0] == self.maze.end_door.x and self.player_pos[1] == self.maze.end_door.y
+        return (self.maze.end_door.x <= self.player_pos[0] // TILE_SIZE <= self.maze.end_door.x + 1
+                and self.maze.end_door.y <= self.player_pos[1] // TILE_SIZE <= self.maze.end_door.y + 1)
 
     """
     Функции модификации и кеширования тайлов
@@ -178,22 +184,41 @@ class MazeState(BaseState):
     Переписанные функции состояния
     """
 
-    def handle_input(self, event, pressed_keys):
+    def handle_hold_input(self, pressed_keys):
         """Обработка кнопок перемещения"""
         # TODO: for real make keybind customization
         new_pos = list(self.player_pos)
+        move_by = 3
 
         if pressed_keys[pygame.K_LEFT] or pressed_keys[pygame.K_a]:
-            new_pos[0] -= 1
+            new_pos[0] -= move_by
         if pressed_keys[pygame.K_RIGHT] or pressed_keys[pygame.K_d]:
-            new_pos[0] += 1
+            new_pos[0] += move_by
         if pressed_keys[pygame.K_UP] or pressed_keys[pygame.K_w]:
-            new_pos[1] -= 1
+            new_pos[1] -= move_by
         if pressed_keys[pygame.K_DOWN] or pressed_keys[pygame.K_s]:
-            new_pos[1] += 1
+            new_pos[1] += move_by
 
         nx, ny = new_pos
-        if (0 <= nx < self.maze.width and 0 <= ny < self.maze.height) and self.maze.pattern[ny][nx] == 0:
+        if 0 <= nx < self.maze.width * TILE_SIZE - PLAYER_SIZE and 0 <= ny < self.maze.height * TILE_SIZE - PLAYER_SIZE:
+            x_relative = nx % TILE_SIZE
+            y_relative = ny % TILE_SIZE
+            nx_tile = nx // TILE_SIZE
+            ny_tile = ny // TILE_SIZE
+            nx_tile_neighbor = (nx_tile - 1 if x_relative < HALF_PLAYER
+                       else nx_tile + 1 if x_relative > TILE_SIZE - HALF_PLAYER
+                       else nx_tile)
+            ny_tile_neighbor = (ny_tile - 1 if y_relative < HALF_PLAYER
+                       else ny_tile + 1 if y_relative > TILE_SIZE - HALF_PLAYER
+                       else ny_tile)
+            for x in (nx_tile_neighbor, nx_tile):
+                if not self.maze.pattern[self.player_pos[1] // TILE_SIZE][int(x)] == 0:
+                    new_pos[0] = self.player_pos[0]
+                    break
+            for y in (ny_tile_neighbor, ny_tile):
+                if not self.maze.pattern[int(y)][self.player_pos[0] // TILE_SIZE] == 0:
+                    new_pos[1] = self.player_pos[1]
+                    break
             self.player_pos = new_pos
 
         return (Command.CHECK_PROGRESS, None),
@@ -203,26 +228,22 @@ class MazeState(BaseState):
 
         # TODO: make camera move along with the character for mazes that exceed screen bounds
 
-        # Отрисовываем пол
-        # TODO: check if there's no wall to not draw the floor under walls (it's not seen anyway)
-        for y in range(self.maze.height):
-            for x in range(self.maze.width):
-                screen.blit(self.floor_tile, (x * TILE_SIZE, y * TILE_SIZE))
-
-        # Отрисовываем стены
+        # Отрисовываем пол и стены
         for y in range(self.maze.height):
             for x in range(self.maze.width):
                 if self.maze.pattern[y][x] == 1:
+                    # в этой клетке стена
                     cache_key = (x, y)
                     screen.blit(self.wall_cache[cache_key], (x * TILE_SIZE, y * TILE_SIZE))
+                else:
+                    # в этой клетке пол
+                    screen.blit(self.floor_tile, (x * TILE_SIZE, y * TILE_SIZE))
 
         # Отрисовываем вход и выход
         self.draw_exits(screen)
 
         # Отрисовываем игрока (поверх всего!)
-        screen.blit(self.player_tile,
-                         (self.player_pos[0] * TILE_SIZE,
-                          self.player_pos[1] * TILE_SIZE))
+        screen.blit(self.player_tile, ((self.player_pos[0]) - HALF_PLAYER, (self.player_pos[1]) - HALF_PLAYER))
 
     """
     Вспомогательные функции для отрисовки
