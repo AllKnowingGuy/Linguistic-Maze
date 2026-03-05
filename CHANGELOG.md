@@ -6,6 +6,8 @@
 - Revamped maze player position system, it is now based on screen pixels rather than maze structure coordinates
 - Made the maze player "slide" through the maze when holding buttons
 - Made player size different from tile size
+- Dialogues now stop playing output animation and show the text entirely when pressing Esc
+- The main game loop now terminates when closing the window rather than pressing Esc
 
 ## 2026-03-04 - Multiple levels update
 

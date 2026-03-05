@@ -99,19 +99,12 @@ class Main: # TODO: maybe rename to Game
         while self.running: # как только running станет False, игра закроется в конце итерации
             for event in pygame.event.get():
                 # Обработка выхода из игры
-                if event.type == pygame.QUIT:
+                if event.type in (pygame.QUIT, pygame.WINDOWCLOSE):
                     self.running = False
 
                 # Обработка нажатий кнопок
                 elif event.type == pygame.KEYDOWN:
                     pressed_btns_amount += 1
-
-                    # Выход через кнопку Esc
-                    # TODO: change to exit with Close button instead of Esc
-                    if event.key == pygame.K_ESCAPE:
-                        self.running = False
-
-                    # Прочие кнопки
                     process_commands(self.handle_input(event))
 
                 # Обработка отпусков кнопок
