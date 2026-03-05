@@ -25,12 +25,16 @@ right\tnoaction\tНу давай, пока!"""
 
 class StoryScript:
     def __init__(self):
+        self.current_level = 1 # Yeah, levels are in here - Nikita
         self.progress = {
             'started_game': False,
             'answered_intro_question': False,
             'finished_intro': False,
             'passed_maze': False,
-            'finished_outro': False
+            'finished_outro': False,
+            'level_1_completed': False,
+            'level_2_completed': False,
+            'level_3_completed': False # Could make a dictionary for levels completed but im not sure for now - Nikita
         }
 
         # Объекты в порядке следования
@@ -80,23 +84,36 @@ class StoryScript:
                 if self.intro_said_yes:
                     self.progress['finished_intro'] = True
                     game.current_state_type = StateType.MAZE
+                    game.maze_manager.set_level(self.current_level)
                     self.maze = game.maze_manager.setup_maze(31, 19, (Border.WEST, Border.EAST), (1, 17), True, True)
                     game.associate_current_state()
                 # Если игрок выбрал "Нет" - завершение игры
                 elif self.intro_said_no:
                     game.running = False
 
-        # Когда игрок в тестовом лабиринте
+        # Когда игрок в одном из тестовых лабиринтов
         if (self.progress['finished_intro']
             and game.current_state_type.name == StateType.MAZE.name
             and game.maze_manager.maze is self.maze):
 
             # Когда игрок прошёл тестовый лабиринт - переход к концовке
             if game.maze_manager.check_win():
-                self.progress['passed_maze'] = True
-                game.current_state_type = StateType.DIALOGUE
-                self.outro = game.dialogue_manager.setup_dialogue(outro_dialogue_text.split('\n'), 'Говорящий монстр')
-                game.associate_current_state()
+                # Noting that the current level has been completed:
+                self.progress[f'level_{self.current_level}_completed'] = True
+                # Checking if it was the final level. Level 2 is final for now :)
+                if self.current_level >= 2:
+                    self.progress['passed_maze'] = True
+                    game.current_state_type = StateType.DIALOGUE
+                    self.outro = game.dialogue_manager.setup_dialogue(outro_dialogue_text.split('\n'), 'Говорящий монстр')
+                    game.associate_current_state()
+                else:
+                    # Going to the next level
+                    self.current_level += 1
+                    # Seva what do I put here I don't know the character has amnesia and is meeting the same monster for now - Nikita
+                    game.current_state_type = StateType.DIALOGUE
+                    self.intro = game.dialogue_manager.setup_dialogue(intro_dialogue_text.split('\n'),
+                                                                      'Говорящий монстр')
+                    game.associate_current_state()
 
         # Когда игрок на тестовой концовке
         if (self.progress['passed_maze']

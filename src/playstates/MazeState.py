@@ -18,6 +18,7 @@ HALF_PLAYER = PLAYER_SIZE / 2
 class MazeState(BaseState):
     maze: Maze.Maze
     player_pos: list[int] # в целых пикселях, так как дроби в Python дают огромные погрешности
+    current_level: int
 
     def __init__(self):
         """Загрузка изображений для отрисовки и создание кеша трансформированных изображений"""
@@ -25,20 +26,38 @@ class MazeState(BaseState):
         # Inheritance is so stupid, the super class contains literally nothing - Vsevolod
         super().__init__()
 
-        # Тайлы для основания и границ стен
-        self.wall_tiles = AssetsCreation.add_wall_tiles()
+        # Текущий уровень
+        self.current_level = 1
 
-        # Тайл для пола
-        self.floor_tile = AssetsCreation.add_floor_tile()
+        # Тайлы для основания и границ стен. Используют именно current level
+        self.wall_tiles = AssetsCreation.add_wall_tiles(self.current_level)
 
-        # Тайлы для входа и выхода
-        self.entrance_tile, self.exit_tile = AssetsCreation.add_entrance_exit_tiles()
+        # Тайл для пола. Используется именно current level
+        self.floor_tile = AssetsCreation.add_floor_tile(self.current_level)
 
-        # Тайл для игрока
-        self.player_tile = AssetsCreation.add_player_tile()
+        # Тайлы для входа и выхода. Используется именно current level
+        self.entrance_tile, self.exit_tile = AssetsCreation.add_entrance_exit_tiles(self.current_level)
+
+        # Тайл для игрока. Используется именно current level
+        self.player_tile = AssetsCreation.add_player_tile(self.current_level)
 
         # Кэш для стен
         self.wall_cache = {}
+
+    def set_level(self, level):
+        """Устанавливает уровень и перезагружает изображения"""
+        self.current_level = level
+        self.reload_tiles()
+        if hasattr(self, 'maze') and self.maze is not None: # Checks if the maze was succsesfully created I guess IM not sure
+            self.precalculate_walls()
+
+    def reload_tiles(self):
+        """Перезагрузка изображений для текущего уровня"""
+        self.wall_tiles = AssetsCreation.add_wall_tiles(self.current_level)
+        self.floor_tile = AssetsCreation.add_floor_tile(self.current_level)
+        self.entrance_tile, self.exit_tile = AssetsCreation.add_entrance_exit_tiles(self.current_level)
+        self.player_tile = AssetsCreation.add_player_tile(self.current_level)
+        self.wall_cache.clear()
 
     def setup_maze(self, width: int = 3, height: int = 3,
                    doors_near_borders: tuple = (Border.WEST, Border.EAST),

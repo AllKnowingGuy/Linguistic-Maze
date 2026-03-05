@@ -1,11 +1,19 @@
 # Changelog
 
-## 2026-05-03 - Smooth walking update
+## 2026-03-05 - Smooth walking update
 
 - Reimplemented held button processing in form of a `handle_hold_input` function for playstates
 - Revamped maze player position system, it is now based on screen pixels rather than maze structure coordinates
 - Made the maze player "slide" through the maze when holding buttons
 - Made player size different from tile size
+
+## 2026-03-04 - Multiple levels update
+
+- Creating multiple levels with different skins is now possible
+- `StoryScript` now takes note of the levels already completed
+- `MazeState` now has a `set_level()` method, as well as a `current_level` attribute, which take note of the current level and change the set of tiles needed for it
+- Each maze sprite function in `AssetCreation.py` now has a level parameter to load level skins
+- Directory changes: `assets/tiles` -> `assets/tiles/level_[1,2,3...]`
 
 ## 2026-03-03 - True story update
 
