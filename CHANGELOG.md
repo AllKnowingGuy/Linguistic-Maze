@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-03-06 - Camera follow update
+
+- Implemented drawn maze components shifting based on player's position to be able to see parts of large mazes that are initially offscreen
+- Fixed a bug where the maze player was able to slide into a wall when its center was between tiles
+- Made maze player's speed dependent on their size
+- Moved player position updating from `handle_input` to a new function
+- Added FPS info to the main display
+- Changed screen width and height, as well as maze player and tile sizes
+
 ## 2026-03-05 - Smooth walking update
 
 - Reimplemented held button processing in form of a `handle_hold_input` function for playstates

@@ -1,7 +1,7 @@
 import pygame
 
 from src.levelBuilding import Maze
-from src.Util import Command, WallPattern, Border, TILE_SIZE, PLAYER_SIZE
+from src.Util import Command, WallPattern, Border, TILE_SIZE, PLAYER_SIZE, SCREEN_WIDTH, SCREEN_HEIGHT
 from src import AssetsCreation
 from src.AssetsCreation import Transformer
 from src.playstates.BaseState import BaseState
@@ -13,6 +13,8 @@ transformer = Transformer()
 
 # Константы
 HALF_PLAYER = PLAYER_SIZE / 2
+HALF_WIDTH = SCREEN_WIDTH / 2
+HALF_HEIGHT = SCREEN_HEIGHT / 2
 
 
 class MazeState(BaseState):
@@ -46,13 +48,15 @@ class MazeState(BaseState):
 
     def set_level(self, level):
         """Устанавливает уровень и перезагружает изображения"""
+
         self.current_level = level
         self.reload_tiles()
-        if hasattr(self, 'maze') and self.maze is not None: # Checks if the maze was succsesfully created I guess IM not sure
+        if hasattr(self, 'maze') and self.maze is not None: # Проверка того, что в MazeState созданы данные лабиринта
             self.precalculate_walls()
 
     def reload_tiles(self):
         """Перезагрузка изображений для текущего уровня"""
+
         self.wall_tiles = AssetsCreation.add_wall_tiles(self.current_level)
         self.floor_tile = AssetsCreation.add_floor_tile(self.current_level)
         self.entrance_tile, self.exit_tile = AssetsCreation.add_entrance_exit_tiles(self.current_level)
@@ -64,7 +68,7 @@ class MazeState(BaseState):
                    other_door_coords: tuple[int, int] = (1, 1),
                    more_random: bool = False, curving: bool = False):
         """Задание структурных данных лабиринта и его генерация, задание позиции игрока"""
-        # TODO: enable switching to a preloaded maze and specifying player position
+        # TODO: maybe enable switching to a preloaded maze and specifying player position
 
         self.maze = Maze.Maze(width, height, doors_near_borders, other_door_coords)
         self.maze.generate_maze(more_random, curving)
@@ -110,36 +114,36 @@ class MazeState(BaseState):
         patterns = [WallPattern.SINGLE]
 
         # Определяем паттерн и трансформации
-        if north:  # Проход сверху
+        if north: # "Верхняя" граница стены
             patterns.append(WallPattern.STRAIGHT)
             x_flips.append(False)
             rotations.append(0)
-        if east:  # Проход справа
+        if east: # Правая граница стены
             patterns.append(WallPattern.STRAIGHT)
             x_flips.append(False)
             rotations.append(90)
-        if west:  # Проход слева
+        if west: # Левая граница стены
             patterns.append(WallPattern.STRAIGHT)
             x_flips.append(False)
             rotations.append(270)
-        if south:  # Проход снизу (ОПРЕДЕЛЯЕМ В ПОСЛЕДНЮЮ ОЧЕРЕДЬ!)
+        if south: # "Нижняя" граница стены (ОПРЕДЕЛЯЕМ В ПОСЛЕДНЮЮ ОЧЕРЕДЬ, ТАК КАК ОНА ОСОБАЯ!)
             patterns.append(WallPattern.STRAIGHT_SOUTH)
             x_flips.append(False)
             rotations.append(0)
 
-        if north_west and not (north or west):
+        if north_west and not (north or west): # "Верхний" левый угол стены
             patterns.append(WallPattern.CORNER)
             x_flips.append(False)
             rotations.append(0)
-        if north_east and not (north or east):
+        if north_east and not (north or east): # "Верхний" правый угол стены
             patterns.append(WallPattern.CORNER)
             x_flips.append(True)
             rotations.append(0)
-        if south_west and not (south or west):
+        if south_west and not (south or west): # "Нижний" левый угол стены
             patterns.append(WallPattern.CORNER_SOUTH)
             x_flips.append(False)
             rotations.append(0)
-        if south_east and not (south or east):
+        if south_east and not (south or east): # "Нижний" правый угол стены
             patterns.append(WallPattern.CORNER_SOUTH)
             x_flips.append(True)
             rotations.append(0)
@@ -188,7 +192,7 @@ class MazeState(BaseState):
         """Обработка кнопок перемещения"""
         # TODO: for real make keybind customization
         new_pos = list(self.player_pos)
-        move_by = 3
+        move_by = PLAYER_SIZE // 12 # would you know how tired I am of floats - Vsevolod
 
         if pressed_keys[pygame.K_LEFT] or pressed_keys[pygame.K_a]:
             new_pos[0] -= move_by
@@ -199,27 +203,9 @@ class MazeState(BaseState):
         if pressed_keys[pygame.K_DOWN] or pressed_keys[pygame.K_s]:
             new_pos[1] += move_by
 
-        nx, ny = new_pos
-        if 0 <= nx < self.maze.width * TILE_SIZE - PLAYER_SIZE and 0 <= ny < self.maze.height * TILE_SIZE - PLAYER_SIZE:
-            x_relative = nx % TILE_SIZE
-            y_relative = ny % TILE_SIZE
-            nx_tile = nx // TILE_SIZE
-            ny_tile = ny // TILE_SIZE
-            nx_tile_neighbor = (nx_tile - 1 if x_relative < HALF_PLAYER
-                       else nx_tile + 1 if x_relative > TILE_SIZE - HALF_PLAYER
-                       else nx_tile)
-            ny_tile_neighbor = (ny_tile - 1 if y_relative < HALF_PLAYER
-                       else ny_tile + 1 if y_relative > TILE_SIZE - HALF_PLAYER
-                       else ny_tile)
-            for x in (nx_tile_neighbor, nx_tile):
-                if not self.maze.pattern[self.player_pos[1] // TILE_SIZE][int(x)] == 0:
-                    new_pos[0] = self.player_pos[0]
-                    break
-            for y in (ny_tile_neighbor, ny_tile):
-                if not self.maze.pattern[int(y)][self.player_pos[0] // TILE_SIZE] == 0:
-                    new_pos[1] = self.player_pos[1]
-                    break
-            self.player_pos = new_pos
+        if (0 <= new_pos[0] < self.maze.width * TILE_SIZE - PLAYER_SIZE
+            and 0 <= new_pos[1] < self.maze.height * TILE_SIZE - PLAYER_SIZE):
+            self.move_player(new_pos)
 
         return (Command.CHECK_PROGRESS, None),
 
@@ -234,16 +220,70 @@ class MazeState(BaseState):
                 if self.maze.pattern[y][x] == 1:
                     # в этой клетке стена
                     cache_key = (x, y)
-                    screen.blit(self.wall_cache[cache_key], (x * TILE_SIZE, y * TILE_SIZE))
+                    screen.blit(self.wall_cache[cache_key], self.apply_shift(x * TILE_SIZE, y * TILE_SIZE))
                 else:
                     # в этой клетке пол
-                    screen.blit(self.floor_tile, (x * TILE_SIZE, y * TILE_SIZE))
+                    screen.blit(self.floor_tile, self.apply_shift(x * TILE_SIZE, y * TILE_SIZE))
 
         # Отрисовываем вход и выход
         self.draw_exits(screen)
 
         # Отрисовываем игрока (поверх всего!)
-        screen.blit(self.player_tile, ((self.player_pos[0]) - HALF_PLAYER, (self.player_pos[1]) - HALF_PLAYER))
+        screen.blit(self.player_tile,
+                    self.apply_shift((self.player_pos[0]) - HALF_PLAYER, (self.player_pos[1]) - HALF_PLAYER))
+
+    """
+    Вспомогательные функции для обработки нажатых кнопок
+    """
+
+    def move_player(self, new_pos):
+        """Перемещение игрока на одну из возможных позиций для текущих нажатых кнопок"""
+
+        # Новые и предыдущие координаты игрока
+        nx, ny = new_pos
+        px, py = self.player_pos
+
+        # Нахождение текущей и соседней (если необходимо) клеток по позиции игрока для новых координат
+        nx_tile = nx // TILE_SIZE
+        ny_tile = ny // TILE_SIZE
+        nx_tile_neighbor = (nx_tile - 1 if nx % TILE_SIZE < HALF_PLAYER
+                            else nx_tile + 1 if nx % TILE_SIZE > TILE_SIZE - HALF_PLAYER
+                            else nx_tile)
+        ny_tile_neighbor = (ny_tile - 1 if ny % TILE_SIZE < HALF_PLAYER
+                            else ny_tile + 1 if ny % TILE_SIZE > TILE_SIZE - HALF_PLAYER
+                            else ny_tile)
+
+        # То же самое для предыдущих координат
+        px_tile = px // TILE_SIZE
+        py_tile = py // TILE_SIZE
+        px_tile_neighbor = (px_tile - 1 if px % TILE_SIZE < HALF_PLAYER
+                            else px_tile + 1 if px % TILE_SIZE > TILE_SIZE - HALF_PLAYER
+                            else px_tile)
+        py_tile_neighbor = (py_tile - 1 if py % TILE_SIZE < HALF_PLAYER
+                            else py_tile + 1 if py % TILE_SIZE > TILE_SIZE - HALF_PLAYER
+                            else py_tile)
+
+        # Проверка соседних клеток для движения: по X и Y -> по X -> по Y (чтобы игрок не "приклеивался" к стенам)
+        for bunch in ((nx_tile, nx_tile_neighbor, ny_tile, ny_tile_neighbor, nx, ny),
+                      (nx_tile, nx_tile_neighbor, py_tile, py_tile_neighbor, nx, py),
+                      (px_tile, px_tile_neighbor, ny_tile, ny_tile_neighbor, px, ny)):
+            if self.check_new_pos(bunch[0], bunch[1], bunch[2], bunch[3]):
+                self.player_pos = [bunch[4], bunch[5]]
+                return
+
+    def check_new_pos(self, x_tile, x_tile_neighbor, y_tile, y_tile_neighbor):
+        """Проверка окружения позиции, в которую собирается переместиться игрок"""
+
+        for x in (x_tile_neighbor, x_tile):
+            for y in (y_tile_neighbor, y_tile):
+                if not self.maze.pattern[int(y)][int(x)] == 0:
+                    break
+            else:
+                continue
+            break
+        else:
+            return True
+        return False
 
     """
     Вспомогательные функции для отрисовки
@@ -254,32 +294,15 @@ class MazeState(BaseState):
 
         # Отрисовка входа
         screen.blit(self.entrance_tile,
-                         (self.maze.start_door.x * TILE_SIZE, self.maze.start_door.y * TILE_SIZE))
+                    self.apply_shift(self.maze.start_door.x * TILE_SIZE, self.maze.start_door.y * TILE_SIZE))
 
         # Отрисовка выхода
         screen.blit(self.exit_tile,
-                         (self.maze.end_door.x * TILE_SIZE, self.maze.end_door.y * TILE_SIZE))
+                    self.apply_shift(self.maze.end_door.x * TILE_SIZE, self.maze.end_door.y * TILE_SIZE))
 
-    """
-    def show_win_message(self, screen):
-        width = screen.get_width()
-        height = screen.get_height()
-
-        font = pygame.font.Font(None, 48)
-        text = font.render("ПОБЕДА! ПРОДОЛЖЕНИЕ СЛЕДУЕТ...", True, (255, 255, 0))
-        text_rect = text.get_rect(center=(width // 2, height // 2))
-
-        overlay = pygame.Surface((width, height))
-        overlay.set_alpha(128)
-        overlay.fill((0, 0, 0))
-        screen.blit(overlay, (0, 0))
-
-        # Показываем тайл выхода в сообщении
-        exit_rect = self.exit_tile.get_rect(center=(width // 2, height // 2 - TILE_SIZE))
-        screen.blit(self.exit_tile, exit_rect)
-
-        screen.blit(text, text_rect)
-        pygame.display.flip()
-
-        pygame.time.wait(1500)
-    """
+    def apply_shift(self, x, y):
+        east_x_margin = self.maze.width * TILE_SIZE - HALF_WIDTH
+        south_y_margin = self.maze.height * TILE_SIZE - HALF_HEIGHT
+        x_shift = (self.player_pos[0] if self.player_pos[0] < east_x_margin else east_x_margin) - HALF_WIDTH
+        y_shift = (self.player_pos[1] if self.player_pos[1] < south_y_margin else south_y_margin) - HALF_HEIGHT
+        return x - (x_shift if x_shift > 0 else 0), y - (y_shift if y_shift > 0 else 0)
