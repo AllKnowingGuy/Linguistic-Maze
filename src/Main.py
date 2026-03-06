@@ -25,6 +25,15 @@ class Main: # TODO: maybe rename to Game
         pygame.display.set_caption("Лингвист в лабиринте")
         self.clock = pygame.time.Clock()
 
+        # Базовый шрифт
+        self.base_font = pygame.font.Font(None, 20)
+
+        # Счётчик FPS и задний фон для него
+        self.fps_underlay = pygame.Surface((60, 20))
+        self.fps_underlay.set_alpha(128)
+        self.fps_underlay.fill((255, 255, 255))
+        self.fps_text_sprite = self.base_font.render('FPS: ' + 'pending...', True, (0, 0, 0))
+
         # Состояния игры
         self.maze_manager = MazeState.MazeState()
         self.dialogue_manager = DialogueState.DialogueState()
@@ -69,6 +78,13 @@ class Main: # TODO: maybe rename to Game
         """Отрисовка игры"""
         self.screen.fill((0, 0, 0))
         supposed_commands = self.current_state.draw(self.screen)
+
+        # Счётчик FPS
+        self.screen.blit(self.fps_underlay, (5, 5))
+        self.fps_text_sprite = self.base_font.render('FPS: ' + str(int(self.clock.get_fps())), True, (0, 0, 0))
+        self.screen.blit(self.fps_text_sprite, (10, 10))
+
+        # Обновление дисплея
         pygame.display.flip()
         return supposed_commands
 

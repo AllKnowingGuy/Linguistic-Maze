@@ -4,8 +4,8 @@ from enum import Enum
 Для всей игры
 """
 
-SCREEN_WIDTH = 1400
-SCREEN_HEIGHT = 650
+SCREEN_WIDTH = 1050
+SCREEN_HEIGHT = 630
 
 
 class StateType(Enum):
@@ -27,8 +27,9 @@ class Command(Enum):
 Для Maze и MazeState
 """
 
-TILE_SIZE = 25
-PLAYER_SIZE = 15
+TILE_SIZE = 45
+PLAYER_SIZE = 28 # при расчёте позиции игрока делится пополам, поэтому лучше брать чётные числа
+# TODO: maybe make the player rectangular and not square?
 
 
 class WallPattern(Enum):
