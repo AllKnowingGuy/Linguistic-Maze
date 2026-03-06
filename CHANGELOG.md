@@ -1,17 +1,27 @@
 # Changelog
 
+## 2026-03-06 - Better experience update
+
+- Dialogue system now supports **background changing** (custom backgrounds will be added to `MazeState` later)
+- Added the functionality of capturing the previous frame and using it as a dialogue BG (to make dialogues visually appear just above maze rooms)
+- Temporary removed FPS display from the screen for proper screen capturing in its current state
+- Expanded `setup_maze` docstring and added dialogue structure hints to `Dialogue.py`
+- Restructured `StoryScript` by splitting checks into functions for each individual dialogue and room
+- Flags for specific individual dialogues, rooms and challenges are now stored in separate dicts in `StoryScript`
+- Changed the structure of the second level maze and added a transition dialogue between the two rooms (different from the intro dialogue)
+
 ## 2026-03-06 - Camera follow update
 
 - Implemented drawn maze components shifting based on player's position to be able to see parts of large mazes that are initially offscreen
 - Fixed a bug where the maze player was able to slide into a wall when its center was between tiles
 - Made maze player's speed dependent on their size
 - Moved player position updating from `handle_input` to a new function
-- Added FPS info to the main display
+- Added **FPS info** to the main display
 - Changed screen width and height, as well as maze player and tile sizes
 
 ## 2026-03-05 - Smooth walking update
 
-- Reimplemented held button processing in form of a `handle_hold_input` function for playstates
+- Reimplemented **held button processing** in form of a `handle_hold_input` function for playstates
 - Revamped maze player position system, it is now based on screen pixels rather than maze structure coordinates
 - Made the maze player "slide" through the maze when holding buttons
 - Made player size different from tile size

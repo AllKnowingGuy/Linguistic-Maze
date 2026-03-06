@@ -39,6 +39,7 @@ class DialogueState(BaseState):
     current_line: str
     now_speaking: Speaker
     awaiting: Awaiting
+    current_bg: pygame.Surface
 
     playing_line: bool = False
     line_cursor: int
@@ -58,8 +59,16 @@ class DialogueState(BaseState):
         self.current_input_text = '' # необходимо очищать каждый раз, когда нажимаем Enter
 
         """Графика"""
-        # Фон диалога
-        self.dialogue_bg = AssetsCreation.add_dialogue_bg()
+        # Базовый фон диалога
+        self.base_dialogue_bg = AssetsCreation.add_dialogue_bg()
+        self.current_bg = self.base_dialogue_bg
+
+        # Фон-скриншот предыдущего кадра
+        self.need_screenshot = False
+        self.screenshot_bg = None
+        self.ssbg_underlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
+        self.ssbg_underlay.set_alpha(64)
+        self.ssbg_underlay.fill((0, 0, 0))
 
         # Плашка диалога
         self.dialogue_box = AssetsCreation.add_dialogue_box()
@@ -117,6 +126,7 @@ class DialogueState(BaseState):
         char = self.dialogue.get_line_speaker(self.current_line_ind)
         action = self.dialogue.get_line_action(self.current_line_ind)
         self.current_line = self.dialogue.get_line_text(self.current_line_ind)
+        new_bg = self.dialogue.get_line_bgswitch(self.current_line_ind)
 
         # Преобразуем данные в формат, поддерживаемый DialogueState
         if char == 'left':
@@ -141,6 +151,13 @@ class DialogueState(BaseState):
         else:
             raise ValueError('Invalid dialogue format or this action cannot be processed')
 
+        if new_bg:
+            self.current_bg.set_alpha(255)
+            if new_bg == 'prevscreen':
+                self.need_screenshot = True
+            else:
+                self.current_bg = self.base_dialogue_bg # затычка
+
     """
     Переписанные функции состояния
     """
@@ -157,9 +174,12 @@ class DialogueState(BaseState):
             # Нажатие Enter
             if event.key == pygame.K_RETURN:
                 if self.awaiting.name == Awaiting.INPUT.name:
-                    self.dialogue.saved_inputs[self.current_line] = self.current_input_text
-                    self.current_input_text = ''
-                self.advance()
+                    if self.current_input_text.strip():
+                        self.dialogue.saved_inputs[self.current_line] = self.current_input_text.strip()
+                        self.current_input_text = ''
+                        self.advance()
+                else:
+                    self.advance()
                 return (Command.CHECK_PROGRESS, None),
 
             # Нажатие других кнопок (когда есть поле ввода)
@@ -203,8 +223,16 @@ class DialogueState(BaseState):
     def draw(self, screen):
         """Отрисовка диалога"""
 
+        # Получаем скриншот предыдущего кадра, когда требуется
+        if self.need_screenshot:
+            self.screenshot_bg = screen.copy()
+            self.current_bg = self.screenshot_bg
+            self.need_screenshot = False
+
         # Создаём фон
-        screen.blit(self.dialogue_bg, (0, 0))
+        screen.blit(self.current_bg, (0, 0))
+        if self.current_bg is self.screenshot_bg:
+            screen.blit(self.ssbg_underlay, (0, 0))
 
         # Отрисовываем участников диалога
         if self.now_speaking == Speaker.LEFT:

@@ -1,3 +1,7 @@
+# current line format: CHAR\tACTION\tTEXT\tCHANGEBGTO
+# NO EMPTY LINES!
+
+
 class Dialogue:
     lines: list[tuple[str, ...]] # damn
     character: str
@@ -32,3 +36,8 @@ class Dialogue:
         if line_ind >= len(self.lines):
             return None
         return self.lines[line_ind][2]
+
+    def get_line_bgswitch(self, line_ind: int):
+        if line_ind >= len(self.lines):
+            return None
+        return self.lines[line_ind][3] if len(self.lines[line_ind]) > 3 else None

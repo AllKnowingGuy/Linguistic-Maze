@@ -64,10 +64,20 @@ class MazeState(BaseState):
         self.wall_cache.clear()
 
     def setup_maze(self, width: int = 3, height: int = 3,
-                   doors_near_borders: tuple = (Border.WEST, Border.EAST),
+                   doors_near_borders: tuple[Border, Border] = (Border.WEST, Border.EAST),
                    other_door_coords: tuple[int, int] = (1, 1),
                    more_random: bool = False, curving: bool = False):
-        """Задание структурных данных лабиринта и его генерация, задание позиции игрока"""
+        """
+        Задание структурных данных лабиринта и его генерация, задание позиции игрока
+
+        Args:
+            width (int): Ширина лабиринта (должна быть нечётным числом!)
+            height (int): Высота лабиринта (должна быть нечётным числом!)
+            doors_near_borders (tuple[Border]): Границы лабиринта, в которых расположены двери входа и выхода соответственно
+            other_door_coords (tuple[int, int]): Определяющие координаты дверей входа и выхода (если дверь в северной или южной стене - координата X, иначе - координата Y)
+            more_random (bool): Должен ли лабиринт генерироваться по альтернативному алгоритму для увеличения ветвления
+            curving (bool): Должен ли лабиринт избегать генерации прямых коридоров, если это возможно
+        """
         # TODO: maybe enable switching to a preloaded maze and specifying player position
 
         self.maze = Maze.Maze(width, height, doors_near_borders, other_door_coords)
@@ -83,8 +93,8 @@ class MazeState(BaseState):
 
     def check_win(self):
         # Проверка победы
-        return (self.maze.end_door.x <= self.player_pos[0] // TILE_SIZE <= self.maze.end_door.x + 1
-                and self.maze.end_door.y <= self.player_pos[1] // TILE_SIZE <= self.maze.end_door.y + 1)
+        return (self.maze.end_door.x <= self.player_pos[0] // TILE_SIZE < self.maze.end_door.x + 1
+                and self.maze.end_door.y <= self.player_pos[1] // TILE_SIZE < self.maze.end_door.y + 1)
 
     """
     Функции модификации и кеширования тайлов

@@ -76,13 +76,14 @@ class Main: # TODO: maybe rename to Game
 
     def draw(self):
         """Отрисовка игры"""
-        self.screen.fill((0, 0, 0))
+        # self.screen.fill((0, 0, 0)) # disabled to test 'screenshotting' - Vsevolod
         supposed_commands = self.current_state.draw(self.screen)
 
         # Счётчик FPS
-        self.screen.blit(self.fps_underlay, (5, 5))
-        self.fps_text_sprite = self.base_font.render('FPS: ' + str(int(self.clock.get_fps())), True, (0, 0, 0))
-        self.screen.blit(self.fps_text_sprite, (10, 10))
+        # TODO: make blit on a different surface than self.screen and enable again
+        # self.screen.blit(self.fps_underlay, (5, 5))
+        # self.fps_text_sprite = self.base_font.render('FPS: ' + str(int(self.clock.get_fps())), True, (0, 0, 0))
+        # self.screen.blit(self.fps_text_sprite, (10, 10))
 
         # Обновление дисплея
         pygame.display.flip()
