@@ -42,10 +42,21 @@ def add_entrance_exit_tiles(level=1):
     return entrance_tile, exit_tile
 
 
-def add_player_tile(level=1):
+def add_player_tile():
     """Загрузка тайла игрока"""
-    player_path = f'..\\assets\\tiles\\level_{level}\\player.png'
+    player_path = f'..\\assets\\tiles\\player\\player.png'
     return load_one_object(player_path, PLAYER_SIZE, PLAYER_SIZE)
+
+
+def add_player_walk():
+    """Загрузка тайлов анимации игрока"""
+    frames = []
+    for i in range(1,4):
+        frame_path = f'..\\assets\\tiles\\player\\walk{i}.png'
+        frame = load_one_object(frame_path, PLAYER_SIZE, PLAYER_SIZE)
+        if frame:
+            frames.append(frame)
+    return frames
 
 
 def add_floor_tile(level=1):
@@ -72,6 +83,11 @@ def add_wall_tiles(level=1):
         WallPattern.CORNER_SOUTH: (TILE_SIZE, TILE_SIZE)
     }
     return load_all_objects(tiles_path, tile_files, tile_sizes)
+
+def add_enemy_tile(level=1):
+    """Загрузка спрайта врага по уровню"""
+    enemy_path = f'..\\assets\\tiles\\level_{level}\\enemy.png'
+    return load_one_object(enemy_path, TILE_SIZE, TILE_SIZE)
 
 
 """

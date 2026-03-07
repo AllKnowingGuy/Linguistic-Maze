@@ -21,6 +21,7 @@ class Command(Enum):
     WAIT = 2 # Временно перестать обновляться
     SET_FPS = 3 # Изменить частоту обновления
     CHECK_PROGRESS = 4 # Проверить и обновить прогресс
+    ENCOUNTER_ENEMY = 5 # Запуск диалога при встрече с монстром
 
 
 """
@@ -28,7 +29,7 @@ class Command(Enum):
 """
 
 TILE_SIZE = 45
-PLAYER_SIZE = 28 # при расчёте позиции игрока делится пополам, поэтому лучше брать чётные числа
+PLAYER_SIZE = 34 # при расчёте позиции игрока делится пополам, поэтому лучше брать чётные числа
 # TODO: maybe make the player rectangular and not square?
 
 

@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-03-07 - Spooky Scary update
+
+- Added the `Enemy` class, located in brand new `Enemy.py`. Very raw functionality for now
+- New `ENCOUNTER_ENEMY` command in `Util.py` for future coding
+- Added enemy sprites into the level sprites folders
+- The playable character is now **animated** at glorious 5 frames per second!
+- Relocated the playable character sprite into its own folder within the `tiles` folder
+- Darkness effect is now implemented. It can be turned off by changing the `darkness_enabled` flag in `MazeState.py`
+
 ## 2026-03-06 - Better experience update
 
 - Dialogue system now supports **background changing** (custom backgrounds will be added to `MazeState` later)
