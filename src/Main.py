@@ -139,9 +139,11 @@ class Main: # TODO: maybe rename to Game
                     if self.current_state_type == StateType.DIALOGUE: # не проверяем мышь, когда она не используется
                         process_commands(self.handle_mouse_click())
 
-            # Обработка держания кнопок
+            # Обработка держания кнопок. Если их нет - говорим MazeState, что персонаж не двигается
             if pressed_btns_amount > 0:
                 process_commands(self.handle_hold_input())
+            else:
+                self.maze_manager.reset_movement()
 
             # Прорисовка
             process_commands(self.current_state.execute_before_draw())
