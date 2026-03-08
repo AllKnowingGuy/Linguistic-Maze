@@ -32,58 +32,25 @@ right\tnoaction\tНу давай, пока!"""
 
 class StoryScript:
     def __init__(self):
-        self.current_level = 1 # Используется для применения подходящего скина к комнате
+        self.current_level = 0  # 0=вступление, 1=лабиринт, 2=финал
+        self.total_respect = 0
+        self.artifacts = []
+        self.player_name = None
+        self.rooms_progress = {}  # {room_id: {'respect': 0, 'completed': False}}
+        self.current_room_id = None
+
+        # Сохраняем старое для совместимости
         self.general_progress = {
-            'started_game': False,
-            'finished_intro': False,
-            'level_1_completed': False,
-            'finished_transition': False,
-            'level_2_completed': False,
-            'passed_maze': False,
-            'finished_outro': False,
+            'started_game': False, 'finished_intro': False,
+            'passed_maze': False, 'finished_outro': False
         }
-
-        # Объекты в порядке следования
-        self.intro = None
-        self.room_1 = None
-        self.transition = None
-        self.room_2 = None
-        self.outro = None
-
-        # Прогресс по разделам игры
-        self.intro_progress = {
-            'answered_question': False,
-            'said_yes': False,
-            'said_no': False,
-        }
+        self.intro_progress = {'answered_question': False, 'said_yes': False, 'said_no': False}
 
     def update_game_progress(self, game):
         """Проверяет и обновляет состояние игры в соответствии со скриптом"""
 
-        # Когда игрок только начинает игру
         if not self.general_progress['started_game']:
             self.on_game_start(game)
-
-        # Когда игрок на диалоге
-        if game.current_state_type.name == StateType.DIALOGUE.name:
-            # Вступление
-            if self.general_progress['started_game'] and game.dialogue_manager.dialogue is self.intro:
-                self.on_intro_dialogue(game)
-            # Промежуточный диалог
-            elif self.general_progress['level_1_completed'] and game.dialogue_manager.dialogue is self.transition:
-                self.on_transition_dialogue(game)
-            # Концовка
-            elif self.general_progress['passed_maze'] and game.dialogue_manager.dialogue is self.outro:
-                self.on_outro_dialogue(game)
-
-        # Когда игрок в лабиринте
-        if game.current_state_type.name == StateType.MAZE.name:
-            # 1-я комната
-            if self.general_progress['finished_intro'] and game.maze_manager.maze is self.room_1:
-                self.on_first_maze_level(game)
-            # 2-я комната
-            elif self.general_progress['finished_transition'] and game.maze_manager.maze is self.room_2:
-                self.on_second_maze_level(game)
 
     def on_game_start(self, game):
         self.general_progress['started_game'] = True
@@ -125,39 +92,49 @@ class StoryScript:
             elif self.intro_progress['said_no']:
                 game.running = False
 
-    def on_transition_dialogue(self, game):
-        # Когда игрок завершает промежуточный диалог
+    def on_monster_dialogue(self, game):
         if game.dialogue_manager.finished:
-            self.general_progress['finished_transition'] = True
-            game.current_state_type = StateType.MAZE
-            game.maze_manager.set_level(self.current_level)
-            self.room_2 = game.maze_manager.setup_maze(25, 31, (Border.EAST, Border.WEST), (1, 29), True, True)
-            game.associate_current_state()
+            self.handle_room_exit(game)
 
-    def on_outro_dialogue(self, game):
-        # Когда игрок завершает тестовую концовку
-        if game.dialogue_manager.finished:
-            self.general_progress['finished_outro'] = True
-            game.running = False
-
-    """
-    Проверки уровней лабиринта (Все комнаты уникальные, поэтому проводим свою проверку для каждого уровня)
-    """
-
-    def on_first_maze_level(self, game):
-        # Когда игрок прошёл уровень - переход к промежуточному диалогу
+    def on_dynamic_maze_level(self, game):
         if game.maze_manager.check_win():
-            self.general_progress['level_1_completed'] = True
-            self.current_level += 1
-            game.current_state_type = StateType.DIALOGUE
-            self.transition = game.dialogue_manager.setup_dialogue(transition_dialogue_text.split('\n'), 'Говорящий монстр')
-            game.associate_current_state()
+            self.handle_room_exit(game)
 
-    def on_second_maze_level(self, game):
-        # Когда игрок прошёл уровень - переход к концовке
-        if game.maze_manager.check_win():
-            self.general_progress['level_2_completed'] = True
-            self.general_progress['passed_maze'] = True
-            game.current_state_type = StateType.DIALOGUE
-            self.outro = game.dialogue_manager.setup_dialogue(outro_dialogue_text.split('\n'), 'Говорящий монстр')
-            game.associate_current_state()
+    def check_room_exit_conditions(self, room_data):
+        """Проверяет респекты/артефакты для выхода"""
+        respect = room_data.get('respect', 0)
+        difficulty = int(self.current_room_id.split('_')[1])
+
+        # Условия по сложности:
+        respect_req = [5, 2, 5][difficulty]  # 0=5, 1=2, 2=5 респектов
+
+        print(f"Комната {self.current_room_id}: {respect}/{respect_req} респектов")
+        return respect >= respect_req
+
+    def restart_current_room(self, game):
+        """Рестарт текущей комнаты при провале"""
+        print(f"Нужны респекты для {self.current_room_id}")
+        # Пока просто следующая комната (потом рестарт)
+        self.generate_next_room(game)
+
+    def handle_room_exit(self, game):
+        """Проверяет выход из ЛЮБОЙ комнаты"""
+        room_data = self.rooms_progress[self.current_room_id]
+
+        if self.check_room_exit_conditions(room_data):
+            self.generate_next_room(game)
+        else:
+            self.restart_current_room(game)
+
+    def generate_next_room(self, game):
+        """Генерирует новую комнату"""
+        self.current_level = min(self.current_level + 1, 2)
+        self.current_room_id = f"room_{self.current_level}"  # "room_1", "room_2", ...
+
+        sizes = [(31, 19), (25, 31), (20, 25)]  # 0=легко, 1=средне, 2=сложно
+        w, h = sizes[self.current_level]
+
+        game.current_state_type = StateType.MAZE
+        game.maze_manager.set_level(self.current_level)
+        game.maze_manager.setup_maze(w, h, (Border.WEST, Border.EAST), (1, h - 2), True, True)
+        game.associate_current_state()
