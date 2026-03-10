@@ -1,0 +1,111 @@
+{
+  "theme": "нейролингвистика",
+  "difficulties": {
+    "0": {
+      "monsters_count": 2,
+      "max_respect": 4,
+      "pass_respect": 2,
+      "exit": {
+        "type": "кодовый_замок",
+        "code": "ЗЯТЬ",
+        "respect_req": 5
+      }
+    },
+    "1": {
+      "monsters_count": 2,
+      "max_respect": 4,
+      "pass_respect": 2,
+      "exit": {
+        "type": "артефакт",
+        "code": ["спичка"],
+        "respect_req": 1
+      }
+    },
+    "2": {
+      "monsters_count": 2,
+      "max_respect": 4,
+      "pass_respect": 2,
+      "exit": {
+        "type": "просто",
+        "respect_req": 3
+      }
+    }
+  },
+  "monsters": {
+    "monster_schizophrenia_1": {
+      "name": "Сфинкс Логики",
+      "difficulty": 0,
+      "position": {"x": 5, "y": 5},
+      "dialog_file": "monster_schizophrenia_1.json",
+      "code_piece": "З"
+    },
+    "monster_schizophrenia_2": {
+      "name": "Обменщик Заиканий",
+      "difficulty": 0,
+      "position": {"x": 12, "y": 8},
+      "dialog_file": "monster_schizophrenia_2.json",
+      "code_piece": "Я"
+    },
+    "monster_schizophrenia_3": {
+      "name": "Сфинкс Скачков Мыслей",
+      "difficulty": 0,
+      "position": {"x": 18, "y": 12},
+      "dialog_file": "monster_schizophrenia_3.json",
+      "code_piece": "Т"
+    },
+    "monster_schizophrenia_4": {
+      "name": "Помощник Странных Связей",
+      "difficulty": 0,
+      "position": {"x": 8, "y": 15},
+      "dialog_file": "monster_schizophrenia_4.json",
+      "code_piece": "Ь"
+    },
+    "monster_child_speech": {
+      "name": "Исследователь детской речи",
+      "difficulty": 1,
+      "position": {"x": 10, "y": 10},
+      "dialog_file": "monster_child_speech.json"
+    },
+    "monster_motivator": {
+      "name": "Experentia est optima magistra",
+      "difficulty": 1,
+      "position": {"x": 20, "y": 5},
+      "dialog_file": "monster_motivator.json"
+    },
+    "monster_silent": {
+      "name": "Молчаливый монстр",
+      "difficulty": 1,
+      "position": {"x": 15, "y": 15},
+      "dialog_file": "monster_silent.json"
+    },
+    "monster_neuroanatomy": {
+      "name": "Нейроанатом",
+      "difficulty": 2,
+      "position": {"x": 25, "y": 10},
+      "dialog_file": "monster_neuroanatomy.json"
+    },
+    "monster_runner": {
+      "name": "Бегущий монстр",
+      "difficulty": 1,
+      "position": {"x": 5, "y": 12},
+      "dialog_file": "monster_runner.json"
+    }
+  },
+  "rooms": {
+    "0": {
+      "room_id": "нейро_0",
+      "difficulty": 0,
+      "monsters": ["monster_schizophrenia_1", "monster_schizophrenia_2", "monster_schizophrenia_3", "monster_schizophrenia_4"]
+    },
+    "1": {
+      "room_id": "нейро_1",
+      "difficulty": 1,
+      "monsters": ["monster_child_speech"]
+    },
+    "2": {
+      "room_id": "нейро_2",
+      "difficulty": 2,
+      "monsters": ["monster_motivator", "monster_silent", "monster_neuroanatomy", "monster_runner"]
+    }
+  }
+}

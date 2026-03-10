@@ -1,0 +1,24 @@
+{
+  "global_settings": {
+    "respect_fail": -3,
+    "max_level": 2,
+    "rooms_per_level": 3,
+    "monsters_per_level": {
+      "0": 1,
+      "1": 2,
+      "2": 3
+    },
+    "pass_respect_requirements": {
+      "0": 5,
+      "1": 2,
+      "2": 5
+    },
+    "max_respect_per_theme": {
+      "фонетика": 10,
+      "социолингвистика": 10,
+      "нейролингвистика": 4,
+      "компьютерная лингвистика": 10,
+      "нулевая": 10
+    }
+  }
+}

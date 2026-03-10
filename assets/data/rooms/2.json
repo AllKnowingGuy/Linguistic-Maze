@@ -1,0 +1,107 @@
+{
+  "theme": "фонетика",
+  "difficulties": {
+    "0": {
+      "monsters_count": 1,
+      "max_respect": 10,
+      "pass_respect": 5,
+      "exit": {
+        "type": "артефакт",
+        "artifact": "ручка",
+        "respect_req": 3
+      }
+    },
+    "1": {
+      "monsters_count": 2,
+      "max_respect": 4,
+      "pass_respect": 2,
+      "exit": {
+        "type": "просто",
+        "respect_req": 2
+      }
+    },
+    "2": {
+      "monsters_count": 3,
+      "max_respect": 10,
+      "pass_respect": 5,
+      "exit": {
+        "type": "просто",
+        "respect_req": 5
+      }
+    }
+  },
+  "monsters": {
+    "monster_phonetics_terminologist": {
+      "name": "Любитель терминов",
+      "difficulty": 0,
+      "position": {"x": 5, "y": 5},
+      "dialog_file": "monster_terminologist.json",
+      "theme_bonus": "фонетика"
+    },
+    "monster_motivator_phon": {
+      "name": "Я знаю, что путь твой нелегок",
+      "difficulty": 0,
+      "position": {"x": 15, "y": 10},
+      "dialog_file": "monster_motivator_kind.json"
+    },
+    "monster_runner_phon": {
+      "name": "Бегущий монстр",
+      "difficulty": 0,
+      "position": {"x": 10, "y": 15},
+      "dialog_file": "monster_runner.json"
+    },
+    "monster_transcription": {
+      "name": "Любитель транскрипции",
+      "difficulty": 1,
+      "position": {"x": 8, "y": 8},
+      "dialog_file": "monster_transcription.json"
+    },
+    "monster_runner_phon1": {
+      "name": "Убегающий монстр",
+      "difficulty": 1,
+      "position": {"x": 18, "y": 12},
+      "dialog_file": "monster_runner.json"
+    },
+    "monster_reduction": {
+      "name": "Любитель редукции",
+      "difficulty": 1,
+      "position": {"x": 12, "y": 15},
+      "dialog_file": "monster_reduction.json"
+    },
+    "monster_formants": {
+      "name": "Любитель формант",
+      "difficulty": 2,
+      "position": {"x": 20, "y": 5},
+      "dialog_file": "monster_formants.json"
+    },
+    "monster_comparativist": {
+      "name": "Компаративист",
+      "difficulty": 2,
+      "position": {"x": 25, "y": 10},
+      "dialog_file": "monster_comparativist.json"
+    },
+    "monster_runner_phon2": {
+      "name": "Быстрый монстр",
+      "difficulty": 2,
+      "position": {"x": 15, "y": 18},
+      "dialog_file": "monster_runner.json"
+    }
+  },
+  "rooms": {
+    "0": {
+      "room_id": "фон_0",
+      "difficulty": 0,
+      "monsters": ["monster_phonetics_terminologist", "monster_motivator_phon", "monster_runner_phon"]
+    },
+    "1": {
+      "room_id": "фон_1",
+      "difficulty": 1,
+      "monsters": ["monster_transcription", "monster_runner_phon1", "monster_reduction"]
+    },
+    "2": {
+      "room_id": "фон_2",
+      "difficulty": 2,
+      "monsters": ["monster_formants", "monster_comparativist", "monster_runner_phon2"]
+    }
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "theme": "нулевая",
+  "difficulties": {
+    "0": {
+      "monsters_count": 1,
+      "max_respect": 10,
+      "pass_respect": 5,
+      "exit": {
+        "type": "просто",
+        "respect_req": 0
+      }
+    }
+  },
+  "monsters": {
+    "monster_intro": {
+      "name": "Говорящий монстр",
+      "difficulty": 0,
+      "position": {"x": 5, "y": 5},
+      "dialog_file": "monster_intro.json"
+    },
+    "monster_motivator": {
+      "name": "Cogito ergo sum",
+      "difficulty": 0,
+      "position": {"x": 15, "y": 10},
+      "dialog_file": "monster_motivator.json"
+    },
+    "monster_silent": {
+      "name": "Неразговорчивый монстр",
+      "difficulty": 0,
+      "position": {"x": 25, "y": 8},
+      "dialog_file": "monster_silent.json"
+    },
+    "monster_esperanto": {
+      "name": "Любитель эсперанто",
+      "difficulty": 0,
+      "position": {"x": 10, "y": 15},
+      "dialog_file": "monster_esperanto.json"
+    }
+  },
+  "rooms": {
+    "0": {
+      "room_id": "нуль_0",
+      "difficulty": 0,
+      "monsters": ["monster_intro", "monster_motivator", "monster_silent", "monster_esperanto"]
+    }
+  }
+}
