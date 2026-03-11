@@ -1,9 +1,12 @@
+from math import ceil
+
 import pygame
 from enum import Enum
 
 from src import AssetsCreation
 from src.levelBuilding import Dialogue
-from src.Util import SCREEN_WIDTH, SCREEN_HEIGHT, CHOICE_BUTTON_SIZE, Command, ButtonType
+from src.levelBuilding.Button import Button
+from src.Util import SCREEN_WIDTH, SCREEN_HEIGHT, CHOICE_BUTTON_SIZE, Command, ButtonState, Awaiting
 from src.playstates.BaseState import BaseState
 
 
@@ -16,13 +19,8 @@ TEXT_X = 100
 TEXT_Y = SCREEN_HEIGHT // 2 + 100
 CHOICE_BUTTON_X = 100
 CHOICE_BUTTON_Y = SCREEN_HEIGHT // 2 + 160
-CHOICE_BUTTON_DIST = CHOICE_BUTTON_SIZE + 10 # расстояние между кнопками выбора
-
-
-class Awaiting(Enum):
-    CONTINUE = 1
-    CHOOSE = 2
-    INPUT = 3
+CHOICE_BUTTON_DIST_X = CHOICE_BUTTON_SIZE + 490 # расстояние между кнопками выбора по горизонтали
+CHOICE_BUTTON_DIST_Y = CHOICE_BUTTON_SIZE + 10 # расстояние между кнопками выбора по вертикали
 
 
 class Speaker(Enum):
@@ -37,6 +35,8 @@ class DialogueState(BaseState):
 
     current_line_ind: int
     current_line: str
+    current_line_jump: int | None
+
     now_speaking: Speaker
     awaiting: Awaiting
     current_bg: pygame.Surface
@@ -45,15 +45,15 @@ class DialogueState(BaseState):
     line_cursor: int
     cursor_sym: str
 
-    current_choice_options: list
-    choice_button_states: list
+    choice_buttons: list[Button]
+    choice_jumps: list[int | None]
 
     def __init__(self):
         """Задание некоторых атрибутов, загрузка изображений для отрисовки и создание шрифтов"""
         super().__init__()
 
-        # Состояния кнопок
-        self.choice_button_states = [] # необходимо очищать каждый раз, когда нажимаем кнопку
+        # Кнопки выбора
+        self.choice_buttons = [] # необходимо очищать каждый раз, когда нажимаем кнопку
 
         # Текст поля ввода
         self.current_input_text = '' # необходимо очищать каждый раз, когда нажимаем Enter
@@ -66,9 +66,9 @@ class DialogueState(BaseState):
         # Фон-скриншот предыдущего кадра
         self.need_screenshot = False
         self.screenshot_bg = None
-        self.ssbg_underlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
-        self.ssbg_underlay.set_alpha(64)
-        self.ssbg_underlay.fill((0, 0, 0))
+        self.ssbg_overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
+        self.ssbg_overlay.set_alpha(64)
+        self.ssbg_overlay.fill((0, 0, 0))
 
         # Плашка диалога
         self.dialogue_box = AssetsCreation.add_dialogue_box()
@@ -79,21 +79,26 @@ class DialogueState(BaseState):
         # Собеседник
         self.right_speaker = AssetsCreation.add_character_speak_sprite()
 
-        # Кнопки выбора
-        self.choice_buttons = AssetsCreation.add_choice_buttons()
+        # Спрайты кнопок выбора
+        self.choice_button_sprites = AssetsCreation.add_dialogue_choice_buttons()
 
         # Шрифт диалога
         # TODO: it's probably better to create this in Main where Pygame is initiated
         self.dialogue_font = pygame.font.Font(None, 35)
 
-    def setup_dialogue(self, lines: list[str], character: str = 'foobar', starts_challenge: str = None):
+    def setup_dialogue(self, json_path: str):
         """Задание структурных данных диалога, сброс параметров проигрывания"""
-        # TODO: enable switching to a preloaded dialogue and specifying current line index
 
-        self.dialogue = Dialogue.Dialogue(lines, character, starts_challenge)
+        self.dialogue = Dialogue.Dialogue(json_path)
         self.finished = False
         self.current_line_ind = 0
+
+        # Получение данных первой строчки
         self.get_line_fields()
+
+        # Установка спрайта собеседника (если указан в файле диалога)
+        if self.dialogue.right_character_path:
+            self.right_speaker = AssetsCreation.add_character_speak_sprite(self.dialogue.right_character_path)
 
         # Когда диалог создаётся, то можно сразу начинать его выводить
         self.playing_line = True
@@ -106,6 +111,9 @@ class DialogueState(BaseState):
         """Продвижение диалога на одну строчку или на определённую позицию"""
 
         if jump_to:
+            if jump_to == -1:
+                self.finished = True
+                return
             self.current_line_ind = jump_to
         else:
             self.current_line_ind += 1
@@ -122,40 +130,67 @@ class DialogueState(BaseState):
             self.finished = True
             return
 
-        # Извлекаем данные
-        char = self.dialogue.get_line_speaker(self.current_line_ind)
-        action = self.dialogue.get_line_action(self.current_line_ind)
+        # Извлекаем текст
         self.current_line = self.dialogue.get_line_text(self.current_line_ind)
+
+        # Извлекаем метаданные
+        side = self.dialogue.get_line_speaker(self.current_line_ind)
+        action_type = self.dialogue.get_line_action_type(self.current_line_ind)
         new_bg = self.dialogue.get_line_bgswitch(self.current_line_ind)
+        self.current_line_jump = self.dialogue.get_line_jump(self.current_line_ind)
 
         # Преобразуем данные в формат, поддерживаемый DialogueState
-        if char == 'left':
-            self.now_speaking = Speaker.LEFT
-        elif char == 'right':
-            self.now_speaking = Speaker.RIGHT
-        elif char == 'nochar':
+        if side:
+            if side == 'left':
+                self.now_speaking = Speaker.LEFT
+            elif side == 'right':
+                self.now_speaking = Speaker.RIGHT
+            else:
+                raise ValueError('This side cannot be processed')
+        else:
             self.now_speaking = Speaker.NO_ONE
-        else:
-            raise ValueError('Invalid dialogue format or this character cannot be processed')
 
-        if action == 'savetyped':
-            self.awaiting = Awaiting.INPUT
-        elif action[:10] == 'choosefrom' and action[10] == '{' and action[-1] == '}':
-            # получаем варианты ответа и создаём список кнопок
-            self.current_choice_options = action[11:-1].split(', ')
-            for _ in self.current_choice_options:
-                self.choice_button_states.append(ButtonType.REGULAR)
-            self.awaiting = Awaiting.CHOOSE
-        elif action == 'noaction':
-            self.awaiting = Awaiting.CONTINUE
+        if action_type:
+            if action_type == 'savetyped':
+                self.awaiting = Awaiting.INPUT
+            elif action_type == 'choosefrom':
+                # Получаем варианты ответа и создаём список кнопок
+                current_choice_options = self.dialogue.get_line_choose_options(self.current_line_ind)
+                number_of_options = len(current_choice_options)
+                for opt_ind, opt in enumerate(current_choice_options):
+                    if number_of_options < 4:
+                        # Один столбик
+                        self.choice_buttons.append(
+                            Button(
+                            CHOICE_BUTTON_X,
+                            CHOICE_BUTTON_Y + CHOICE_BUTTON_DIST_Y * opt_ind,
+                            CHOICE_BUTTON_SIZE,
+                            CHOICE_BUTTON_SIZE,
+                            opt)
+                        )
+                    else:
+                        # Два столбика
+                        self.choice_buttons.append(
+                            Button(
+                            CHOICE_BUTTON_X + CHOICE_BUTTON_DIST_X * (opt_ind >= number_of_options / 2),
+                            CHOICE_BUTTON_Y + CHOICE_BUTTON_DIST_Y * (opt_ind % ceil(number_of_options / 2)),
+                            CHOICE_BUTTON_SIZE,
+                            CHOICE_BUTTON_SIZE,
+                            opt)
+                        )
+                self.choice_jumps = self.dialogue.get_line_choose_jumps(self.current_line_ind)
+                self.awaiting = Awaiting.CHOOSE
+            else:
+                raise ValueError('This action cannot be processed')
         else:
-            raise ValueError('Invalid dialogue format or this action cannot be processed')
+            self.awaiting = Awaiting.CONTINUE
 
         if new_bg:
             self.current_bg.set_alpha(255)
-            if new_bg == 'prevscreen':
+            if new_bg == 'PREVSCREEN':
                 self.need_screenshot = True
             else:
+                # TODO: load the BG that is being switched to from AssetsCreation
                 self.current_bg = self.base_dialogue_bg # затычка
 
     """
@@ -166,7 +201,7 @@ class DialogueState(BaseState):
         """Обработка ввода с клавиатуры и нажатия Enter для продолжения"""
 
         # Вывод всего сообщения сразу
-        if self.playing_line and event.key ==pygame.K_ESCAPE:
+        if self.playing_line and event.key == pygame.K_ESCAPE:
             self.line_cursor = len(self.current_line)
 
         # Ограничения (диалог не завершён и не печатается, не требуется нажать на кнопку мышкой)
@@ -177,47 +212,59 @@ class DialogueState(BaseState):
                     if self.current_input_text.strip():
                         self.dialogue.saved_inputs[self.current_line] = self.current_input_text.strip()
                         self.current_input_text = ''
-                        self.advance()
+                        self.advance(self.current_line_jump)
                 else:
-                    self.advance()
+                    self.advance(self.current_line_jump)
                 return (Command.CHECK_PROGRESS, None),
 
             # Нажатие других кнопок (когда есть поле ввода)
             elif self.awaiting.name == Awaiting.INPUT.name:
                 if event.key == pygame.K_BACKSPACE:
                     self.current_input_text = self.current_input_text[:-1]
-                else:
-                    self.current_input_text = self.current_input_text + event.unicode
+                elif event.key not in (pygame.K_ESCAPE, pygame.K_TAB, pygame.K_DELETE):
+                    self.current_input_text += event.unicode
 
         return None # bruuuh - Vsevolod
 
-    def handle_mouse_motion(self, mouse_pos):
+    def handle_mouse_motion(self, event):
         """Обработка наведения курсора на кнопки выбора"""
 
-        if not self.playing_line and self.awaiting.name == Awaiting.CHOOSE.name:
-            for b_ind, b_state in enumerate(self.choice_button_states):
-                real_y = CHOICE_BUTTON_Y + CHOICE_BUTTON_DIST * b_ind
+        if (not self.playing_line and self.awaiting.name == Awaiting.CHOOSE.name
+            and not ButtonState.PRESSED in [btn.state for btn in self.choice_buttons]):
 
-                if (CHOICE_BUTTON_X <= mouse_pos[0] <= CHOICE_BUTTON_X + CHOICE_BUTTON_SIZE
-                         and real_y <= mouse_pos[1] <= real_y + CHOICE_BUTTON_SIZE):
+            for btn in self.choice_buttons:
+                if btn.is_hovered(event.pos):
                     # Когда курсор поверх кнопки - подсвечиваем
-                    self.choice_button_states[b_ind] = ButtonType.HOVERED
+                    btn.state = ButtonState.HOVERED
                 else:
                     # Когда убираем курсор - убираем подсветку
-                    self.choice_button_states[b_ind] = ButtonType.REGULAR
+                    btn.state = ButtonState.REGULAR
 
-    def handle_mouse_click(self, pressed_buttons):
+    def handle_mouse_click(self, event):
         """Обработка нажатия на кнопки выбора"""
 
-        if not self.playing_line and self.awaiting.name == Awaiting.CHOOSE.name:
-            for b_ind, b_state in enumerate(self.choice_button_states):
-                if pressed_buttons[0] and b_state == ButtonType.HOVERED:
-                    # TODO: rework to not press the button by running into it with LMB pressed
-                    self.choice_button_states[b_ind] = ButtonType.PRESSED
-                    self.dialogue.saved_choices[self.current_line] = self.current_choice_options[b_ind]
-                    self.advance()
-                    self.choice_button_states.clear() # TODO: clear later to let button press animation play
+        if not self.playing_line and self.awaiting.name == Awaiting.CHOOSE.name and event.button == pygame.BUTTON_LEFT:
+            for btn in self.choice_buttons:
+                if btn.state == ButtonState.HOVERED:
+                    btn.state = ButtonState.PRESSED
+                    return
+
+    def handle_mouse_release(self, event):
+        """Обработка отпуска ЛКМ после щелчка по кнопке выбора"""
+
+        if not self.playing_line and self.awaiting.name == Awaiting.CHOOSE.name and event.button == pygame.BUTTON_LEFT:
+            for btn_ind, btn in enumerate(self.choice_buttons):
+
+                if btn.is_hovered(event.pos) and btn.state == ButtonState.PRESSED:
+                    # Когда курсор поверх нажатой кнопки - отпуск активирует действие
+                    self.dialogue.saved_choices[self.current_line] = btn.text
+                    self.advance(self.choice_jumps[btn_ind]) if self.choice_jumps else self.advance()
+                    self.choice_buttons.clear()
                     return (Command.CHECK_PROGRESS, None),
+            else:
+                # Когда отпустили курсор не над нажатой кнопкой - все кнопки становятся неподсвеченными
+                for btn in self.choice_buttons:
+                    btn.state = ButtonState.REGULAR
         return None
 
     def draw(self, screen):
@@ -232,7 +279,7 @@ class DialogueState(BaseState):
         # Создаём фон
         screen.blit(self.current_bg, (0, 0))
         if self.current_bg is self.screenshot_bg:
-            screen.blit(self.ssbg_underlay, (0, 0))
+            screen.blit(self.ssbg_overlay, (0, 0))
 
         # Отрисовываем участников диалога
         if self.now_speaking == Speaker.LEFT:
@@ -243,6 +290,15 @@ class DialogueState(BaseState):
         # Отрисовываем плашку диалога (поверх участников!)
         screen.blit(self.dialogue_box, (0, SCREEN_HEIGHT // 2))
 
+        # Отрисовываем имя текущего говорящего
+        speaker_text_sprite = None
+        if self.now_speaking == Speaker.LEFT:
+            speaker_text_sprite = self.dialogue_font.render(self.dialogue.left_character, True, (0, 0, 0))
+        elif self.now_speaking == Speaker.RIGHT:
+            speaker_text_sprite = self.dialogue_font.render(self.dialogue.right_character, True, (0, 0, 0))
+        if speaker_text_sprite:
+            screen.blit(speaker_text_sprite, (TEXT_X, TEXT_Y - 50))
+
         # Отрисовываем текст
         self.draw_text_by_letter(screen)
 
@@ -251,20 +307,17 @@ class DialogueState(BaseState):
 
             # Отрисовываем кнопки выбора (если они есть)
             if self.awaiting.name == Awaiting.CHOOSE.name:
-                # TODO: make this a separate function and add multi-column placement if more than 3 buttons
-                for b_ind in range(len(self.current_choice_options)):
+                for btn in self.choice_buttons:
 
                     # Сами кнопки
-                    screen.blit(self.choice_buttons[self.choice_button_states[b_ind]],
-                                (CHOICE_BUTTON_X, CHOICE_BUTTON_Y + CHOICE_BUTTON_DIST * b_ind))
+                    screen.blit(self.choice_button_sprites[btn.state], (btn.x, btn.y))
 
                     # Текст кнопок
-                    input_text_sprite = self.dialogue_font.render(self.current_choice_options[b_ind], True, (0, 0, 0))
-                    screen.blit(input_text_sprite,
-                                (CHOICE_BUTTON_X + CHOICE_BUTTON_DIST, CHOICE_BUTTON_Y + CHOICE_BUTTON_DIST * b_ind))
+                    input_text_sprite = self.dialogue_font.render(btn.text, True, (0, 0, 0))
+                    screen.blit(input_text_sprite, (btn.x + btn.width + 10, btn.y))
 
             # Отрисовываем вводимый текст (если можно вводить)
-            if self.awaiting.name == Awaiting.INPUT.name:
+            elif self.awaiting.name == Awaiting.INPUT.name:
                 # TODO: make BG for input field?
                 input_text_sprite = self.dialogue_font.render(' - Ввод: ' + self.current_input_text, True, (0, 0, 0))
                 screen.blit(input_text_sprite, (TEXT_X, TEXT_Y + 100))
@@ -274,7 +327,7 @@ class DialogueState(BaseState):
         # TODO: what if we put special symbols in the dialogue that won't be printed but will change talking speed?
 
         if self.playing_line:
-            # TODO: try avoiding time.wait
+            # TODO: try avoiding time.wait, FPS jumps aren't the most beautiful thing
             if self.cursor_sym in '.?!':
                 return (Command.WAIT, SENTENCE_END_HOLD),
             elif self.cursor_sym in ':;':
@@ -288,7 +341,7 @@ class DialogueState(BaseState):
     def draw_text_by_letter(self, screen):
         """Приятный глазу эффект выведения текста по буковке"""
 
-        if self.line_cursor == len(self.current_line):
+        if self.line_cursor >= len(self.current_line):
             self.playing_line = False
         else:
             # TODO: couldn't find anywhere better to extract the latest symbol, but maybe I should

@@ -15,12 +15,20 @@ class BaseState:
         """Обработка нажатия и удержания кнопок"""
         pass
 
-    def handle_mouse_motion(self, mouse_pos):
+    def handle_button_release(self, event, pressed_keys):
+        """Обработка отпускания кнопок"""
+        pass
+
+    def handle_mouse_motion(self, event):
         """Обработка позиции курсора мыши"""
         pass
 
-    def handle_mouse_click(self, pressed_buttons):
+    def handle_mouse_click(self, event):
         """Обработка щелчка мышью"""
+        pass
+
+    def handle_mouse_release(self, event):
+        """Обработка отпускания кнопок мыши"""
         pass
 
     def execute_before_draw(self):
