@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-03-12 - Visual update #1
+
+- Added the 4th frame to the player walk cycle, as well as an overall update to player's design
+- Added a variety of wall tiles and enemies for future levels
+
+
 ## 2026-03-11 - Challenging update
 
 - Created `ChallengeState.py` (inspired by `DialogueState.py`)

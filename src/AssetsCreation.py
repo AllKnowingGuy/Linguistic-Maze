@@ -55,7 +55,7 @@ def add_player_tile():
 def add_player_walk():
     """Загрузка тайлов анимации игрока"""
     frames = []
-    for i in range(1,4):
+    for i in range(1,5):
         frame_path = f'{ROOT_MAZE_PATH}\\player\\walk{i}.png'
         frame = load_one_object(frame_path, PLAYER_SIZE, PLAYER_SIZE)
         if frame:
