@@ -21,7 +21,6 @@ class Command(Enum):
     WAIT = 2 # Временно перестать обновляться
     SET_FPS = 3 # Изменить частоту обновления
     CHECK_PROGRESS = 4 # Проверить и обновить прогресс
-    ENCOUNTER_ENEMY = 5 # Запуск диалога при встрече с монстром
 
 
 """
@@ -51,14 +50,25 @@ class Border(Enum):
 
 
 """
-Для Dialogue и DialogueState
+Для DialogueState и ChallengeState
 """
 
 CHOICE_BUTTON_SIZE = 30
+CHAL_BUTTON_WIDTH = 150
+CHAL_BUTTON_HEIGHT = 90
 
 
-class ButtonType(Enum):
+class ButtonState(Enum):
     """Состояния кнопки"""
     REGULAR = 1
     HOVERED = 2
     PRESSED = 3
+    DISABLED = 4
+
+
+class Awaiting(Enum):
+    """Действия игрока на определённом этапе"""
+    CONTINUE = 1
+    CHOOSE = 2
+    INPUT = 3
+
