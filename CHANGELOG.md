@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-03-12 - Roles and dialogues update
+
+- Added complete intro JSON with character selection
+- Added game ending JSON with Sphinx encounter
+- Added room JSONs for all 4 themes (neuro, phonetics, socio, comp)
+- Added 30+ monster JSONs with full dialogues and mechanics
+- Restructured `StoryScript` by splitting checks into functions
+
 ## 2026-03-12 - Draw suppression update
 
 - **Greatly optimized** all 3 game modes by making their states only redraw game components if one or more of them have changed position or have been replaced

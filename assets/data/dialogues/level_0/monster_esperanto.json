@@ -1,0 +1,44 @@
+{
+  "name": "Esperantist",
+  "difficulty": 0,
+  "type": "puzzle",
+  "dialog": [
+    {
+      "id": 1,
+      "speaker": "monster",
+      "text": "Привет, странник! Рад тебя видеть в начале лабиринта. Для начала нужно пройти первые задания для ознакомления. Смотри, даны словосочетания на языке эсперанто и их перевод на русский язык.",
+      "examples": [
+        "koko de knabo - петух мальчика",
+        "bela domo de rego - красивый дом короля",
+        "kokido de filino - цыпленок дочери",
+        "malvarma kokino - холодная курица",
+        "malbona filo - плохой сын",
+        "homa bebo - человеческий детеныш"
+      ],
+      "next": 2
+    },
+    {
+      "id": 2,
+      "speaker": "monster",
+      "text": "Переведи с языка эсперанто на русский язык следующие словосочетания и впиши их!",
+      "questions": [
+        {
+          "text": "bona homo —",
+          "correct_answer": "хороший человек",
+          "respect": 1
+        },
+        {
+          "text": "malbela knabino —",
+          "correct_answer": "некрасивая девочка",
+          "respect": 1
+        },
+        {
+          "text": "filino de regino —",
+          "correct_answer": "дочь королевы",
+          "respect": 1
+        }
+      ],
+      "next": "end"
+    }
+  ]
+}

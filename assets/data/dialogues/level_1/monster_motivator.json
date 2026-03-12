@@ -1,0 +1,15 @@
+{
+  "name": "Motivator-Oleg",
+  "difficulty": 1,
+  "type": "motivation",
+  "dialog": [
+    {
+      "id": 1,
+      "speaker": "monster",
+      "text": "Experentia est optima magistra!",
+      "action": "give_respect",
+      "respect_change": 1,
+      "next": "end"
+    }
+  ]
+}

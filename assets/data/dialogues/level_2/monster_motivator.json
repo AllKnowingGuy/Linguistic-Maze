@@ -1,0 +1,15 @@
+{
+  "name": "Gubble-Tui",
+  "difficulty": 2,
+  "type": "motivation",
+  "dialog": [
+    {
+      "id": 1,
+      "speaker": "monster",
+      "text": "Dum spiro, spero, дружочек мой!",
+      "action": "give_respect",
+      "respect_change": 1,
+      "next": "end"
+    }
+  ]
+}

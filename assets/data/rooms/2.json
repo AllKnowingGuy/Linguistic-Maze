@@ -1,0 +1,80 @@
+{
+  "theme": "фонетика",
+  "difficulties": {
+    "0": {
+      "monsters_count": 2,
+      "max_respect": 6,
+      "exit": {
+        "type": "артефакт",
+        "code": ["ручка"],
+        "respect_req": 3
+      }
+    },
+    "1": {
+      "monsters_count": 3,
+      "max_respect": 4,
+      "exit": {
+        "type": "респект",
+        "respect_req": 2
+      }
+    },
+    "2": {
+      "monsters_count": 3,
+      "max_respect": 10,
+      "exit": {
+        "type": "респект",
+        "respect_req": 5
+      }
+    }
+  },
+  "monsters": {
+    "monster_fontermin": {
+      "name": "Fontermin",
+      "difficulty": 0,
+      "position": {"x": 5, "y": 5},
+      "dialog_file": "monster_fontermin.json"
+    },
+    "monster_fonmotivator": {
+      "name": "Fonmotivator",
+      "difficulty": 0,
+      "position": {"x": 12, "y": 8},
+      "dialog_file": "monster_fonmotivator.json"
+    },
+    "monster_runner": {
+      "name": "Doil-runner",
+      "difficulty": 1,
+      "position": {"x": 18, "y": 12},
+      "dialog_file": "monster_runner.json"
+    },
+    "monster_expert": {
+      "name": "Simple John",
+      "difficulty": 1,
+      "position": {"x": 8, "y": 15},
+      "dialog_file": "monster_expert.json"
+    },
+    "monster_amateur": {
+      "name": "Wiser",
+      "difficulty": 1,
+      "position": {"x": 10, "y": 10},
+      "dialog_file": "monster_amateur.json"
+    },
+    "monster_formant": {
+      "name": "Spectrogram-Warrior",
+      "difficulty": 2,
+      "position": {"x": 20, "y": 5},
+      "dialog_file": "monster_formant.json"
+    },
+    "monster_aggressive": {
+      "name": "Comparative-Tyrant",
+      "difficulty": 2,
+      "position": {"x": 25, "y": 10},
+      "dialog_file": "monster_aggressive.json"
+    },
+    "monster_runner_": {
+      "name": "Silent-Runner",
+      "difficulty": 2,
+      "position": {"x": 15, "y": 15},
+      "dialog_file": "monster_runner.json"
+    }
+  }
+}

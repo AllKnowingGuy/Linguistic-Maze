@@ -1,0 +1,21 @@
+{
+  "name": "Socio-Sphinx",
+  "difficulty": 1,
+  "type": "riddle",
+  "dialog": [
+    {
+      "id": 1,
+      "speaker": "monster",
+      "text": "Странник, ты не пройдешь! 'НОГА' у человека и 'НОГА' у стола. Почему одно слово — разные значения? Что это за явление, странник?",
+      "action": "text_input",
+      "correct_answers": ["полисемия", "многозначность"],
+      "case_insensitive": true,
+      "success_response": "Окей, даю тебе артефакт - стрелу. Покажи на выходе ее!",
+      "success_respect": 2,
+      "success_artifact": "стрела",
+      "failure_response": "Неверно!",
+      "failure_respect": -1,
+      "next": "end"
+    }
+  ]
+}

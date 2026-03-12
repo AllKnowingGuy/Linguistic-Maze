@@ -1,0 +1,15 @@
+{
+  "name": "Motivator",
+  "difficulty": 0,
+  "type": "motivation",
+  "dialog": [
+    {
+      "id": 1,
+      "speaker": "monster",
+      "text": "Cogito ergo sum.",
+      "action": "give_respect",
+      "respect_change": 1,
+      "next": "end"
+    }
+  ]
+}

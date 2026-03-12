@@ -1,0 +1,59 @@
+{
+  "name": "Comparative-Tyrant",
+  "difficulty": 2,
+  "type": "comparative_linguistics",
+  "timed": true,
+  "time_per_question": 20,
+  "dialog": [
+    {
+      "id": 1,
+      "speaker": "monster",
+      "text": "Хочешь получить артефакт, который тебя спасет в самой последней комнате?"
+    },
+    {
+      "id": 2,
+      "speaker": "hero",
+      "text": "Чего я только не хочу, выбраться бы из этого лабиринта! Что ты хочешь мне предложить?"
+    },
+    {
+      "id": 3,
+      "speaker": "monster",
+      "text": "Смотри внимательно! Немецкий kaufen (покупать) равно нидерландскому kopen. Немецкий Haus (дом) равно нидерландскому huis. Теперь немецкое laufen (бежать). Какое это нидерландское слово? Напиши на нидерландском, живо!",
+      "action": "timed_input",
+      "correct_answer": "lopen",
+      "respect_correct": 1,
+      "respect_wrong": 0,
+      "correct_response": "Неплохо размышляешь. Погнали дальше!",
+      "wrong_response": "Возьми себя в руки, а то я вижу, как ты раскис! Не будешь соображать - дальше не пройдешь.",
+      "next": 4
+    },
+    {
+      "id": 4,
+      "speaker": "monster",
+      "text": "Немецкий Vater (отец) равно шведскому fader. Немецкий Mutter (мать) равно шведскому moder. Немецкое Bruder (брат) → шведское?",
+      "action": "timed_input",
+      "correct_answer": "broder",
+      "respect_correct": 1,
+      "respect_wrong": 0,
+      "correct_response": "Ну вот, я понимаю - лингвист!",
+      "wrong_response": "Мое терпение лопнет, на следующий вопрос постарайся не ошибаться - мне злости не хватит на тебя!",
+      "next": 5
+    },
+    {
+      "id": 5,
+      "speaker": "monster",
+      "text": "Давай последнее попробуем. Польское 'włosy' (волосы) равно чешскому 'vlasy'. Польское 'noga' (нога) равно чешскому 'noha'. Польское 'woda' (вода) равно чешскому 'voda'. Польское 'wiatr' (ветер) равно чешскому 'vítr'. Польское 'głowa' → чешское?",
+      "action": "timed_input",
+      "correct_answer": "hlava",
+      "respect_correct": 1,
+      "respect_wrong": 0,
+      "next": 6
+    },
+    {
+      "id": 6,
+      "speaker": "monster",
+      "text": "Я тебе в любом случае ничего не дам. Из-за вредности.",
+      "next": "end"
+    }
+  ]
+}

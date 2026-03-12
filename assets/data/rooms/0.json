@@ -1,0 +1,33 @@
+{
+  "theme": "нулевая",
+  "difficulties": {
+    "0": {
+      "monsters_count": 3,
+      "max_respect": 4,
+      "exit": {
+        "type": "респект",
+        "respect_req": 2
+      }
+    }
+  },
+  "monsters": {
+    "monster_motivator": {
+      "name": "Elf-motivator",
+      "difficulty": 0,
+      "position": {"x": 15, "y": 10},
+      "dialog_file": "monster_motivator.json"
+    },
+    "monster_runner": {
+      "name": "Bob-runner",
+      "difficulty": 0,
+      "position": {"x": 25, "y": 8},
+      "dialog_file": "monster_runner.json"
+    },
+    "monster_esperanto": {
+      "name": "Esperanto-lover",
+      "difficulty": 0,
+      "position": {"x": 10, "y": 15},
+      "dialog_file": "monster_esperanto.json"
+    }
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "name": "Simple John",
+  "difficulty": 1,
+  "type": "transcription_game",
+  "dialog": [
+    {
+      "id": 1,
+      "speaker": "monster",
+      "text": "Поиграем в игру, человек! Я буду кидать транскрипцию, а ты пиши в поле ответа слово, которое соответствует этой транскрипции! Попробуешь меня победить?"
+    },
+    {
+      "id": 2,
+      "speaker": "hero",
+      "text": "Давай, я не боюсь!"
+    },
+    {
+      "id": 3,
+      "speaker": "monster",
+      "text": "Ну хорошо, тогда что это за слово - [jáма]?",
+      "action": "text_input",
+      "correct_answer": "яма",
+      "case_insensitive": true,
+      "respect_correct": 1,
+      "respect_wrong": -1,
+      "next": 4
+    },
+    {
+      "id": 4,
+      "speaker": "monster",
+      "text": "Хм, окей-окей. А что за слово [л'эт'н'иj']?",
+      "action": "text_input",
+      "correct_answer": "летний",
+      "case_insensitive": true,
+      "respect_correct": 1,
+      "respect_wrong": 0,
+      "next": 5
+    },
+    {
+      "id": 5,
+      "speaker": "monster",
+      "text": "А как же [жыв'ом]?",
+      "action": "text_input",
+      "correct_answers": ["живём", "живем"],
+      "case_insensitive": true,
+      "respect_correct": 1,
+      "respect_wrong": 0,
+      "next": 6
+    },
+    {
+      "id": 6,
+      "speaker": "monster",
+      "text": "Ну что я могу сказать, более-менее! Но тебе ничего не дам, просто хотел пообщаться с каким-то человеком.",
+      "next": "end"
+    }
+  ]
+}

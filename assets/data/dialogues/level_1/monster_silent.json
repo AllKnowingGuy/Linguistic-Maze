@@ -1,0 +1,36 @@
+{
+  "name": "Super-creon",
+  "difficulty": 1,
+  "type": "silent",
+  "dialog": [
+    {
+      "id": 1,
+      "speaker": "monster",
+      "text": "...",
+      "options": [
+        {
+          "text": "Пройти мимо",
+          "next": "end",
+          "artifact": null
+        },
+        {
+          "text": "Тыкнуть монстра",
+          "responses": ["Монстр в ярости!"],
+          "respect_change": -1,
+          "next": "end"
+        },
+        {
+          "text": "Что-нибудь сказать",
+          "action": "text_input",
+          "validation": "dictionary_check",
+          "success_response": "Не думал, что кто-то может со мной заговорить. Дарю тебе в качестве комплимента подарок.",
+          "success_respect": 1,
+          "success_artifact": "фонарик",
+          "failure_response": "...",
+          "failure_respect": 0,
+          "next": "end"
+        }
+      ]
+    }
+  ]
+}

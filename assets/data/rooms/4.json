@@ -1,0 +1,75 @@
+{
+  "theme": "компьютерная лингвистика",
+  "difficulties": {
+    "0": {
+      "monsters_count": 2,
+      "max_respect": 3,
+      "exit": {
+        "type": "кодовый_замок",
+        "code": "ja",
+        "respect_req": 2
+      }
+    },
+    "1": {
+      "monsters_count": 2,
+      "max_respect": 2,
+      "exit": {
+        "type": "респект",
+        "respect_req": 2
+      }
+    },
+    "2": {
+      "monsters_count": 2,
+      "max_respect": 3,
+      "exit": {
+        "type": "артефакт",
+        "artifacts": ["скрепка"],
+        "respect_req": 1
+      }
+    }
+  },
+  "monsters": {
+    "monster_questioner": {
+      "name": "Molly",
+      "difficulty": 0,
+      "position": {"x": 5, "y": 5},
+      "dialog_file": "monster_questioner.json"
+    },
+    "monster_sphinx": {
+      "name": "Digital-Sphinx",
+      "difficulty": 0,
+      "position": {"x": 12, "y": 8},
+      "dialog_file": "monster_sphinx.json"
+    },
+    "monster_runner": {
+      "name": "Byte",
+      "difficulty": 1,
+      "position": {"x": 18, "y": 12},
+      "dialog_file": "monster_runner.json"
+    },
+    "monster_helper": {
+      "name": "Tricky-Helper",
+      "difficulty": 1,
+      "position": {"x": 8, "y": 15},
+      "dialog_file": "monster_helper.json"
+    },
+    "monster_communicator": {
+      "name": "Corpus-Talker",
+      "difficulty": 2,
+      "position": {"x": 10, "y": 10},
+      "dialog_file": "monster_communicator.json"
+    },
+    "monster_tfidf": {
+      "name": "Master",
+      "difficulty": 2,
+      "position": {"x": 20, "y": 5},
+      "dialog_file": "monster_tfidf.json"
+    },
+    "monster_runner__": {
+      "name": "Silent-Process",
+      "difficulty": 2,
+      "position": {"x": 15, "y": 15},
+      "dialog_file": "monster_runner.json"
+    }
+  }
+}

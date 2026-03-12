@@ -1,0 +1,84 @@
+{
+  "themes": {
+    "нулевая": {
+      "0": {
+        "room_id": "нуль_0",
+        "exit": {
+          "type": "просто",
+          "respect_req": 0
+        }
+      }
+    },
+    "нейролингвистика": {
+      "0": {
+        "room_id": "нейро_0",
+        "exit": {
+          "type": "кодовый_замок",
+          "code": "ЗЯТЬ",
+          "respect_req": 5
+        }
+      },
+      "1": {
+        "room_id": "нейро_1",
+        "exit": {
+          "type": "артефакт",
+          "code": ["спичка", "фонарик"],
+          "respect_req": 1
+        }
+      },
+      "2": {
+        "room_id": "нейро_2",
+        "exit": {
+          "type": "просто",
+          "respect_req": 3
+        }
+      }
+    },
+    "фонетика": {
+      "0": {
+        "room_id": "фон_0",
+        "exit": {"type": "артефакт", "artifact": "ручка", "respect_req": 3}
+      },
+      "1": {
+        "room_id": "фон_1",
+        "exit": {"type": "просто", "respect_req": 2}
+      },
+      "2": {
+        "room_id": "фон_2",
+        "exit": {"type": "просто", "respect_req": 5}
+      }
+    },
+    "социолингвистика": {
+      "0": {
+        "room_id": "социо_0",
+        "exit": {"type": "просто", "respect_req": 4}
+      },
+      "1": {
+        "room_id": "социо_1",
+        "exit": {"type": "артефакт", "code": "стрела", "respect_req": 0}
+      },
+      "2": {
+        "room_id": "социо_2",
+        "exit": {"type": "просто", "respect_req": 3}
+      }
+    },
+    "компьютерная лингвистика": {
+      "0": {
+        "room_id": "комп_0",
+        "exit": {"type": "кодовый_замок", "code": "[jа]", "respect_req": 3}
+      },
+      "1": {
+        "room_id": "комп_1",
+        "exit": {"type": "просто", "respect_req": 2}
+      },
+      "2": {
+        "room_id": "комп_2",
+        "exit": {"type": "артефакт", "code": ["скрепка"], "respect_req": 3}
+      }
+    }
+  },
+  "global_settings": {
+    "respect_fail": -3,
+    "max_level": 2
+  }
+}

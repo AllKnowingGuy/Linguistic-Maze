@@ -1,0 +1,81 @@
+{
+  "theme": "социолингвистика",
+  "difficulties": {
+    "0": {
+      "monsters_count": 2,
+      "max_respect": 8,
+      "exit": {
+        "type": "респект",
+        "respect_req": 4
+      }
+    },
+    "1": {
+      "monsters_count": 2,
+      "max_respect": 6,
+      "exit": {
+        "type": "артефакт",
+        "artifacts": ["стрела"],
+        "respect_req": 2
+      }
+    },
+    "2": {
+      "monsters_count": 4,
+      "max_respect": 5,
+      "exit": {
+        "type": "артефакт",
+        "artifacts": ["гармошка"],
+        "respect_req": 2
+      }
+    }
+  },
+  "monsters": {
+    "monster_terminology": {
+      "name": "Sociotermin",
+      "difficulty": 0,
+      "position": {"x": 5, "y": 5},
+      "dialog_file": "monster_terminology.json"
+    },
+    "monster_motivator": {
+      "name": "Gubble-Tui",
+      "difficulty": 0,
+      "position": {"x": 12, "y": 8},
+      "dialog_file": "monster_motivator.json"
+    },
+    "monster_sphinx": {
+      "name": "Socio-Sphinx",
+      "difficulty": 1,
+      "position": {"x": 18, "y": 12},
+      "dialog_file": "monster_sphinx.json"
+    },
+    "monster_runner": {
+      "name": "Socio-Sphinx",
+      "difficulty": 1,
+      "position": {"x": 18, "y": 12},
+      "dialog_file": "monster_runner.json"
+    },
+    "monster_linguist": {
+      "name": "Simple Vova",
+      "difficulty": 2,
+      "position": {"x": 8, "y": 15},
+      "dialog_file": "monster_linguist.json"
+    },
+    "monster_gloss": {
+      "name": "Gloss-Master",
+      "difficulty": 2,
+      "position": {"x": 10, "y": 10},
+      "dialog_file": "monster_gloss.json"
+    },
+    "monster_researcher": {
+      "name": "Dialectologist",
+      "difficulty": 2,
+      "position": {"x": 20, "y": 5},
+      "dialog_file": "monster_researcher.json"
+    },
+    "monster_sociorunner": {
+      "name": "Socio-Runner",
+      "difficulty": 2,
+      "position": {"x": 25, "y": 10},
+      "dialog_file": "monster_sociorunner.json"
+    }
+  }
+}

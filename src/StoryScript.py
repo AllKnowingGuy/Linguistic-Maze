@@ -10,16 +10,31 @@ DEBUG_DIALOGUE_SKIP = False
 
 class StoryScript:
     def __init__(self):
+        self.current_level = 0  # 0=вступление, 1=лабиринт, 2=финал
+        self.total_respect = 0
+        self.artifacts = []
+        self.player_name = None
+        self.rooms_progress = {}  # {room_id: {'respect': 0, 'completed': False}}
+        self.current_room_id = None
+
         self.current_room = -1
         self.last_passed_room = -1
-        self.general_progress = {
-            'started_game': False,
-            'passed_maze': False,
-            'finished_outro': False,
-        }
 
         # Монстр, с котором в данный момент встретился игрок
         self.on_monster = None
+
+        # Сохраняем старое для совместимости
+        self.general_progress = {
+            'started_game': False, 'finished_intro': False,
+            'passed_maze': False, 'finished_outro': False
+        }
+
+        # Прогресс по разделам игры
+        self.intro_progress = {
+            'answered_question': False,
+            'said_no': False,
+            'said_yes': False
+        }
 
         # Данные комнат (ключи - целочисленные идентификаторы комнат)
         self.rooms_data = {
@@ -41,16 +56,9 @@ class StoryScript:
             }
         }
 
-        # Прогресс по разделам игры
-        self.intro_progress = {
-            'answered_question': False,
-            'said_no': False
-        }
-
     def update_game_progress(self, game):
         """Проверяет и обновляет состояние игры в соответствии со скриптом"""
 
-        # Когда игрок только начинает игру
         if not self.general_progress['started_game']:
             self.start_game(game)
 
@@ -87,8 +95,9 @@ class StoryScript:
                 game.current_state_type = StateType.MAZE
                 game.associate_current_state()
                 game.maze_state.needs_screen_update = True
-                self.on_monster.active = False
-                self.on_monster = None
+                if self.on_monster:
+                    self.on_monster.active = False
+                    self.on_monster = None
 
     def start_game(self, game):
         self.general_progress['started_game'] = True
@@ -121,6 +130,14 @@ class StoryScript:
                 return
             self.generate_next_room(game)
 
+    def on_monster_dialogue(self, game):
+        if game.dialogue_manager.finished:
+            self.handle_room_exit(game)
+
+    def on_dynamic_maze_level(self, game):
+        if game.maze_manager.check_win():
+            self.handle_room_exit(game)
+
     """
     Проверки остальных диалогов
     """
@@ -132,7 +149,13 @@ class StoryScript:
         if self.on_monster:
 
             # Собираем бесплатные респекты, если они предусмотрены
-            self.rooms_data[self.current_room]["respect"] += game.dialogue_state.dialogue.respect_points
+            if self.current_room in self.rooms_data:
+                self.rooms_data[self.current_room]["respect"] += game.dialogue_state.dialogue.respect_points
+
+            if self.current_room_id and self.current_room_id in self.rooms_progress:
+                self.rooms_progress[self.current_room_id]['respect'] += game.dialogue_state.dialogue.respect_points
+
+            self.total_respect += game.dialogue_state.dialogue.respect_points
 
             # Если после встречи должно начаться испытание
             if game.dialogue_state.dialogue.starts_challenge:
@@ -148,8 +171,9 @@ class StoryScript:
             else:
                 game.current_state_type = StateType.MAZE
                 game.associate_current_state()
-                self.on_monster.active = False
-                self.on_monster = None
+                if self.on_monster:
+                    self.on_monster.active = False
+                    self.on_monster = None
 
         # Если это диалог двери выхода
         elif self.last_passed_room == self.current_room:
@@ -172,10 +196,34 @@ class StoryScript:
         )
         game.associate_current_state()
 
-    def handle_room_exit(self, game):
-        """Проверка выхода из комнаты"""
+    def check_room_exit_conditions(self, room_data):
+        """Проверяет респекты/артефакты для выхода"""
+        respect = room_data.get('respect', 0)
+        difficulty = 0
+        if self.current_room_id:
+            difficulty = int(self.current_room_id.split('_')[1])
 
-        room_data = self.rooms_data[self.current_room]
+        # Условия по сложности:
+        respect_req = [5, 2, 5][difficulty]  # 0=5, 1=2, 2=5 респектов
+
+        print(f"Комната {self.current_room_id}: {respect}/{respect_req} респектов")
+        return respect >= respect_req
+
+    def restart_current_room(self, game):
+        """Рестарт текущей комнаты при провале"""
+        print(f"Нужны респекты для {self.current_room_id}")
+        # Пока просто следующая комната (потом рестарт)
+        self.generate_next_room(game)
+
+    def handle_room_exit(self, game):
+        """Проверяет выход из ЛЮБОЙ комнаты"""
+        if self.current_room_id and self.current_room_id in self.rooms_progress:
+            room_data = self.rooms_progress[self.current_room_id]
+        elif self.current_room in self.rooms_data:
+            room_data = self.rooms_data[self.current_room]
+        else:
+            room_data = {"respect": 0}
+
         if self.check_room_exit_conditions(room_data):
             self.last_passed_room = self.current_room
             supposed_dialogue_path = f'..\\assets\\data\\dialogues\\level_{self.current_room}\\exit_door.json'
@@ -190,37 +238,19 @@ class StoryScript:
         else:
             self.restart_current_room(game)
 
-    def check_room_exit_conditions(self, room_data):
-        """Проверка респектов/артефактов для выхода"""
-
-        respect = room_data.get("respect", 0)
-        difficulty = room_data.get("difficulty", 0)
-
-        # Условия по сложности:
-        respect_req = (0, 0, 0)[difficulty] # 0=5, 1=2, 2=5 респектов, временно отключены
-
-        print(f"Комната {self.current_room}: {respect}/{respect_req} респектов")
-        return respect >= respect_req
-
-    def restart_current_room(self, game):
-        """Рестарт текущей комнаты при провале"""
-
-        print(f"Нужны респекты для {self.current_room}")
-        # Пока просто следующая комната (потом рестарт)
-        self.generate_next_room(game)
-
     def generate_next_room(self, game):
-        """Генерация новой комнаты"""
+        """Генерирует новую комнату"""
+        self.current_level = min(self.current_level + 1, 2)
+        self.current_room = min(self.current_room + 1, 1)  # временное ограничение
+        self.current_room_id = f"room_{self.current_level}"  # "room_1", "room_2", ...
 
-        # Продвижение на одну комнату и извлечение данных
-        self.current_room = min(self.current_room + 1, 1) # временное ограничение на максимальный уровень
         room_data = self.rooms_data[self.current_room]
 
-        difficulty = random.randint(0, 2) # 0=легко, 1=средне, 2=сложно
+        difficulty = random.randint(0, 2)  # 0=легко, 1=средне, 2=сложно
         # random difficulty for now - Vsevolod
 
         # Размер комнаты
-        sizes = room_data.get("sizes", [(31, 19), (31, 25), (37, 37)])
+        sizes = [(31, 19), (25, 31), (20, 25)]  # 0=легко, 1=средне, 2=сложно
         w, h = sizes[difficulty]
 
         walls_with_doors = room_data.get("walls_with_doors", (Border.WEST, Border.EAST))
