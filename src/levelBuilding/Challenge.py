@@ -77,3 +77,19 @@ class Challenge:
         if type(supposed_action) == dict:
             return supposed_action.get("incorrectcomments")
         return None
+
+    def get_window_correct_respect_points(self, window_ind: int) -> int | None:
+        if window_ind >= len(self.windows) or window_ind < 0:
+            return None
+        supposed_action = self.windows[window_ind].get("action")
+        if type(supposed_action) == dict:
+            return supposed_action.get("correctrpoints", 0)
+        return None
+
+    def get_window_incorrect_respect_points(self, window_ind: int) -> int | None:
+        if window_ind >= len(self.windows) or window_ind < 0:
+            return None
+        supposed_action = self.windows[window_ind].get("action")
+        if type(supposed_action) == dict:
+            return supposed_action.get("incorrectrpoints", 0)
+        return None

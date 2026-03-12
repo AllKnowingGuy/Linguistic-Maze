@@ -9,7 +9,9 @@
                 "answers": ["4", "5"],
                 "checker": "plainequality",
                 "correctcomments": ["А ты умный!", "Неплохо!"],
-                "incorrectcomments": ["Ну ты чего?", "Скажи, что это шутка..."]
+                "incorrectcomments": ["Ну ты чего?", "Скажи, что это шутка..."],
+                "correctrpoints": 1,
+                "incorrectrpoints": -2
             }
         },
         {
@@ -21,7 +23,9 @@
                 "answers": ["протагонист", "Протагонист"],
                 "checker": "plainequality",
                 "correctcomments": ["А ты внимательный!", "Уважаю твою память на имена!"],
-                "incorrectcomments": ["Ты его только что видел...", "Обрати внимание на диалог."]
+                "incorrectcomments": ["Ты его только что видел...", "Обрати внимание на диалог."],
+                "correctrpoints": 2,
+                "incorrectrpoints": -1
             }
         },
         {

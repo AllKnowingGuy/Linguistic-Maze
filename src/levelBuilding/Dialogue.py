@@ -62,6 +62,7 @@ class Dialogue:
         self.left_character = dialogue_dict.get("left")
         self.right_character = dialogue_dict.get("right")
         self.right_character_path = dialogue_dict.get("rightsprite")
+        self.respect_points = dialogue_dict.get("rpoints", 0) # TODO: line respect points when awaiting input or choice
         self.starts_challenge = dialogue_dict.get("challenge", False)
 
     def get_line_speaker(self, line_ind: int) -> str | None:
@@ -90,7 +91,7 @@ class Dialogue:
             return None
         supposed_action = self.lines[line_ind].get("action")
         if type(supposed_action) == dict and supposed_action["type"] == "choosefrom":
-            return supposed_action.get("jumps")
+            return supposed_action.get("jumps", [])
         return None
 
     def get_line_text(self, line_ind: int) -> str | None:
@@ -98,12 +99,12 @@ class Dialogue:
             return None
         return self.lines[line_ind]["text"]
 
-    def get_line_bgswitch(self, line_ind: int):
+    def get_line_bgswitch(self, line_ind: int) -> str | None:
         if line_ind >= len(self.lines):
             return None
         return self.lines[line_ind].get("bg")
 
-    def get_line_jump(self, line_ind: int):
+    def get_line_jump(self, line_ind: int) -> int | None:
         if line_ind >= len(self.lines):
             return None
         return self.lines[line_ind].get("jump")

@@ -1,5 +1,17 @@
 # Changelog
 
+## 2026-03-12 - Draw suppression update
+
+- **Greatly optimized** all 3 game modes by making their states only redraw game components if one or more of them have changed position or have been replaced
+- Added a `needs_screen_update` attribute to `BaseState` so that every playstate is able to optimize its drawing
+- `DialogueState` now only re-renders texts when they are updated
+- `ChallengeState` now makes use of `execute_before_draw`
+- Added respect points to dialogues (currently only per dialogue points) and challenge tasks
+- Made `StoryScript` add monster's dialogue points to the current room score
+- Made `ChallengeState` give or take points based on correctness and show the challenge score on the result screen
+- Moved text field updates on typing and button state switches on mouse hovering to `BaseState` to reduce shared code between `DialogueState` and `ChallengeState`
+- Made image scaling optional when loading them in `AssetsCreation.py`
+
 ## 2026-03-11 - Challenging update
 
 - Created `ChallengeState.py` (inspired by `DialogueState.py`)

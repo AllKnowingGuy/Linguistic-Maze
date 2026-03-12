@@ -96,6 +96,7 @@ class Main:
 
     def draw(self):
         """Отрисовка игры"""
+
         # Содержимое игры (полностью контролируется текущим состоянием)
         supposed_commands = self.current_state.draw(self.content_layer)
 
@@ -106,8 +107,15 @@ class Main:
             self.fps_text_sprite = self.base_font.render('FPS: ' + str(int(self.clock.get_fps())), True, (0, 0, 0))
             self.hud_layer.blit(self.fps_text_sprite, (10, 10))
 
-        # Обновление дисплея
-        self.screen.blit(self.content_layer, (0, 0))
+        # Обновление дисплея содержимого (теперь со строгими ограничениями)
+        if supposed_commands:
+            for command in supposed_commands:
+                if command[0].name == Command.UPDATE_DISPLAY.name:
+                    self.screen.blit(self.content_layer, (0, 0))
+                    #print('woah')
+                    break
+
+        # Обновление дисплея FPS
         self.screen.blit(self.hud_layer, (0, 0))
         pygame.display.flip()
         return supposed_commands

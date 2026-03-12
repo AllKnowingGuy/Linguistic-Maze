@@ -4,23 +4,26 @@ import pygame
 from src.Util import * # screw it - Vsevolod
 
 
-def load_one_object(path: str, width: float, height: float):
+def load_one_object(path: str, width: float = None, height: float = None):
     loaded_object = None
     try:
         loaded_object = pygame.image.load(path)
-        loaded_object = pygame.transform.scale(loaded_object, (width, height))
+        if width and height:
+            loaded_object = pygame.transform.scale(loaded_object, (width, height))
         print(f"Загружен {path}")
     except Exception as e:
         print(f"Ошибка загрузки {path}: {e}")
     return loaded_object
 
 
-def load_all_objects(root_path: str, path_map: dict[Enum, str], widths_heights_map: dict[Enum, tuple[float, float]]):
+def load_all_objects(root_path: str,
+                     path_map: dict[Enum, str],
+                     widths_heights_map: dict[Enum, tuple[float, float]] = None):
     loaded_objects = {}
     for obj_type, filename in path_map.items():
         filepath = os.path.join(root_path, filename)
         if os.path.exists(filepath):
-            width, height = widths_heights_map[obj_type]
+            width, height = widths_heights_map[obj_type] if widths_heights_map else (None, None)
             image = load_one_object(filepath, width, height)
             loaded_objects[obj_type] = image
     return loaded_objects
