@@ -128,7 +128,7 @@ class MazeState(BaseState):
 
         if self.is_moving and self.player_walk_frames:
             if current_time - self.last_animation_time > self.animation_speed:
-                self.animation_index = (self.animation_index + 1) % len(self.player_walk_frames) # 0->1->2->0
+                self.animation_index = (self.animation_index + 1) % len(self.player_walk_frames) # 0->1->2->3->0
                 self.last_animation_time = current_time
             self.current_player_image = self.player_walk_frames[self.animation_index]
         else:

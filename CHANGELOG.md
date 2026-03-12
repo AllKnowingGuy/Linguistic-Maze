@@ -12,6 +12,11 @@
 - Moved text field updates on typing and button state switches on mouse hovering to `BaseState` to reduce shared code between `DialogueState` and `ChallengeState`
 - Made image scaling optional when loading them in `AssetsCreation.py`
 
+## 2026-03-12 - Visual update #1
+
+- Added the 4th frame to the player walk cycle, as well as an overall update to player's design
+- Added a variety of wall tiles and enemies for future levels
+
 ## 2026-03-11 - Challenging update
 
 - Created `ChallengeState.py` (inspired by `DialogueState.py`)
