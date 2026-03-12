@@ -66,15 +66,60 @@ class MazeState(BaseState):
         self.facing_left = False
         self.current_player_image = self.player_tile
 
-        # Параметры темноты
-        self.darkness_enabled = True # Если темнота будет мешать тестированию других вещей, ее можно убрать
+        # Темнота и её параметры
+        self.darkness_enabled = False # Если темнота будет мешать тестированию других вещей, ее можно убрать
         self.darkness_alpha = 255
         self.light_radius = 200
-
         self.darkness_surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
 
         # Список врагов лабиринта
         self.enemies = []
+
+    def setup_maze(self, width: int = 3, height: int = 3,
+                   doors_near_borders: tuple[Border, Border] = (Border.WEST, Border.EAST),
+                   other_door_coords: tuple[int, int] = (1, 1),
+                   more_random: bool = False, curving: bool = False):
+        """
+        Задание структурных данных лабиринта и его генерация, задание позиции игрока
+
+        Args:
+            width (int): Ширина лабиринта (должна быть нечётным числом!)
+            height (int): Высота лабиринта (должна быть нечётным числом!)
+            doors_near_borders (tuple[Border]): Границы лабиринта, в которых расположены двери входа и выхода соответственно
+            other_door_coords (tuple[int, int]): Определяющие координаты дверей входа и выхода (если дверь в северной или южной стене - координата X, иначе - координата Y)
+            more_random (bool): Должен ли лабиринт генерироваться по альтернативному алгоритму для увеличения ветвления
+            curving (bool): Должен ли лабиринт избегать генерации прямых коридоров, если это возможно
+        """
+        # TODO: maybe enable switching to a preloaded maze and specifying player position
+
+        self.maze = Maze.Maze(width, height, doors_near_borders, other_door_coords)
+        self.maze.generate_maze(more_random, curving)
+        self.player_pos = [int((self.maze.start.x + 0.5) * TILE_SIZE),
+                           int((self.maze.start.y + 0.5) * TILE_SIZE)]
+
+        # Кеширование стен для отрисовки
+        self.wall_cache.clear()
+        self.precalculate_walls()
+
+        # Очищаем список врагов
+        self.enemies.clear()
+
+        # Тестовый враг перед выходом
+        enemy_x = self.maze.end.x
+        enemy_y = self.maze.end.y
+
+        # Проверяем возможность создать тут врага
+        if (0 <= enemy_x < self.maze.width) and (self.maze.pattern[enemy_y][enemy_x] == 0):
+            enemy = StationaryEnemy(enemy_x, enemy_y, "enemy_at_exit")
+            self.enemies.append(enemy)
+            print(f"Создан враг на ({enemy_x}, {enemy_y})")
+        else:
+            print(f"Не удалось создать врага: клетка ({enemy_x}, {enemy_y}) недоступна")
+
+        # Запрос на обновление экрана
+        self.needs_screen_update = True
+
+        return self.maze
 
     def update_animation(self):
         """Обновление кадров анимации"""
@@ -144,51 +189,9 @@ class MazeState(BaseState):
         self.enemy_tile = AssetsCreation.add_enemy_tile(self.current_level)
         self.wall_cache.clear()
 
-    def setup_maze(self, width: int = 3, height: int = 3,
-                   doors_near_borders: tuple[Border, Border] = (Border.WEST, Border.EAST),
-                   other_door_coords: tuple[int, int] = (1, 1),
-                   more_random: bool = False, curving: bool = False):
-        """
-        Задание структурных данных лабиринта и его генерация, задание позиции игрока
-
-        Args:
-            width (int): Ширина лабиринта (должна быть нечётным числом!)
-            height (int): Высота лабиринта (должна быть нечётным числом!)
-            doors_near_borders (tuple[Border]): Границы лабиринта, в которых расположены двери входа и выхода соответственно
-            other_door_coords (tuple[int, int]): Определяющие координаты дверей входа и выхода (если дверь в северной или южной стене - координата X, иначе - координата Y)
-            more_random (bool): Должен ли лабиринт генерироваться по альтернативному алгоритму для увеличения ветвления
-            curving (bool): Должен ли лабиринт избегать генерации прямых коридоров, если это возможно
-        """
-        # TODO: maybe enable switching to a preloaded maze and specifying player position
-
-        self.maze = Maze.Maze(width, height, doors_near_borders, other_door_coords)
-        self.maze.generate_maze(more_random, curving)
-        self.player_pos = [int((self.maze.start.x + 0.5) * TILE_SIZE),
-                           int((self.maze.start.y + 0.5) * TILE_SIZE)]
-
-        # Кеширование стен для отрисовки
-        self.wall_cache.clear()
-        self.precalculate_walls()
-
-        # Очищаем список врагов
-        self.enemies.clear()
-
-        # Тестовый враг перед выходом
-        enemy_x = self.maze.end.x
-        enemy_y = self.maze.end.y
-
-        # Проверяем возможность создать тут врага
-        if (0 <= enemy_x < self.maze.width) and (self.maze.pattern[enemy_y][enemy_x] == 0):
-            enemy = StationaryEnemy(enemy_x, enemy_y, "enemy_at_exit")
-            self.enemies.append(enemy)
-            print(f"Создан враг на ({enemy_x}, {enemy_y})")
-        else:
-            print(f"Не удалось создать врага: клетка ({enemy_x}, {enemy_y}) недоступна")
-
-        return self.maze
-
     def check_enemy_collision(self) -> Enemy | None:
-        # Проверяет столкновение врага и героя
+        """Проверка столкновения врага и героя"""
+
         player_tile_x = self.player_pos[0] // TILE_SIZE
         player_tile_y = self.player_pos[1] // TILE_SIZE
 
@@ -199,7 +202,8 @@ class MazeState(BaseState):
         return None
 
     def check_win(self):
-        # Проверка победы
+        """Проверка победы"""
+
         return (self.maze.end_door.x <= self.player_pos[0] // TILE_SIZE < self.maze.end_door.x + 1
                 and self.maze.end_door.y <= self.player_pos[1] // TILE_SIZE < self.maze.end_door.y + 1)
 
@@ -328,6 +332,7 @@ class MazeState(BaseState):
             moving = True
 
         self.is_moving = moving
+        self.update_animation()
 
         if (0 <= new_pos[0] < self.maze.width * TILE_SIZE - PLAYER_SIZE
             and 0 <= new_pos[1] < self.maze.height * TILE_SIZE - PLAYER_SIZE):
@@ -338,6 +343,9 @@ class MazeState(BaseState):
             if enemy:
                 self.is_moving = False
 
+        if self.is_moving:
+            self.needs_screen_update = True
+
         return (Command.CHECK_PROGRESS, None),
 
     def handle_button_release(self, event, pressed_keys):
@@ -346,38 +354,48 @@ class MazeState(BaseState):
         if not any(key in pressed_keys for key in (pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN,
                                                    pygame.K_a, pygame.K_d, pygame.K_w, pygame.K_s)):
             self.is_moving = False
+            self.update_animation()
+            self.needs_screen_update = True
 
     def draw(self, screen):
         """Отрисовка лабиринта"""
 
-        # Обновляем анимацию перед отрисовкой лабиринта
-        self.update_animation()
+        # ТОЛЬКО ЕСЛИ ЧТО-ТО ИЗМЕНИЛОСЬ НА ЭКРАНЕ
+        if self.needs_screen_update:
 
-        # Отрисовываем пол и стены
-        for y in range(self.maze.height):
-            for x in range(self.maze.width):
-                if self.maze.pattern[y][x] == 1:
-                    # в этой клетке стена
-                    cache_key = (x, y)
-                    screen.blit(self.wall_cache[cache_key], self.apply_shift(x * TILE_SIZE, y * TILE_SIZE))
-                else:
-                    # в этой клетке пол
-                    screen.blit(self.floor_tile, self.apply_shift(x * TILE_SIZE, y * TILE_SIZE))
+            # Отрисовываем пол и стены
+            for y in range(self.maze.height):
+                for x in range(self.maze.width):
+                    if self.maze.pattern[y][x] == 1:
+                        # в этой клетке стена
+                        cache_key = (x, y)
+                        screen.blit(self.wall_cache[cache_key], self.apply_shift(x * TILE_SIZE, y * TILE_SIZE))
+                    else:
+                        # в этой клетке пол
+                        screen.blit(self.floor_tile, self.apply_shift(x * TILE_SIZE, y * TILE_SIZE))
 
-        # Отрисовываем вход и выход
-        self.draw_exits(screen)
+            # Отрисовываем вход и выход
+            self.draw_exits(screen)
 
-        # Отрисовываем игрока (поверх всего! + с текущим кадром анимации)
-        screen.blit(self.current_player_image,
-                    self.apply_shift((self.player_pos[0]) - HALF_PLAYER, (self.player_pos[1]) - HALF_PLAYER))
+            # Отрисовываем врагов
+            for enemy in self.enemies:
+                if enemy.active:
+                    screen.blit(self.enemy_tile, self.apply_shift(enemy.x * TILE_SIZE, enemy.y * TILE_SIZE))
 
-        # Отрисовываем врагов
-        for enemy in self.enemies:
-            if enemy.active:
-                screen.blit(self.enemy_tile, self.apply_shift(enemy.x * TILE_SIZE, enemy.y * TILE_SIZE))
+            # Отрисовываем игрока (поверх всего! + с текущим кадром анимации)
+            screen.blit(self.current_player_image,
+                        self.apply_shift((self.player_pos[0]) - HALF_PLAYER, (self.player_pos[1]) - HALF_PLAYER))
 
-        # Накладываем темноту поверх всего-всего
-        self.apply_darkness(screen)
+            # Накладываем темноту поверх всего-всего
+            self.apply_darkness(screen)
+
+            # БЛОКИРУЕМ ПОВТОРНУЮ ОТРИСОВКУ ДО ОБНОВЛЕНИЯ ЭЛЕМЕНТОВ
+            self.needs_screen_update = False
+
+            # Сообщаем об изменениях функции главного цикла
+            return (Command.UPDATE_DISPLAY, None),
+
+        return None
 
     """
     Вспомогательные функции для обработки нажатых кнопок

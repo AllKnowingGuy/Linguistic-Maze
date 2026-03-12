@@ -5,7 +5,7 @@ from Util import Border, StateType
 
 
 intro_dialogue_path = '..\\assets\\data\\dialogues\\intro.json'
-DEBUG_DIALOGUE_SKIP = True
+DEBUG_DIALOGUE_SKIP = False
 
 
 class StoryScript:
@@ -25,17 +25,17 @@ class StoryScript:
         self.rooms_data = {
             0: {
                 "difficulty": 0,
-                "sizes": [(25, 25), (31, 29), (37, 33)],
+                "sizes": [(29, 25), (37, 29), (37, 37)],
                 "walls_with_doors": (Border.SOUTH, Border.NORTH),
-                "other_entrance_coords": [13, 15, 19],
+                "other_entrance_coords": [15, 19, 19],
                 "completed": False,
                 "respect": 0
             },
             1: {
                 "difficulty": 0,
-                "sizes": [(25, 25), (31, 29), (37, 33)],
+                "sizes": [(29, 25), (37, 29), (37, 37)],
                 "walls_with_doors": (Border.SOUTH, Border.NORTH),
-                "other_entrance_coords": [13, 15, 19],
+                "other_entrance_coords": [15, 19, 19],
                 "completed": False,
                 "respect": 0
             }
@@ -86,6 +86,7 @@ class StoryScript:
             if game.challenge_state.finished:
                 game.current_state_type = StateType.MAZE
                 game.associate_current_state()
+                game.maze_state.needs_screen_update = True
                 self.on_monster.active = False
                 self.on_monster = None
 
@@ -101,7 +102,7 @@ class StoryScript:
 
     def handle_intro_dialogue(self, game):
         # Когда игрок отвечает на вопрос тестового вступления
-        if not self.intro_progress['answered_question']:
+        if game.dialogue_state.current_line_ind > 5 and not self.intro_progress['answered_question']:
             intro_choice = game.dialogue_state.dialogue.saved_choices.get("Так говоришь, хочешь пройти лабиринт?")
             if intro_choice:
                 if intro_choice == 'Нет':
@@ -129,6 +130,9 @@ class StoryScript:
 
         # Если это встреча с монстром
         if self.on_monster:
+
+            # Собираем бесплатные респекты, если они предусмотрены
+            self.rooms_data[self.current_room]["respect"] += game.dialogue_state.dialogue.respect_points
 
             # Если после встречи должно начаться испытание
             if game.dialogue_state.dialogue.starts_challenge:

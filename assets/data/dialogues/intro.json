@@ -2,6 +2,7 @@
     "left": "Протагонист",
     "right": "Говорящий монстр",
     "rightsprite": "monsters\\level_0\\monster.png",
+    "rpoints": 1,
     "lines": [
         {
             "text": "Я студент и я пришёл в лабиринт; только не знаю, что делать(",
