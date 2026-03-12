@@ -1,0 +1,23 @@
+{
+  "name": "Tricky-Helper",
+  "difficulty": 1,
+  "type": "tricky",
+  "dialog": [
+    {
+      "id": 1,
+      "speaker": "monster",
+      "text": "Помоги мне, странник!",
+      "action": "text_input",
+      "validation": "semantic_positive",
+      "success_respect": 2,
+      "failure_respect": -2,
+      "next": 2
+    },
+    {
+      "id": 2,
+      "speaker": "monster",
+      "text": "Ха-ха, а я все равно ничего не дам!",
+      "next": "end"
+    }
+  ]
+}

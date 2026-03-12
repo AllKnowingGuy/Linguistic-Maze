@@ -1,0 +1,124 @@
+{
+  "name": "Anatom",
+  "difficulty": 2,
+  "type": "quiz",
+  "dialog": [
+    {
+      "id": 1,
+      "speaker": "monster",
+      "text": "Человек! А я вот - монстр по нейроанатомии. Знаешь такого?",
+      "options": [
+        {
+          "text": "Да, знаю - угадывать названия с латыни буду?",
+          "respect_change": 2,
+          "next": 2
+        },
+        {
+          "text": "Да, знаю - буду про части мозга рассказывать?",
+          "respect_change": 0,
+          "next": 2
+        },
+        {
+          "text": "Неа, вообще не в курсе",
+          "respect_change": -1,
+          "responses": [
+            "Ну ты и лингвист, не дам я тебе ничего!"
+          ],
+          "next": "end"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "speaker": "monster",
+      "text": "Неплохо, <имя персонажа>! Чтобы пройти, угадай латинские имена моих любимых зон головного мозга, я тебе на латыни расскажу! Слушай, недавно изучал Gyrus frontalis superior! Что это?",
+      "questions": [
+        {
+          "text": "Gyrus frontalis superior — это:",
+          "options": [
+            {
+              "text": "Верхняя теменная извилина",
+              "correct": false
+            },
+            {
+              "text": "Верхняя лобная извилина",
+              "correct": true
+            },
+            {
+              "text": "Нижняя височная извилина",
+              "correct": false
+            },
+            {
+              "text": "Прецентральная извилина",
+              "correct": false
+            }
+          ]
+        }
+      ],
+      "wrong_response": "Ну что ж, давно я не видел таких смышленых лингвистов, которые уже позабыли совсем латынь. Дам тебе еще один шанс!",
+      "wrong_respect": -1,
+      "next": 3
+    },
+    {
+      "id": 3,
+      "speaker": "monster",
+      "text": "А если Gyrus frontalis medius?",
+      "questions": [
+        {
+          "text": "Gyrus frontalis medius — это:",
+          "options": [
+            {
+              "text": "Средняя височная извилина",
+              "correct": false
+            },
+            {
+              "text": "Постцентральная извилина",
+              "correct": false
+            },
+            {
+              "text": "Средняя лобная извилина",
+              "correct": true
+            },
+            {
+              "text": "Островковая доля",
+              "correct": false
+            }
+          ]
+        }
+      ],
+      "right_response": "Ничего себе, лингвист!",
+      "wrong_response": "Совсем бестолково с тобой разговаривать, уходи с глаз долой! Не дам тебе подсказки!",
+      "next": 4,
+      "branching": true
+    },
+    {
+      "id": 4,
+      "speaker": "monster",
+      "text": "",
+      "conditions": [
+        {
+          "if": "both_correct",
+          "text": "Невероятно! Сразу видно, учил нейролингвистику! Дам тебе в путь важный артефакт: дудку. В следующей комнате ты сможешь пропустить монстра, показав мою дудку.",
+          "respect_change": 2,
+          "artifact": "дудка"
+        },
+        {
+          "if": "first_correct_second_wrong",
+          "text": "Ладно, ты, видимо, легко угадываешь. Проходи дальше!",
+          "respect_change": -1
+        },
+        {
+          "if": "first_wrong_second_correct",
+          "text": "Окей, может, ты и не совсем бестолковый. Проходи дальше!",
+          "respect_change": 1
+        },
+        {
+          "if": "both_wrong",
+          "text": "Совсем бестолково с тобой разговаривать, уходи с глаз долой! Не дам тебе подсказки!",
+          "respect_change": -1
+        }
+      ],
+      "next": "end"
+    }
+  ]
+}

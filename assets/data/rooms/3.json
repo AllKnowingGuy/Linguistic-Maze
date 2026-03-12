@@ -2,102 +2,80 @@
   "theme": "социолингвистика",
   "difficulties": {
     "0": {
-      "monsters_count": 1,
-      "max_respect": 10,
-      "pass_respect": 5,
+      "monsters_count": 2,
+      "max_respect": 8,
       "exit": {
-        "type": "просто",
+        "type": "респект",
         "respect_req": 4
       }
     },
     "1": {
       "monsters_count": 2,
-      "max_respect": 4,
-      "pass_respect": 2,
+      "max_respect": 6,
       "exit": {
         "type": "артефакт",
-        "code": "стрела",
-        "respect_req": 0
+        "artifacts": ["стрела"],
+        "respect_req": 2
       }
     },
     "2": {
-      "monsters_count": 3,
-      "max_respect": 10,
-      "pass_respect": 5,
+      "monsters_count": 4,
+      "max_respect": 5,
       "exit": {
-        "type": "просто",
-        "respect_req": 3
+        "type": "артефакт",
+        "artifacts": ["гармошка"],
+        "respect_req": 2
       }
     }
   },
   "monsters": {
-    "monster_socio_terminologist": {
-      "name": "Любитель терминов",
+    "monster_terminology": {
+      "name": "Sociotermin",
       "difficulty": 0,
       "position": {"x": 5, "y": 5},
-      "dialog_file": "monster_terminologist.json",
-      "theme_bonus": "социолингвистика"
+      "dialog_file": "monster_terminology.json"
     },
-    "monster_latin": {
-      "name": "Dum spiro, spero",
+    "monster_motivator": {
+      "name": "Gubble-Tui",
       "difficulty": 0,
-      "position": {"x": 15, "y": 10},
-      "dialog_file": "monster_latin.json"
-    },
-    "monster_runner_socio0": {
-      "name": "Бегущий монстр",
-      "difficulty": 0,
-      "position": {"x": 10, "y": 15},
-      "dialog_file": "monster_runner.json"
-    },
-    "monster_runner_socio1": {
-      "name": "Убегающий монстр",
-      "difficulty": 1,
       "position": {"x": 12, "y": 8},
-      "dialog_file": "monster_runner.json"
+      "dialog_file": "monster_motivator.json"
     },
     "monster_sphinx": {
-      "name": "Сфинкс",
+      "name": "Socio-Sphinx",
       "difficulty": 1,
-      "position": {"x": 20, "y": 12},
-      "dialog_file": "monster_sphinx.json",
-      "artifact": "стрела"
+      "position": {"x": 18, "y": 12},
+      "dialog_file": "monster_sphinx.json"
     },
-    "monster_expedition": {
-      "name": "Исследователь экспедиций",
+    "monster_runner": {
+      "name": "Socio-Sphinx",
+      "difficulty": 1,
+      "position": {"x": 18, "y": 12},
+      "dialog_file": "monster_runner.json"
+    },
+    "monster_linguist": {
+      "name": "Simple Vova",
       "difficulty": 2,
       "position": {"x": 8, "y": 15},
-      "dialog_file": "monster_expedition.json",
-      "artifact": "гармошка"
+      "dialog_file": "monster_linguist.json"
     },
-    "monster_glosses": {
-      "name": "Любитель глосс",
+    "monster_gloss": {
+      "name": "Gloss-Master",
       "difficulty": 2,
-      "position": {"x": 18, "y": 5},
-      "dialog_file": "monster_glosses.json"
+      "position": {"x": 10, "y": 10},
+      "dialog_file": "monster_gloss.json"
     },
-    "monster_runner_socio2": {
-      "name": "Быстрый монстр",
+    "monster_researcher": {
+      "name": "Dialectologist",
       "difficulty": 2,
-      "position": {"x": 22, "y": 15},
-      "dialog_file": "monster_runner.json"
-    }
-  },
-  "rooms": {
-    "0": {
-      "room_id": "социо_0",
-      "difficulty": 0,
-      "monsters": ["monster_socio_terminologist", "monster_latin", "monster_runner_socio0"]
+      "position": {"x": 20, "y": 5},
+      "dialog_file": "monster_researcher.json"
     },
-    "1": {
-      "room_id": "социо_1",
-      "difficulty": 1,
-      "monsters": ["monster_runner_socio1", "monster_sphinx"]
-    },
-    "2": {
-      "room_id": "социо_2",
+    "monster_sociorunner": {
+      "name": "Socio-Runner",
       "difficulty": 2,
-      "monsters": ["monster_expedition", "monster_glosses", "monster_runner_socio2"]
+      "position": {"x": 25, "y": 10},
+      "dialog_file": "monster_sociorunner.json"
     }
   }
 }

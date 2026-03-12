@@ -2,101 +2,74 @@
   "theme": "компьютерная лингвистика",
   "difficulties": {
     "0": {
-      "monsters_count": 1,
-      "max_respect": 10,
-      "pass_respect": 5,
+      "monsters_count": 2,
+      "max_respect": 3,
       "exit": {
         "type": "кодовый_замок",
-        "code": "[jа]",
-        "respect_req": 3
+        "code": "ja",
+        "respect_req": 2
       }
     },
     "1": {
       "monsters_count": 2,
-      "max_respect": 4,
-      "pass_respect": 2,
+      "max_respect": 2,
       "exit": {
-        "type": "просто",
+        "type": "респект",
         "respect_req": 2
       }
     },
     "2": {
-      "monsters_count": 3,
-      "max_respect": 10,
-      "pass_respect": 5,
+      "monsters_count": 2,
+      "max_respect": 3,
       "exit": {
         "type": "артефакт",
-        "code": ["скрепка"],
-        "respect_req": 3
+        "artifacts": ["скрепка"],
+        "respect_req": 1
       }
     }
   },
   "monsters": {
-    "monster_python": {
-      "name": "Любитель Python",
+    "monster_questioner": {
+      "name": "Molly",
       "difficulty": 0,
       "position": {"x": 5, "y": 5},
-      "dialog_file": "monster_python.json"
+      "dialog_file": "monster_questioner.json"
     },
-    "monster_still": {
-      "name": "Стоящий монстр",
+    "monster_sphinx": {
+      "name": "Digital-Sphinx",
       "difficulty": 0,
-      "position": {"x": 15, "y": 10},
-      "dialog_file": "monster_still.json"
-    },
-    "monster_runner_comp0": {
-      "name": "Бегущий монстр",
-      "difficulty": 0,
-      "position": {"x": 10, "y": 15},
-      "dialog_file": "monster_runner.json"
-    },
-    "monster_chaser": {
-      "name": "Преследователь",
-      "difficulty": 1,
       "position": {"x": 12, "y": 8},
-      "dialog_file": "monster_chaser.json"
+      "dialog_file": "monster_sphinx.json"
+    },
+    "monster_runner": {
+      "name": "Byte",
+      "difficulty": 1,
+      "position": {"x": 18, "y": 12},
+      "dialog_file": "monster_runner.json"
     },
     "monster_helper": {
-      "name": "Просящий помощи",
+      "name": "Tricky-Helper",
       "difficulty": 1,
-      "position": {"x": 20, "y": 12},
+      "position": {"x": 8, "y": 15},
       "dialog_file": "monster_helper.json"
     },
-    "monster_talker": {
-      "name": "Коммуникабельный монстр",
+    "monster_communicator": {
+      "name": "Corpus-Talker",
       "difficulty": 2,
-      "position": {"x": 8, "y": 15},
-      "dialog_file": "monster_talker.json"
+      "position": {"x": 10, "y": 10},
+      "dialog_file": "monster_communicator.json"
     },
     "monster_tfidf": {
-      "name": "Любитель TF-IDF",
+      "name": "Master",
       "difficulty": 2,
-      "position": {"x": 18, "y": 5},
-      "dialog_file": "monster_tfidf.json",
-      "artifact": "скрепка"
+      "position": {"x": 20, "y": 5},
+      "dialog_file": "monster_tfidf.json"
     },
-    "monster_runner_comp2": {
-      "name": "Быстрый монстр",
+    "monster_runner__": {
+      "name": "Silent-Process",
       "difficulty": 2,
-      "position": {"x": 22, "y": 15},
+      "position": {"x": 15, "y": 15},
       "dialog_file": "monster_runner.json"
-    }
-  },
-  "rooms": {
-    "0": {
-      "room_id": "комп_0",
-      "difficulty": 0,
-      "monsters": ["monster_python", "monster_still", "monster_runner_comp0"]
-    },
-    "1": {
-      "room_id": "комп_1",
-      "difficulty": 1,
-      "monsters": ["monster_chaser", "monster_helper"]
-    },
-    "2": {
-      "room_id": "комп_2",
-      "difficulty": 2,
-      "monsters": ["monster_talker", "monster_tfidf", "monster_runner_comp2"]
     }
   }
 }

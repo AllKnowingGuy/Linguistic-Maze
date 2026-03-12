@@ -1,0 +1,19 @@
+{
+  "name": "Digital-Sphinx",
+  "difficulty": 0,
+  "type": "semantic_evaluation",
+  "dialog": [
+    {
+      "id": 1,
+      "speaker": "monster",
+      "text": "Ты не пройдешь.",
+      "action": "text_input",
+      "validation": "semantic_positive",
+      "success_response": "...",
+      "success_respect": 1,
+      "failure_response": "...",
+      "failure_respect": -1,
+      "next": "end"
+    }
+  ]
+}

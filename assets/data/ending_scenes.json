@@ -1,48 +1,60 @@
 {
-  "scenes": [
-    {
-      "id": 1,
-      "image": "",
-      "text": "Последняя дверь открывается. {hero_nominative} входит в зал. Перед ним Великий Сфинкс.",
-      "next_on_click": true
-    },
-    {
-      "id": 2,
-      "image": "",
-      "text": "{hero_nominative}, назови, что такое язык?",
-      "speaker": "Великий Сфинкс",
-      "type": "text_input",
-      "validation": "semantic_similarity",
-      "threshold": 0.7,
-      "success_scene": 3,
-      "fail_scene": 5
-    },
-    {
-      "id": 3,
-      "image": "",
-      "text": "Верно. Практика закрыта. Маргарита Андреевна вручает диплом.",
-      "next_on_click": true
-    },
-    {
-      "id": 4,
-      "image": "",
-      "text": "{hero_nominative} в автобусе. Рядом диплом и артефакты.",
-      "type": "statistics",
-      "next_on_click": false,
-      "options": [
-        {"text": "Сыграть снова", "action": "restart"},
-        {"text": "Выйти в главное меню", "action": "main_menu"},
-        {"text": "Поделиться", "action": "share"}
-      ]
-    },
-    {
-      "id": 5,
-      "image": "",
-      "text": "Сфинкс: 'Практика провалена'",
-      "type": "game_over",
-      "options": [
-        {"text": "Рестарт", "action": "restart"}
-      ]
-    }
-  ]
+  "outro": {
+    "slides": [
+      {
+        "id": 1,
+        "image": "outro_1.jpg",
+        "text": "<Последняя дверь открывается. <Имя> входит в зал. Перед ним Великий Сфинкс.>",
+        "action": "dynamic_text"
+      },
+      {
+        "id": 2,
+        "image": "outro_2.jpg",
+        "text": "<<Имя>, назови, что такое язык?>",
+        "action": "vector_input",
+        "input_placeholder": "Введите ваше определение языка...",
+        "success_slide": 3,
+        "failure_slide": 5
+      },
+      {
+        "id": 3,
+        "image": "outro_3.jpg",
+        "text": "<Верно. Практика закрыта. Маргарита Андреевна вручает диплом.>",
+        "action": "static"
+      },
+      {
+        "id": 4,
+        "image": "outro_4.jpg",
+        "text": "<Имя> в автобусе. Рядом диплом и артефакты.>",
+        "action": "statistics",
+        "statistics_template": "<Имя>, ФИПЛ-Лабиринт пройден! Респекты: {respects} Лучший лабиринт: {best_labyrinth}",
+        "options": [
+          {
+            "text": "Сыграть снова",
+            "action": "restart"
+          },
+          {
+            "text": "Выйти в главное меню",
+            "action": "main_menu"
+          },
+          {
+            "text": "Поделиться",
+            "action": "share"
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "image": "outro_5.jpg",
+        "text": "<Сфинкс: \"Практика провалена\". Предложение рестарта.>",
+        "action": "game_over",
+        "options": [
+          {
+            "text": "Рестарт",
+            "action": "restart"
+          }
+        ]
+      }
+    ]
+  }
 }
