@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-03-12 - Roles and dialogues update
+
+- Added complete intro JSON with character selection
+- Added game ending JSON with Sphinx encounter
+- Added room JSONs for all 4 themes (neuro, phonetics, socio, comp)
+- Added 30+ monster JSONs with full dialogues and mechanics
+- Restructured `StoryScript` by splitting checks into functions
+
 ## 2026-03-07 - Spooky Scary update
 
 - Added the `Enemy` class, located in brand new `Enemy.py`. Very raw functionality for now
