@@ -2,7 +2,7 @@ import pygame
 import sys
 
 from playstates.BaseState import BaseState
-from playstates import MazeState, DialogueState
+from playstates import MazeState, DialogueState, ChallengeState
 # импортируйте другие состояния через запятую
 from Util import Command, StateType, SCREEN_WIDTH, SCREEN_HEIGHT
 from StoryScript import StoryScript
@@ -12,31 +12,41 @@ from StoryScript import StoryScript
 pygame.init()
 
 
-class Main: # TODO: maybe rename to Game
+class Main:
     current_state_type: StateType
     current_state: BaseState
     framerate: int = 60
+    show_framerate = True
 
     def __init__(self):
+
+        # Параметры
         self.running = True
+        self.current_state = BaseState()
+        self.current_state_type = StateType.DIALOGUE # чтобы избежать ошибок
 
         # Окно и дисплей
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         pygame.display.set_caption("Лингвист в лабиринте")
         self.clock = pygame.time.Clock()
 
+        # Слои дисплея
+        self.content_layer = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
+        self.hud_layer = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
+
         # Базовый шрифт
         self.base_font = pygame.font.Font(None, 20)
 
         # Счётчик FPS и задний фон для него
-        self.fps_underlay = pygame.Surface((60, 20))
+        self.fps_underlay = pygame.Surface((60, 20), pygame.SRCALPHA)
         self.fps_underlay.set_alpha(128)
         self.fps_underlay.fill((255, 255, 255))
         self.fps_text_sprite = self.base_font.render('FPS: ' + 'pending...', True, (0, 0, 0))
 
         # Состояния игры
-        self.maze_manager = MazeState.MazeState()
-        self.dialogue_manager = DialogueState.DialogueState()
+        self.maze_state = MazeState.MazeState()
+        self.dialogue_state = DialogueState.DialogueState()
+        self.challenge_state = ChallengeState.ChallengeState()
         # добавляйте другие состояния таким же образом (не забудьте отредактировать associate_current_state!)
 
         # Трекер прогресса
@@ -45,9 +55,11 @@ class Main: # TODO: maybe rename to Game
     def associate_current_state(self):
         """Добавление текущего состояния в специальную переменную для полиморфного использования"""
         if self.current_state_type == StateType.MAZE:
-            self.current_state = self.maze_manager
+            self.current_state = self.maze_state
         elif self.current_state_type == StateType.DIALOGUE:
-            self.current_state = self.dialogue_manager
+            self.current_state = self.dialogue_state
+        elif self.current_state_type == StateType.CHALLENGE:
+            self.current_state = self.challenge_state
 
     def handle_input(self, event):
         """Обработка ввода с клавиатуры"""
@@ -61,31 +73,50 @@ class Main: # TODO: maybe rename to Game
         supposed_commands = self.current_state.handle_hold_input(pressed_keys)
         return supposed_commands
 
-    def handle_mouse_motion(self):
-        """Обработка движений курсора"""
-        # TODO: try to optimise
-        mouse_pos = pygame.mouse.get_pos()
-        supposed_commands = self.current_state.handle_mouse_motion(mouse_pos)
+    def handle_button_release(self, event):
+        """Обработка отпущенных кнопок"""
+        pressed_keys = pygame.key.get_pressed()
+        supposed_commands = self.current_state.handle_button_release(event, pressed_keys)
         return supposed_commands
 
-    def handle_mouse_click(self):
+    def handle_mouse_motion(self, event):
+        """Обработка движений курсора"""
+        supposed_commands = self.current_state.handle_mouse_motion(event)
+        return supposed_commands
+
+    def handle_mouse_click(self, event):
         """Обработка щелчка ЛКМ"""
-        pressed_buttons = pygame.mouse.get_pressed()
-        supposed_commands = self.current_state.handle_mouse_click(pressed_buttons)
+        supposed_commands = self.current_state.handle_mouse_click(event)
+        return supposed_commands
+
+    def handle_mouse_release(self, event):
+        """Обработка отпуска ЛКМ"""
+        supposed_commands = self.current_state.handle_mouse_release(event)
         return supposed_commands
 
     def draw(self):
         """Отрисовка игры"""
-        # self.screen.fill((0, 0, 0)) # disabled to test 'screenshotting' - Vsevolod
-        supposed_commands = self.current_state.draw(self.screen)
+
+        # Содержимое игры (полностью контролируется текущим состоянием)
+        supposed_commands = self.current_state.draw(self.content_layer)
 
         # Счётчик FPS
-        # TODO: make blit on a different surface than self.screen and enable again
-        # self.screen.blit(self.fps_underlay, (5, 5))
-        # self.fps_text_sprite = self.base_font.render('FPS: ' + str(int(self.clock.get_fps())), True, (0, 0, 0))
-        # self.screen.blit(self.fps_text_sprite, (10, 10))
+        self.hud_layer.fill((0, 0, 0, 0))
+        if self.show_framerate:
+            self.hud_layer.blit(self.fps_underlay, (5, 5))
+            self.fps_text_sprite = self.base_font.render('FPS: ' + str(int(self.clock.get_fps())), True, (0, 0, 0))
+            self.hud_layer.blit(self.fps_text_sprite, (10, 10))
 
-        # Обновление дисплея
+        # Обновление дисплея содержимого (теперь со строгими ограничениями)
+        if supposed_commands:
+            for command in supposed_commands:
+                if command[0].name == Command.UPDATE_DISPLAY.name:
+                    self.screen.blit(self.content_layer, (0, 0))
+                    #print('woah')
+                    break
+
+        # Обновление дисплея FPS
+        self.screen.blit(self.hud_layer, (0, 0))
         pygame.display.flip()
         return supposed_commands
 
@@ -127,23 +158,26 @@ class Main: # TODO: maybe rename to Game
                 # Обработка отпусков кнопок
                 elif event.type == pygame.KEYUP:
                     pressed_btns_amount -= 1
-                    # TODO: maybe add playstate release handling but I don't see how it could be used
+                    process_commands(self.handle_button_release(event))
 
                 # Обработка движения мыши
                 elif event.type == pygame.MOUSEMOTION:
-                    if self.current_state_type == StateType.DIALOGUE: # не проверяем мышь, когда она не используется
-                        process_commands(self.handle_mouse_motion())
+                    if self.current_state_type in (StateType.DIALOGUE, StateType.CHALLENGE):
+                        process_commands(self.handle_mouse_motion(event))
 
                 # Обработка щелчка мышью
                 elif event.type == pygame.MOUSEBUTTONDOWN:
-                    if self.current_state_type == StateType.DIALOGUE: # не проверяем мышь, когда она не используется
-                        process_commands(self.handle_mouse_click())
+                    if self.current_state_type in (StateType.DIALOGUE, StateType.CHALLENGE):
+                        process_commands(self.handle_mouse_click(event))
 
-            # Обработка держания кнопок. Если их нет - говорим MazeState, что персонаж не двигается
+                # Обработка отпуска мыши
+                elif event.type == pygame.MOUSEBUTTONUP:
+                    if self.current_state_type in (StateType.DIALOGUE, StateType.CHALLENGE):
+                        process_commands(self.handle_mouse_release(event))
+
+            # Обработка держания кнопок
             if pressed_btns_amount > 0:
                 process_commands(self.handle_hold_input())
-            else:
-                self.maze_manager.reset_movement()
 
             # Прорисовка
             process_commands(self.current_state.execute_before_draw())

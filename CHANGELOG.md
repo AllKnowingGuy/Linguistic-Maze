@@ -8,6 +8,48 @@
 - Added 30+ monster JSONs with full dialogues and mechanics
 - Restructured `StoryScript` by splitting checks into functions
 
+## 2026-03-12 - Draw suppression update
+
+- **Greatly optimized** all 3 game modes by making their states only redraw game components if one or more of them have changed position or have been replaced
+- Added a `needs_screen_update` attribute to `BaseState` so that every playstate is able to optimize its drawing
+- `DialogueState` now only re-renders texts when they are updated
+- `ChallengeState` now makes use of `execute_before_draw`
+- Added respect points to dialogues (currently only per dialogue points) and challenge tasks
+- Made `StoryScript` add monster's dialogue points to the current room score
+- Made `ChallengeState` give or take points based on correctness and show the challenge score on the result screen
+- Moved text field updates on typing and button state switches on mouse hovering to `BaseState` to reduce shared code between `DialogueState` and `ChallengeState`
+- Made image scaling optional when loading them in `AssetsCreation.py`
+
+## 2026-03-12 - Visual update #1
+
+- Added the 4th frame to the player walk cycle, as well as an overall update to player's design
+- Added a variety of wall tiles and enemies for future levels
+
+## 2026-03-11 - Challenging update
+
+- Created `ChallengeState.py` (inspired by `DialogueState.py`)
+- Created challenge data structure in `Challenge.py` and added a test challenge file to `assets`
+- Implemented starting a challenge after talking to a monster
+- Maze rooms are now levelled starting from 0 instead of 1
+- Implemented maze checks before transition (thanks for the pull request [ddmoreva](https://github.com/ddmoreva)!)
+- Reorganized `StoryScript` to reduce unnecessary code duplication
+- Added many attributes of several classes to their `__init__`s to avoid potential exploits and test falls
+- Made a debug flag in `StoryScript.py` to skip dialogues by only playing the 1st line of each
+
+## 2026-03-09 - Dialogue independence update
+
+- **Overhauled the dialogue system** to store dialogues and their meta in JSON files, which are read in `Dialogue` class
+- Dialogue data sent to `Dialogue` object initialization now may include **right character sprite path** and **jumps info** for lines and buttons that need to redirect the dialogue to specific lines (the redirection was previously done in `StoryScript`)
+- Separated main game display and FPS counter into **2 different layers** to be blitted on the main Pygame display. Playstates only work with the first layer
+- Extracted all button data from `DialogueState` and put it into the new `Button` class, it can be imported in any playstate that has buttons
+- Implemented playstate support for **key and mouse release functions**
+- Improved dialogue buttons to check mouse hovering in a separate function and execute their functionality only after the mouse is released while hovering over them
+- Reworked all mouse functions to use info of their respective events instead of collecting the mouse data anew
+- The player now starts a dialogue with any monster they encounter, and the monster is removed after the dialogue
+- Modernized `assets` folder to have different folders for images and text data and created folder structure for `dialogue` image folder
+- Speaker's name is now shown when they speak
+- Tweaked new maze character and monster sprites handling
+
 ## 2026-03-07 - Spooky Scary update
 
 - Added the `Enemy` class, located in brand new `Enemy.py`. Very raw functionality for now
@@ -19,7 +61,7 @@
 
 ## 2026-03-06 - Better experience update
 
-- Dialogue system now supports **background changing** (custom backgrounds will be added to `MazeState` later)
+- Dialogue system now supports **background changing** (custom backgrounds will be added to `DialogueState` later)
 - Added the functionality of capturing the previous frame and using it as a dialogue BG (to make dialogues visually appear just above maze rooms)
 - Temporary removed FPS display from the screen for proper screen capturing in its current state
 - Expanded `setup_maze` docstring and added dialogue structure hints to `Dialogue.py`

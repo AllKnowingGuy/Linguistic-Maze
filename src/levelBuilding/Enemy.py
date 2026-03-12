@@ -1,11 +1,10 @@
 class Enemy:
     """Родительский класс для всех врагов"""
 
-    def __init__(self, x:int, y: int, dialogue_id: str = 'enemy'):
-
+    def __init__(self, x: int, y: int, enemy_name: str = 'enemy'):
         self.x = x
         self.y = y
-        self.dialogue_id = dialogue_id
+        self.enemy_name = enemy_name
         self.active =  True
 
     def update(self):
@@ -13,10 +12,11 @@ class Enemy:
 
     def check_collision(self, player_tile_x: int, player_tile_y: int):
         """Проверка столкновения с игроком"""
-        return (self.active and self.x==player_tile_x and self.y == player_tile_y)
+        return self.active and self.x == player_tile_x and self.y == player_tile_y
 
     def deactivate(self):
         """Исчезновение врага после выполнения его задания"""
+
 
 class StationaryEnemy(Enemy):
     """Враги, стоящие на месте"""
@@ -26,6 +26,7 @@ class StationaryEnemy(Enemy):
 
     def update(self):
         pass
+
 
 class PatrollingEnemy(Enemy):
     pass

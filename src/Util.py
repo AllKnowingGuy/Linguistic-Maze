@@ -4,8 +4,8 @@ from enum import Enum
 Для всей игры
 """
 
-SCREEN_WIDTH = 1050 # при текущих ширине экрана и размере клеток ширина лабиринта должна быть 25 и больше
-SCREEN_HEIGHT = 630 # при текущих высоте экрана и размере клеток высота лабиринта должна быть 15 и больше
+SCREEN_WIDTH = 1280 # при текущих ширине экрана и размере клеток ширина лабиринта должна быть 29 и больше
+SCREEN_HEIGHT = 720 # при текущих высоте экрана и размере клеток высота лабиринта должна быть 17 и больше
 
 
 class StateType(Enum):
@@ -21,7 +21,7 @@ class Command(Enum):
     WAIT = 2 # Временно перестать обновляться
     SET_FPS = 3 # Изменить частоту обновления
     CHECK_PROGRESS = 4 # Проверить и обновить прогресс
-    ENCOUNTER_ENEMY = 5 # Запуск диалога при встрече с монстром
+    UPDATE_DISPLAY = 5 # Обновить дисплей игры (не влияет на счётчик FPS)
 
 
 """
@@ -51,14 +51,25 @@ class Border(Enum):
 
 
 """
-Для Dialogue и DialogueState
+Для DialogueState и ChallengeState
 """
 
 CHOICE_BUTTON_SIZE = 30
+CHAL_BUTTON_WIDTH = 150
+CHAL_BUTTON_HEIGHT = 90
 
 
-class ButtonType(Enum):
+class ButtonState(Enum):
     """Состояния кнопки"""
     REGULAR = 1
     HOVERED = 2
     PRESSED = 3
+    DISABLED = 4
+
+
+class Awaiting(Enum):
+    """Действия игрока на определённом этапе"""
+    CONTINUE = 1
+    CHOOSE = 2
+    INPUT = 3
+

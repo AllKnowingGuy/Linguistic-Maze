@@ -1,33 +1,11 @@
+import os, random
+
 #from Main import Main
 from Util import Border, StateType
 
 
-# Для тестирования: 1-й диалог
-intro_dialogue_text = """left\tnoaction\tЯ студент и я пришёл в лабиринт; только не знаю, что делать(
-right\tnoaction\tА я монстр, но я пока не знаю, как меня зовут.
-left\tnoaction\tО, зато я знаю, сейчас скажу)
-nochar\tsavetyped\tА как зовут монстра? Напишите ответ: внизу появилось поле ввода
-right\tnoaction\tО, прикольно, спасибо ^-^
-right\tchoosefrom{Да, Нет}\tТак говоришь, хочешь пройти лабиринт?
-right\tnoaction\tНу тогда заходи!
-left\tnoaction\tНе, что-то не хочу пока. Но было приятно познакомиться!"""
-
-
-# Для тестирования: 2-й диалог
-transition_dialogue_text = """right\tnoaction\tА что так быстро? Я текст не успел подготовить...\tprevscreen
-left\tnoaction\tПравда быстро? Я вообще не заметил, как дошёл до конца.
-right\tnoaction\tЛадно, вот тебе ещё комната.
-right\tnoaction\tСлегка похожа на предыдущую, но пока это всё, что есть("""
-
-
-# Для тестирования: 3-й диалог
-outro_dialogue_text = """left\tnoaction\tУра, прошёл!\tprevscreen
-right\tnoaction\tХорош, я не сомневался(ась) в тебе!
-right\tchoosefrom{Да, Нет}\tА ты знал, что игра теперь поддерживает смену диалогов?
-right\tnoaction\tНе переживай, в этом вопросе не было ложной презумпции ;)
-left\tsavetyped\tЛадно, дай-ка я оставлю отзыв на лабиринт.
-left\tnoaction\tЯ всё, а теперь мне пора бежать.
-right\tnoaction\tНу давай, пока!"""
+intro_dialogue_path = '..\\assets\\data\\dialogues\\intro.json'
+DEBUG_DIALOGUE_SKIP = False
 
 
 class StoryScript:
@@ -39,58 +17,118 @@ class StoryScript:
         self.rooms_progress = {}  # {room_id: {'respect': 0, 'completed': False}}
         self.current_room_id = None
 
+        self.current_room = -1
+        self.last_passed_room = -1
+
+        # Монстр, с котором в данный момент встретился игрок
+        self.on_monster = None
+
         # Сохраняем старое для совместимости
         self.general_progress = {
             'started_game': False, 'finished_intro': False,
             'passed_maze': False, 'finished_outro': False
         }
-        self.intro_progress = {'answered_question': False, 'said_yes': False, 'said_no': False}
+
+        # Прогресс по разделам игры
+        self.intro_progress = {
+            'answered_question': False,
+            'said_no': False,
+            'said_yes': False
+        }
+
+        # Данные комнат (ключи - целочисленные идентификаторы комнат)
+        self.rooms_data = {
+            0: {
+                "difficulty": 0,
+                "sizes": [(29, 25), (37, 29), (37, 37)],
+                "walls_with_doors": (Border.SOUTH, Border.NORTH),
+                "other_entrance_coords": [15, 19, 19],
+                "completed": False,
+                "respect": 0
+            },
+            1: {
+                "difficulty": 0,
+                "sizes": [(29, 25), (37, 29), (37, 37)],
+                "walls_with_doors": (Border.SOUTH, Border.NORTH),
+                "other_entrance_coords": [15, 19, 19],
+                "completed": False,
+                "respect": 0
+            }
+        }
 
     def update_game_progress(self, game):
         """Проверяет и обновляет состояние игры в соответствии со скриптом"""
 
         if not self.general_progress['started_game']:
-            self.on_game_start(game)
+            self.start_game(game)
 
-    def on_game_start(self, game):
+        # Когда игрок на диалоге
+        elif game.current_state_type.name == StateType.DIALOGUE.name:
+            if DEBUG_DIALOGUE_SKIP and not self.current_room == -1:
+                game.dialogue_state.finished = True
+
+            # Особые диалоги с сильно заскриптованным поведением
+            if self.current_room == -1: # Интро: единственный диалог до начала лабиринта
+                self.handle_intro_dialogue(game)
+
+            # По завершении стандартных диалогов
+            elif game.dialogue_state.finished:
+                self.handle_dialogue_finish(game)
+
+        # Когда игрок в лабиринте
+        elif game.current_state_type.name == StateType.MAZE.name:
+
+            # Если встретился с монстром
+            supposed_monster = game.maze_state.check_enemy_collision()
+            if supposed_monster:
+                self.handle_monster_encounter(game, supposed_monster)
+
+            # Когда прошёл уровень
+            elif game.maze_state.check_win():
+                self.handle_room_exit(game)
+
+        # Когда игрок на испытании
+        elif game.current_state_type.name == StateType.CHALLENGE.name:
+
+            # Конец испытания
+            if game.challenge_state.finished:
+                game.current_state_type = StateType.MAZE
+                game.associate_current_state()
+                game.maze_state.needs_screen_update = True
+                if self.on_monster:
+                    self.on_monster.active = False
+                    self.on_monster = None
+
+    def start_game(self, game):
         self.general_progress['started_game'] = True
         game.current_state_type = StateType.DIALOGUE
-        self.intro = game.dialogue_manager.setup_dialogue(intro_dialogue_text.split('\n'), 'Говорящий монстр')
+        game.dialogue_state.setup_dialogue(intro_dialogue_path)
         game.associate_current_state()
 
     """
-    Проверки диалогов
+    Проверки заскриптованных диалогов
     """
 
-    def on_intro_dialogue(self, game):
+    def handle_intro_dialogue(self, game):
         # Когда игрок отвечает на вопрос тестового вступления
-        if not self.intro_progress['answered_question']:
-            intro_choice = game.dialogue_manager.dialogue.saved_choices.get("Так говоришь, хочешь пройти лабиринт?")
-            if intro_choice == 'Да':
-                game.dialogue_manager.advance(jump_to=6)
-                self.intro_progress['said_yes'] = True
-                self.intro_progress['answered_question'] = True
-            elif intro_choice == 'Нет':
-                game.dialogue_manager.advance(jump_to=7)
-                self.intro_progress['said_no'] = True
+        if game.dialogue_state.current_line_ind > 5 and not self.intro_progress['answered_question']:
+            intro_choice = game.dialogue_state.dialogue.saved_choices.get("Так говоришь, хочешь пройти лабиринт?")
+            if intro_choice:
+                if intro_choice == 'Нет':
+                    self.intro_progress['said_no'] = True
                 self.intro_progress['answered_question'] = True
 
-        # Когда диалог показал линию "Ну тогда заходи!" и должен завершиться
-        if self.intro_progress['said_yes'] and game.dialogue_manager.current_line_ind > 6:
-            game.dialogue_manager.finished = True
+        if DEBUG_DIALOGUE_SKIP:
+            game.dialogue_state.finished = True
+            self.intro_progress['said_yes'] = True
 
         # Когда игрок завершает тестовое вступление
-        if game.dialogue_manager.finished:
-            # Если игрок выбрал "Да" - переход к лабиринту
-            if self.intro_progress['said_yes']:
-                self.general_progress['finished_intro'] = True
-                game.current_state_type = StateType.MAZE
-                game.maze_manager.set_level(self.current_level)
-                self.room_1 = game.maze_manager.setup_maze(31, 19, (Border.WEST, Border.EAST), (1, 17), True, True)
-                game.associate_current_state()
+        if game.dialogue_state.finished:
             # Если игрок выбрал "Нет" - завершение игры
-            elif self.intro_progress['said_no']:
+            if self.intro_progress['said_no']:
                 game.running = False
+                return
+            self.generate_next_room(game)
 
     def on_monster_dialogue(self, game):
         if game.dialogue_manager.finished:
@@ -100,10 +138,70 @@ class StoryScript:
         if game.maze_manager.check_win():
             self.handle_room_exit(game)
 
+    """
+    Проверки остальных диалогов
+    """
+
+    def handle_dialogue_finish(self, game):
+        """Выбор действия после конца диалога"""
+
+        # Если это встреча с монстром
+        if self.on_monster:
+
+            # Собираем бесплатные респекты, если они предусмотрены
+            if self.current_room in self.rooms_data:
+                self.rooms_data[self.current_room]["respect"] += game.dialogue_state.dialogue.respect_points
+
+            if self.current_room_id and self.current_room_id in self.rooms_progress:
+                self.rooms_progress[self.current_room_id]['respect'] += game.dialogue_state.dialogue.respect_points
+
+            self.total_respect += game.dialogue_state.dialogue.respect_points
+
+            # Если после встречи должно начаться испытание
+            if game.dialogue_state.dialogue.starts_challenge:
+                game.current_state_type = StateType.CHALLENGE
+                game.challenge_state.setup_challenge(
+                    f'..\\assets\\data\\challenges\\level_{self.current_room}\\'
+                    f'{self.on_monster.enemy_name}.json'
+                )
+                game.associate_current_state()
+                game.challenge_state.start_start_anim()
+
+            # Иначе - простое продолжение лабиринта
+            else:
+                game.current_state_type = StateType.MAZE
+                game.associate_current_state()
+                if self.on_monster:
+                    self.on_monster.active = False
+                    self.on_monster = None
+
+        # Если это диалог двери выхода
+        elif self.last_passed_room == self.current_room:
+            if self.current_room == 1:
+                # Особый случай для диалога последней комнаты
+                game.running = False
+            self.generate_next_room(game)
+
+    """
+    Проверки уровней лабиринта
+    """
+
+    def handle_monster_encounter(self, game, supposed_monster):
+        """Загрузка диалога с монстром при столкновении"""
+
+        self.on_monster = supposed_monster
+        game.current_state_type = StateType.DIALOGUE
+        game.dialogue_state.setup_dialogue(
+            f'..\\assets\\data\\dialogues\\level_{self.current_room}\\{supposed_monster.enemy_name}.json'
+        )
+        game.associate_current_state()
+
     def check_room_exit_conditions(self, room_data):
         """Проверяет респекты/артефакты для выхода"""
         respect = room_data.get('respect', 0)
-        difficulty = int(self.current_room_id.split('_')[1])
+        difficulty = 0
+        if self.current_room_id:
+            difficulty = int(self.current_room_id.split('_')[1])
 
         # Условия по сложности:
         respect_req = [5, 2, 5][difficulty]  # 0=5, 1=2, 2=5 респектов
@@ -119,22 +217,51 @@ class StoryScript:
 
     def handle_room_exit(self, game):
         """Проверяет выход из ЛЮБОЙ комнаты"""
-        room_data = self.rooms_progress[self.current_room_id]
+        if self.current_room_id and self.current_room_id in self.rooms_progress:
+            room_data = self.rooms_progress[self.current_room_id]
+        elif self.current_room in self.rooms_data:
+            room_data = self.rooms_data[self.current_room]
+        else:
+            room_data = {"respect": 0}
 
         if self.check_room_exit_conditions(room_data):
-            self.generate_next_room(game)
+            self.last_passed_room = self.current_room
+            supposed_dialogue_path = f'..\\assets\\data\\dialogues\\level_{self.current_room}\\exit_door.json'
+
+            # Если у текущей двери выхода существует диалог
+            if os.path.exists(supposed_dialogue_path):
+                game.current_state_type = StateType.DIALOGUE
+                game.dialogue_state.setup_dialogue(supposed_dialogue_path)
+                game.associate_current_state()
+            else:
+                self.generate_next_room(game)
         else:
             self.restart_current_room(game)
 
     def generate_next_room(self, game):
         """Генерирует новую комнату"""
         self.current_level = min(self.current_level + 1, 2)
+        self.current_room = min(self.current_room + 1, 1)  # временное ограничение
         self.current_room_id = f"room_{self.current_level}"  # "room_1", "room_2", ...
 
+        room_data = self.rooms_data[self.current_room]
+
+        difficulty = random.randint(0, 2)  # 0=легко, 1=средне, 2=сложно
+        # random difficulty for now - Vsevolod
+
+        # Размер комнаты
         sizes = [(31, 19), (25, 31), (20, 25)]  # 0=легко, 1=средне, 2=сложно
-        w, h = sizes[self.current_level]
+        w, h = sizes[difficulty]
+
+        walls_with_doors = room_data.get("walls_with_doors", (Border.WEST, Border.EAST))
+
+        entrance_coords = room_data.get("other_entrance_coords", [9, 13, 19])
+        en_coord = entrance_coords[difficulty]
+        ex_coord = (random.choice(range(1, h - 1, 2))
+                    if walls_with_doors[1] in (Border.WEST, Border.EAST)
+                    else random.choice(range(1, w - 1, 2)))
 
         game.current_state_type = StateType.MAZE
-        game.maze_manager.set_level(self.current_level)
-        game.maze_manager.setup_maze(w, h, (Border.WEST, Border.EAST), (1, h - 2), True, True)
+        game.maze_state.set_level(self.current_room)
+        game.maze_state.setup_maze(w, h, walls_with_doors, (en_coord, ex_coord), True, True)
         game.associate_current_state()

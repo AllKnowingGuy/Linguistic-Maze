@@ -1,0 +1,16 @@
+{
+    "left": "Протагонист",
+    "right": "Преддверный монстр",
+    "challenge": true,
+    "lines": [
+        {
+            "text": "Привет!",
+            "speaker": "right",
+            "bg": "PREVSCREEN"
+        },
+        {
+            "text": "Пока.",
+            "speaker": "left"
+        }
+    ]
+}

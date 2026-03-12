@@ -1,7 +1,7 @@
 import pygame
 
 from src.levelBuilding import Maze
-from src.levelBuilding.Enemy import StationaryEnemy
+from src.levelBuilding.Enemy import Enemy, StationaryEnemy
 from src.Util import Command, WallPattern, Border, TILE_SIZE, PLAYER_SIZE, SCREEN_WIDTH, SCREEN_HEIGHT
 from src import AssetsCreation
 from src.AssetsCreation import Transformer
@@ -19,18 +19,23 @@ HALF_HEIGHT = SCREEN_HEIGHT / 2
 
 
 class MazeState(BaseState):
-    maze: Maze.Maze
-    player_pos: list[int] # в целых пикселях, так как дроби в Python дают огромные погрешности
+    maze: Maze.Maze | None
+    player_pos: list[int]
     current_level: int
 
     def __init__(self):
         """Загрузка изображений для отрисовки и создание кеша трансформированных изображений"""
 
-        # Inheritance is so stupid, the super class contains literally nothing - Vsevolod
         super().__init__()
 
+        """Параметры по умолчанию"""
+        self.maze = None
+
+        # Позиция игрока
+        self.player_pos = [int(1.5 * TILE_SIZE), int(1.5 * TILE_SIZE)]
+
         # Текущий уровень
-        self.current_level = 1
+        self.current_level = 0
 
         # Тайлы для основания и границ стен. Используют именно current level
         self.wall_tiles = AssetsCreation.add_wall_tiles(self.current_level)
@@ -41,11 +46,14 @@ class MazeState(BaseState):
         # Тайлы для входа и выхода. Используется именно current level
         self.entrance_tile, self.exit_tile = AssetsCreation.add_entrance_exit_tiles(self.current_level)
 
-        # Тайл для игрока.
+        # Тайл для игрока
         self.player_tile = AssetsCreation.add_player_tile()
 
         # Список спрайтов ходьбы персонажа
         self.player_walk_frames = AssetsCreation.add_player_walk()
+
+        # Тайл для монстра
+        self.enemy_tile = AssetsCreation.add_enemy_tile(self.current_level)
 
         # Кэш для стен
         self.wall_cache = {}
@@ -58,82 +66,14 @@ class MazeState(BaseState):
         self.facing_left = False
         self.current_player_image = self.player_tile
 
-        # Параметры темноты
-        self.darkness_enabled = True # Если темнота будет мешать тестированию других вещей, ее можно убрать
+        # Темнота и её параметры
+        self.darkness_enabled = False # Если темнота будет мешать тестированию других вещей, ее можно убрать
         self.darkness_alpha = 255
         self.light_radius = 200
-
         self.darkness_surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
 
         # Список врагов лабиринта
         self.enemies = []
-
-    def update_animation(self):
-        """Обновляет кадры анимации"""
-        current_time = pygame.time.get_ticks()
-
-        if self.is_moving and self.player_walk_frames:
-            if current_time - self.last_animation_time > self.animation_speed:
-                self.animation_index = (self.animation_index + 1) % len(self.player_walk_frames) # 0->1->2->0
-                self.last_animation_time = current_time
-            self.current_player_image = self.player_walk_frames[self.animation_index]
-        else:
-            self.current_player_image = self.player_tile
-            self.animation_index = 0
-
-        if self.facing_left:
-            self.current_player_image = pygame.transform.flip(self.current_player_image, True, False)
-
-    def apply_darkness(self, screen):
-        """Накладывает темноту на экран"""
-        if not self.darkness_enabled:
-            return
-
-        self.darkness_surface.fill((0, 0, 0, 0))
-
-        pygame.draw.rect(self.darkness_surface, (0, 0, 0, self.darkness_alpha),
-                         (0, 0, SCREEN_WIDTH, SCREEN_HEIGHT))
-
-        # Кружок света вокруг игрока - зависит от положения камеры
-        player_screen_x, player_screen_y = self.apply_shift(
-            self.player_pos[0] - HALF_PLAYER,
-            self.player_pos[1] - HALF_PLAYER
-        )
-        player_center_x = player_screen_x + HALF_PLAYER
-        player_center_y = player_screen_y + HALF_PLAYER
-
-        # "Плавный" переход от света к темноте путем создания нескольких кружков разных радиусов (от центра к краям)
-        pygame.draw.circle(self.darkness_surface, (0, 0, 0, self.darkness_alpha - 30),
-                           (player_center_x, player_center_y),
-                           self.light_radius)
-
-        pygame.draw.circle(self.darkness_surface, (0, 0, 0, self.darkness_alpha // 2),
-                           (player_center_x, player_center_y),
-                           self.light_radius - 20)
-
-        pygame.draw.circle(self.darkness_surface, (0, 0, 0, 0),
-                           (player_center_x, player_center_y),
-                           self.light_radius - 40)
-
-        screen.blit(self.darkness_surface, (0,0))
-
-    def set_level(self, level):
-        """Устанавливает уровень и перезагружает изображения"""
-
-        self.current_level = level
-        self.reload_tiles()
-        if hasattr(self, 'maze') and self.maze is not None: # Проверка того, что в MazeState созданы данные лабиринта
-            self.precalculate_walls()
-
-    def reload_tiles(self):
-        """Перезагрузка изображений для текущего уровня"""
-
-        self.wall_tiles = AssetsCreation.add_wall_tiles(self.current_level)
-        self.floor_tile = AssetsCreation.add_floor_tile(self.current_level)
-        self.entrance_tile, self.exit_tile = AssetsCreation.add_entrance_exit_tiles(self.current_level)
-        self.player_tile = AssetsCreation.add_player_tile()
-        self.enemy_tile = AssetsCreation.add_enemy_tile(self.current_level)
-        self.wall_cache.clear()
 
     def setup_maze(self, width: int = 3, height: int = 3,
                    doors_near_borders: tuple[Border, Border] = (Border.WEST, Border.EAST),
@@ -165,29 +105,93 @@ class MazeState(BaseState):
         self.enemies.clear()
 
         # Тестовый враг перед выходом
-        exit_x = self.maze.end_door.x
-        exit_y = self.maze.end_door.y
-
-        # Определяем, с какой стороны от выхода ставить врага
-        if exit_x == 0:  # Выход на левой границе
-            enemy_x = exit_x + 1  # ставим справа
-        else:  # Выход на правой границе (exit_x == self.maze.width - 1)
-            enemy_x = exit_x - 1  # ставим слева
-
-        enemy_y = exit_y
+        enemy_x = self.maze.end.x
+        enemy_y = self.maze.end.y
 
         # Проверяем возможность создать тут врага
-        if (0 <= enemy_x < self.maze.width and self.maze.pattern[enemy_y][enemy_x] == 0):
+        if (0 <= enemy_x < self.maze.width) and (self.maze.pattern[enemy_y][enemy_x] == 0):
             enemy = StationaryEnemy(enemy_x, enemy_y, "enemy_at_exit")
             self.enemies.append(enemy)
             print(f"Создан враг на ({enemy_x}, {enemy_y})")
         else:
             print(f"Не удалось создать врага: клетка ({enemy_x}, {enemy_y}) недоступна")
 
+        # Запрос на обновление экрана
+        self.needs_screen_update = True
+
         return self.maze
 
-    def check_enemy_collision(self):
-        # Проверяет столкновение врага и героя
+    def update_animation(self):
+        """Обновление кадров анимации"""
+
+        current_time = pygame.time.get_ticks()
+
+        if self.is_moving and self.player_walk_frames:
+            if current_time - self.last_animation_time > self.animation_speed:
+                self.animation_index = (self.animation_index + 1) % len(self.player_walk_frames) # 0->1->2->3->0
+                self.last_animation_time = current_time
+            self.current_player_image = self.player_walk_frames[self.animation_index]
+        else:
+            self.current_player_image = self.player_tile
+            self.animation_index = 0
+
+        if self.facing_left:
+            self.current_player_image = transformer.get_flipped(self.current_player_image, True)
+
+    def apply_darkness(self, screen):
+        """Наложение темноты на экран"""
+
+        if not self.darkness_enabled:
+            return
+
+        self.darkness_surface.fill((0, 0, 0, 0))
+        pygame.draw.rect(self.darkness_surface, (0, 0, 0, self.darkness_alpha),
+                         (0, 0, SCREEN_WIDTH, SCREEN_HEIGHT))
+
+        # Кружок света вокруг игрока - зависит от положения камеры
+        player_screen_x, player_screen_y = self.apply_shift(
+            self.player_pos[0] - HALF_PLAYER,
+            self.player_pos[1] - HALF_PLAYER
+        )
+        player_center_x = player_screen_x + HALF_PLAYER
+        player_center_y = player_screen_y + HALF_PLAYER
+
+        # "Плавный" переход от света к темноте путем создания нескольких кружков разных радиусов (от центра к краям)
+        pygame.draw.circle(self.darkness_surface, (0, 0, 0, self.darkness_alpha - 30),
+                           (player_center_x, player_center_y),
+                           self.light_radius)
+
+        pygame.draw.circle(self.darkness_surface, (0, 0, 0, self.darkness_alpha // 2),
+                           (player_center_x, player_center_y),
+                           self.light_radius - 20)
+
+        pygame.draw.circle(self.darkness_surface, (0, 0, 0, 0),
+                           (player_center_x, player_center_y),
+                           self.light_radius - 40)
+
+        screen.blit(self.darkness_surface, (0,0))
+
+    def set_level(self, level: int):
+        """Задание уровня и перезагрузка изображений"""
+
+        self.current_level = level
+        self.reload_tiles()
+        if self.maze is not None:
+            self.precalculate_walls()
+
+    def reload_tiles(self):
+        """Перезагрузка изображений для текущего уровня"""
+
+        self.wall_tiles = AssetsCreation.add_wall_tiles(self.current_level)
+        self.floor_tile = AssetsCreation.add_floor_tile(self.current_level)
+        self.entrance_tile, self.exit_tile = AssetsCreation.add_entrance_exit_tiles(self.current_level)
+        self.player_tile = AssetsCreation.add_player_tile()
+        self.enemy_tile = AssetsCreation.add_enemy_tile(self.current_level)
+        self.wall_cache.clear()
+
+    def check_enemy_collision(self) -> Enemy | None:
+        """Проверка столкновения врага и героя"""
+
         player_tile_x = self.player_pos[0] // TILE_SIZE
         player_tile_y = self.player_pos[1] // TILE_SIZE
 
@@ -198,7 +202,8 @@ class MazeState(BaseState):
         return None
 
     def check_win(self):
-        # Проверка победы
+        """Проверка победы"""
+
         return (self.maze.end_door.x <= self.player_pos[0] // TILE_SIZE < self.maze.end_door.x + 1
                 and self.maze.end_door.y <= self.player_pos[1] // TILE_SIZE < self.maze.end_door.y + 1)
 
@@ -327,6 +332,7 @@ class MazeState(BaseState):
             moving = True
 
         self.is_moving = moving
+        self.update_animation()
 
         if (0 <= new_pos[0] < self.maze.width * TILE_SIZE - PLAYER_SIZE
             and 0 <= new_pos[1] < self.maze.height * TILE_SIZE - PLAYER_SIZE):
@@ -335,48 +341,61 @@ class MazeState(BaseState):
             # Столкновение с врагом
             enemy = self.check_enemy_collision()
             if enemy:
-                print(f'Враг! {enemy}!')
-                return (Command.ENCOUNTER_ENEMY, enemy.dialogue_id),
+                self.is_moving = False
+
+        if self.is_moving:
+            self.needs_screen_update = True
 
         return (Command.CHECK_PROGRESS, None),
 
-    def reset_movement(self):
-        """Сбрасывает флаг движения персонажа"""
-        self.is_moving = False
+    def handle_button_release(self, event, pressed_keys):
+        """Сброс анимации движения при отпуске всех кнопок"""
+        # TODO: KEYBIND CUSTOMIZATION
+        if not any(key in pressed_keys for key in (pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN,
+                                                   pygame.K_a, pygame.K_d, pygame.K_w, pygame.K_s)):
+            self.is_moving = False
+            self.update_animation()
+            self.needs_screen_update = True
 
     def draw(self, screen):
         """Отрисовка лабиринта"""
 
-        # TODO: make camera move along with the character for mazes that exceed screen bounds
+        # ТОЛЬКО ЕСЛИ ЧТО-ТО ИЗМЕНИЛОСЬ НА ЭКРАНЕ
+        if self.needs_screen_update:
 
-        # Обновляем анимацию перед отрисовкой лабиринта
-        self.update_animation()
+            # Отрисовываем пол и стены
+            for y in range(self.maze.height):
+                for x in range(self.maze.width):
+                    if self.maze.pattern[y][x] == 1:
+                        # в этой клетке стена
+                        cache_key = (x, y)
+                        screen.blit(self.wall_cache[cache_key], self.apply_shift(x * TILE_SIZE, y * TILE_SIZE))
+                    else:
+                        # в этой клетке пол
+                        screen.blit(self.floor_tile, self.apply_shift(x * TILE_SIZE, y * TILE_SIZE))
 
-        # Отрисовываем пол и стены
-        for y in range(self.maze.height):
-            for x in range(self.maze.width):
-                if self.maze.pattern[y][x] == 1:
-                    # в этой клетке стена
-                    cache_key = (x, y)
-                    screen.blit(self.wall_cache[cache_key], self.apply_shift(x * TILE_SIZE, y * TILE_SIZE))
-                else:
-                    # в этой клетке пол
-                    screen.blit(self.floor_tile, self.apply_shift(x * TILE_SIZE, y * TILE_SIZE))
+            # Отрисовываем вход и выход
+            self.draw_exits(screen)
 
-        # Отрисовываем вход и выход
-        self.draw_exits(screen)
+            # Отрисовываем врагов
+            for enemy in self.enemies:
+                if enemy.active:
+                    screen.blit(self.enemy_tile, self.apply_shift(enemy.x * TILE_SIZE, enemy.y * TILE_SIZE))
 
-        # Отрисовываем игрока (поверх всего! + с текущим кадром анимации)
-        screen.blit(self.current_player_image,
-                    self.apply_shift((self.player_pos[0]) - HALF_PLAYER, (self.player_pos[1]) - HALF_PLAYER))
+            # Отрисовываем игрока (поверх всего! + с текущим кадром анимации)
+            screen.blit(self.current_player_image,
+                        self.apply_shift((self.player_pos[0]) - HALF_PLAYER, (self.player_pos[1]) - HALF_PLAYER))
 
-        # Отрисовываем врагов
-        for enemy in self.enemies:
-            if enemy.active:
-                screen.blit(self.enemy_tile, self.apply_shift(enemy.x * TILE_SIZE, enemy.y * TILE_SIZE))
+            # Накладываем темноту поверх всего-всего
+            self.apply_darkness(screen)
 
-        # Накладываем темноту поверх всего-всего
-        self.apply_darkness(screen)
+            # БЛОКИРУЕМ ПОВТОРНУЮ ОТРИСОВКУ ДО ОБНОВЛЕНИЯ ЭЛЕМЕНТОВ
+            self.needs_screen_update = False
+
+            # Сообщаем об изменениях функции главного цикла
+            return (Command.UPDATE_DISPLAY, None),
+
+        return None
 
     """
     Вспомогательные функции для обработки нажатых кнопок
