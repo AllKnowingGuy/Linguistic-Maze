@@ -24,8 +24,14 @@ class Command(Enum):
     UPDATE_DISPLAY = 5 # Обновить дисплей игры (не влияет на счётчик FPS)
 
 
+def get_centered_point(length: float, is_height: bool = False):
+    if is_height:
+        return SCREEN_HEIGHT / 2 - length / 2
+    else:
+        return SCREEN_WIDTH / 2 - length / 2
+
 """
-Для Maze и MazeState
+Для Maze и MazeState (а также StoryScript и AssetsCreation)
 """
 
 TILE_SIZE = 45
@@ -51,7 +57,7 @@ class Border(Enum):
 
 
 """
-Для DialogueState и ChallengeState
+Для DialogueState и ChallengeState (а также AssetsCreation)
 """
 
 CHOICE_BUTTON_SIZE = 30

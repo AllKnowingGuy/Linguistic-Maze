@@ -1,12 +1,13 @@
 import pygame
 
 from src.Util import ButtonState
+from src.levelBuilding.Button import Button
 
 
 class BaseState:
     """Класс, который наследуется всеми игровыми состояниями"""
     def __init__(self):
-        self.needs_screen_update = False
+        self.needs_screen_update = False # Когда этот флаг становится True, экран обновляется и сбрасывает значение
 
     """
     Переписываемые функции состояния
@@ -49,10 +50,13 @@ class BaseState:
         return None
 
     def update_input_field(self, field_text, event):
+        """Обновление текстового поля введённым символом"""
+
         updated = True
         if event.key == pygame.K_BACKSPACE:
             field_text = field_text[:-1]
-        elif event.key not in (pygame.K_ESCAPE, pygame.K_TAB, pygame.K_DELETE, pygame.K_RETURN):
+        elif event.unicode and 31 < ord(event.unicode) and ord(event.unicode) not in (127,):
+            # TODO: uhh find all unrenderable characters?? idk ;(
             field_text += event.unicode
         else:
             updated = False
@@ -61,7 +65,9 @@ class BaseState:
             self.needs_screen_update = True
         return field_text, updated
 
-    def update_button_on_hovering(self, button, event):
+    def update_button_on_hovering(self, button: Button, event: pygame.event.Event):
+        """Подсвечивание кнопки, когда на неё наведён курсор, и снятие подсветки, когда курсор убран"""
+
         updated = False
         if button.is_hovered(event.pos):
             if button.state == ButtonState.REGULAR:
@@ -77,3 +83,16 @@ class BaseState:
             self.needs_screen_update = True
         return updated
 
+    def update_buttons_on_press(self, button: Button, buttons_to_unpress: tuple[Button] = None):
+        """Зажатие подсвеченной кнопки, когда происходит щелчок мышью"""
+
+        if button.state == ButtonState.HOVERED:
+            button.state = ButtonState.PRESSED
+            # Отжатие других кнопок (если необходимо)
+            if buttons_to_unpress:
+                for unpress_button in buttons_to_unpress:
+                    unpress_button.state = ButtonState.REGULAR if not unpress_button is button else ButtonState.PRESSED
+            self.needs_screen_update = True
+            return True
+        else:
+            return False
