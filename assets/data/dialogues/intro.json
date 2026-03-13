@@ -3,6 +3,7 @@
     "right": "Говорящий монстр",
     "rightsprite": "monsters\\level_0\\monster.png",
     "rpoints": 1,
+    "music": "Intro.wav",
     "lines": [
         {
             "text": "Я студент и я пришёл в лабиринт; только не знаю, что делать(",

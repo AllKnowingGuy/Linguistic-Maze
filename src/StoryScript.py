@@ -95,6 +95,7 @@ class StoryScript:
         game.current_state_type = StateType.DIALOGUE
         game.dialogue_state.setup_dialogue(intro_dialogue_path)
         game.associate_current_state()
+        game.dialogue_state.start_playing()
 
     """
     Проверки заскриптованных диалогов
@@ -171,6 +172,7 @@ class StoryScript:
             f'..\\assets\\data\\dialogues\\level_{self.current_room}\\{supposed_monster.enemy_name}.json'
         )
         game.associate_current_state()
+        game.dialogue_state.start_playing()
 
     def handle_room_exit(self, game):
         """Проверка выхода из комнаты"""
@@ -185,6 +187,7 @@ class StoryScript:
                 game.current_state_type = StateType.DIALOGUE
                 game.dialogue_state.setup_dialogue(supposed_dialogue_path)
                 game.associate_current_state()
+                game.dialogue_state.start_playing()
             else:
                 self.generate_next_room(game)
         else:

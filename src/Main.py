@@ -8,14 +8,19 @@ from Util import Command, StateType, SCREEN_WIDTH, SCREEN_HEIGHT
 from StoryScript import StoryScript
 
 
-# Инициализация Pygame
+# Инициализация Pygame (теперь с музыкой!)
+if pygame.get_sdl_version()[0] == 2:
+    pygame.mixer.pre_init(44100, 32, 2, 1024)
 pygame.init()
+if pygame.mixer and not pygame.mixer.get_init():
+    print("Warning, no sound")
+    pygame.mixer = None
 
 
 class Main:
     current_state_type: StateType
     current_state: BaseState
-    framerate: int = 60
+    framerate: int = 120
     show_framerate = True
 
     def __init__(self):
@@ -38,7 +43,7 @@ class Main:
         self.base_font = pygame.font.Font(None, 20)
 
         # Счётчик FPS и задний фон для него
-        self.fps_underlay = pygame.Surface((60, 20), pygame.SRCALPHA)
+        self.fps_underlay = pygame.Surface((65, 20), pygame.SRCALPHA)
         self.fps_underlay.set_alpha(128)
         self.fps_underlay.fill((255, 255, 255))
         self.fps_text_sprite = self.base_font.render('FPS: ' + 'pending...', True, (0, 0, 0))
@@ -143,6 +148,7 @@ class Main:
 
         self.story_script.update_game_progress(self)
         while self.running: # как только running станет False, игра закроется в конце итерации
+
             for event in pygame.event.get():
                 # Обработка выхода из игры
                 if event.type in (pygame.QUIT, pygame.WINDOWCLOSE):

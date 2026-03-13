@@ -29,6 +29,9 @@ def load_all_objects(root_path: str,
     return loaded_objects
 
 
+ROOT_MUSIC_PATH = '..\\assets\\music'
+
+
 """
 Для MazeState
 """
@@ -156,14 +159,25 @@ def add_dialogue_choice_buttons():
     return load_all_objects(buttons_path, button_files, button_sizes)
 
 
+def set_dialogue_music(rel_path: str | None = None):
+    try:
+        if rel_path:
+            music_path = f'{ROOT_MUSIC_PATH}\\{rel_path}'
+        else:
+            music_path = f'{ROOT_MUSIC_PATH}\\Intro.wav'
+        pygame.mixer.music.load(music_path)
+    except Exception as e:
+        print(f"Ошибка загрузки {rel_path}: {e}")
+
+
 """
 Для ChallengeState
 """
 
 
 ROOT_CHALLENGE_PATH = '..\\assets\\images\\challenge'
-QUESTION_CARD_WIDTH = SCREEN_WIDTH - 200
-QUESTION_CARD_HEIGHT = SCREEN_HEIGHT - 100
+QUESTION_CARD_WIDTH = SCREEN_WIDTH - 300
+QUESTION_CARD_HEIGHT = SCREEN_HEIGHT - 150
 STAMP_WIDTH = 150
 STAMP_HEIGHT = 90
 TIP_CARD_WIDTH = SCREEN_WIDTH - 700
@@ -281,6 +295,17 @@ def add_transitions():
     end_cover = load_one_object(end_path, SCREEN_WIDTH, SCREEN_HEIGHT)
 
     return start_cover, check_cover, end_cover
+
+
+def set_challenge_music():
+    music_path = f'{ROOT_MUSIC_PATH}\\Challenge.wav'
+    pygame.mixer.music.load(music_path)
+
+
+def add_challenge_start_sound():
+    sound_path = f'{ROOT_MUSIC_PATH}\\Start Challenge.wav'
+    sound = pygame.mixer.Sound(sound_path)
+    return sound
 
 
 class Transformer:

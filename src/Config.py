@@ -6,7 +6,7 @@ def extract_or_cast_unicode(bind: str):
     if len(bind) == 1:
         return ord(bind)
     elif len(bind) == 4:
-        return int(bind)
+        return int(bind, 16)
     else:
         raise ValueError(f'String {bind} is not a single character or a 4-digit Unicode code.')
 

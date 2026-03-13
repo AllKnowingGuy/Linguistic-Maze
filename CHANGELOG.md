@@ -1,5 +1,18 @@
 # Changelog
 
+## 2026-02-13 - Let it play update
+
+- The game now uses Pygame's **mixer setup and functions** in order to control in-game music
+- Added **music playback** to dialogues and challenges (before submitting)
+- Dialogues can now be **ominous**, making the game play monster encounter music during them. These dialogues always end on music beat to make a transition to the challenge music
+- A special sound now plays during the challenge intro to make a transition to the challenge music
+- Dialogues now start playing on a special command different from `setup_dialogue` to not play music when the game is not in the dialogue state
+- Dialogues and challenges are even more optimized now as they **cache large screen images** that are blitted on one another and not changed often
+- Moved and resized some challenge content
+- Made `draw_text_by_letter` in both `DialogueState` and `ChallengeState` move line cursor slower
+- Removed `DialogueState.cursor_sym`: text pauses are handled by `draw_text_by_letter` now
+- Fixed several challenge bugs by resetting more attributes in `setup_challenge`
+
 ## 2026-03-13 - Todos done update
 
 - Filled `config.json` with game settings data

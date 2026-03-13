@@ -63,6 +63,9 @@ class Dialogue:
         self.right_character = dialogue_dict.get("right")
         self.right_character_path = dialogue_dict.get("rightsprite")
         self.respect_points = dialogue_dict.get("rpoints", 0) # TODO: line respect points when awaiting input or choice
+
+        self.ominous = dialogue_dict.get("ominous", False)
+        self.music_path = dialogue_dict.get("music")
         self.starts_challenge = dialogue_dict.get("challenge", False)
 
     def get_line_speaker(self, line_ind: int) -> str | None:
