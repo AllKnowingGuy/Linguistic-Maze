@@ -317,7 +317,7 @@ class MazeState(BaseState):
         """Обработка кнопок перемещения"""
 
         new_pos = list(self.player_pos)
-        move_by = PLAYER_SIZE // 6 # please keep move_by integer - Vsevolod
+        move_by = PLAYER_SIZE // 11 # please keep move_by integer - Vsevolod
         moving = False
 
         if pressed_keys[pygame.K_LEFT] or pressed_keys[self.left_bind]:

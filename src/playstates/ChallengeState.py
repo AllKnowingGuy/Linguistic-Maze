@@ -20,19 +20,19 @@ from src.playstates.BaseState import BaseState
 
 
 # Константы
-CHOICE_BUTTON_X = 300
+CHOICE_BUTTON_X = 210
 CHOICE_BUTTON_Y = SCREEN_HEIGHT // 2 + 90
-CHOICE_BUTTON_DIST_X = CHOICE_BUTTON_SIZE + 250 # расстояние между кнопками выбора по горизонтали
+CHOICE_BUTTON_DIST_X = CHOICE_BUTTON_SIZE + 350 # расстояние между кнопками выбора по горизонтали
 CHOICE_BUTTON_DIST_Y = CHOICE_BUTTON_SIZE + 10 # расстояние между кнопками выбора по вертикали
 
 BACK_BUTTON_X = 100
 FORTH_BUTTON_X = SCREEN_WIDTH - 250
 NAV_BUTTON_Y = SCREEN_HEIGHT - 140
 
-TITLE_Y = 80
-TEXT_X = 160
-TEXT_Y = 130
-IMAGE_Y = 190
+TITLE_Y = 150
+TEXT_X = 210
+TEXT_Y = TITLE_Y + 50
+IMAGE_Y = TITLE_Y + 100
 
 TRANSITION_TIME = 2000
 RESULTS_TIME = 4000
@@ -158,6 +158,13 @@ class ChallengeState(BaseState):
         # Кэш для картинок, когда они появляются
         self.image_cache = {}
 
+        # Кеш редко меняющегося содержимого дисплея
+        self.need_cache = False
+        self.bg_card_task_img_cache = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
+
+        """Звуки"""
+        self.start_challenge_sound = AssetsCreation.add_challenge_start_sound()
+
     def setup_challenge(self, json_path: str):
         """Задание структурных данных испытания, сброс параметров этапов испытания"""
 
@@ -170,7 +177,12 @@ class ChallengeState(BaseState):
         self.playing_window_check_anim = False
         self.verdicted = False
         self.finished = False
+
         self.current_window_ind = 0
+        self.current_answer_correctness = None
+        self.current_reward = 0
+        self.current_stamp = None
+        self.current_tip = None
 
         # Получение данных первого окна
         self.get_window_fields()
@@ -185,12 +197,20 @@ class ChallengeState(BaseState):
 
     def start_start_anim(self):
         self.playing_start_anim = True
+
+        # Играем переход и обновляем музыку
+        AssetsCreation.set_challenge_music()
+        self.start_challenge_sound.play()
+
         self.start_anim_time = pygame.time.get_ticks()
         self.needs_screen_update = True
 
     def play_start_anim(self):
         if self.playing_start_anim and pygame.time.get_ticks() >= self.start_anim_time + TRANSITION_TIME:
             self.playing_start_anim = False
+
+            # Ставим музыку испытания
+            pygame.mixer.music.play(-1)
 
             # Можно сразу начинать выводить текст окна
             self.playing_text = True
@@ -199,6 +219,7 @@ class ChallengeState(BaseState):
             self.needs_screen_update = True
 
     def start_check_anim(self):
+        pygame.mixer.music.stop()
         self.playing_check_load_anim = True
         self.check_load_anim_time = pygame.time.get_ticks()
         self.needs_screen_update = True
@@ -297,6 +318,15 @@ class ChallengeState(BaseState):
     def get_window_fields(self):
         """Получение данных из строчки файла испытания"""
 
+        # Когда перебрали все строчки, завершаем диалог
+        if self.finished or self.verdicted:
+            return
+
+        elif self.current_window_ind >= len(self.challenge.windows):
+            self.current_window_ind = len(self.challenge.windows) - 1
+            self.verdicted = True
+            return
+
         # Извлекаем заголовок
         self.current_title = self.challenge.get_window_title(self.current_window_ind)
 
@@ -378,6 +408,9 @@ class ChallengeState(BaseState):
                 self.back_button.state = ButtonState.REGULAR
                 self.forth_button.state = ButtonState.REGULAR
                 self.submit_button.state = ButtonState.DISABLED
+
+        # Запрашиваем обновление редко меняющихся элементов экрана
+        self.need_cache = True
 
     def check_current_answer(self):
         """Проверка текущего ответа на правильность методом, назначенным на это задание"""
@@ -525,19 +558,34 @@ class ChallengeState(BaseState):
         # ТОЛЬКО ЕСЛИ ЧТО-ТО ИЗМЕНИЛОСЬ НА ЭКРАНЕ
         if self.needs_screen_update:
 
-            # Создаём фон
-            screen.blit(self.challenge_bg, (0, 0))
+            # Заново вносим кешируемые элементы, когда мы меняем окно
+            if self.need_cache:
 
-            # Отрисовываем карточку испытания
-            screen.blit(self.question_card, (get_centered_point(self.question_card.get_width(), False), 50))
+                # Создаём фон
+                self.bg_card_task_img_cache.blit(self.challenge_bg, (0, 0))
 
-            # Отрисовываем заголовок
-            title_sprite = self.challenge_font.render(self.current_title, True, (0, 0, 0))
-            screen.blit(title_sprite, (get_centered_point(title_sprite.get_width(), False), TITLE_Y))
+                # Отрисовываем карточку испытания
+                self.bg_card_task_img_cache.blit(
+                    self.question_card,
+                    (get_centered_point(self.question_card.get_width(), False), TITLE_Y - 50)
+                )
 
-            # Отрисовываем изображение из задания (если оно есть)
-            if self.current_image:
-                screen.blit(self.current_image, (get_centered_point(self.current_image.get_width(), False), IMAGE_Y))
+                # Отрисовываем заголовок
+                title_sprite = self.challenge_font.render(self.current_title, True, (0, 0, 0))
+                self.bg_card_task_img_cache.blit(
+                    title_sprite, (get_centered_point(title_sprite.get_width(), False), TITLE_Y)
+                )
+
+                # Отрисовываем изображение из задания (если оно есть)
+                if self.current_image:
+                    self.bg_card_task_img_cache.blit(
+                        self.current_image,(get_centered_point(self.current_image.get_width(), False), IMAGE_Y)
+                    )
+
+                self.need_cache = False
+
+            # Достаём кешированные элементы, пока мы на одном и том же окне
+            screen.blit(self.bg_card_task_img_cache, (0, 0))
 
             # Отрисовываем кнопки навигации
             btn_sprites_set = (self.back_button_sprites, self.forth_button_sprites, self.submit_button_sprites)
@@ -570,7 +618,7 @@ class ChallengeState(BaseState):
                         ' - Ввод: ' + self.input_texts[self.current_window_ind],
                         True,
                         (0, 0, 0))
-                    screen.blit(input_text_sprite, (TEXT_X, SCREEN_HEIGHT // 2 + 110))
+                    screen.blit(input_text_sprite, (TEXT_X + 200, SCREEN_HEIGHT // 2 + 180))
 
             # Отрисовываем штамп правильности (когда он ставится по анимации)
             if self.current_stamp:
@@ -628,7 +676,7 @@ class ChallengeState(BaseState):
         if self.text_cursor >= len(self.current_task_text):
             self.playing_text = False
         else:
-            self.text_cursor += 1
+            self.text_cursor += 0.4
 
-        text_sprite = self.challenge_font.render(self.current_task_text[:self.text_cursor], True, (0, 0, 0))
+        text_sprite = self.challenge_font.render(self.current_task_text[:int(self.text_cursor)], True, (0, 0, 0))
         screen.blit(text_sprite, (TEXT_X, TEXT_Y))

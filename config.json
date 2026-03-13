@@ -4,10 +4,10 @@
         "move_up": "w",
         "move_left": "a",
         "move_right": "d",
-        "end_text_animation": "0027",
+        "end_text_animation": "001B",
         "increase_volume": "+",
         "decrease_volume": "-",
-        "no_task_advance": "0013"
+        "no_task_advance": "000D"
     },
     "music": true,
     "general_difficulty": 0
