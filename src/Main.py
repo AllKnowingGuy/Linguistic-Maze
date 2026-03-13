@@ -63,7 +63,6 @@ class Main:
 
     def handle_input(self, event):
         """Обработка ввода с клавиатуры"""
-        # TODO: create customizable keybinds
         supposed_commands = self.current_state.handle_input(event)
         return supposed_commands
 
@@ -112,7 +111,6 @@ class Main:
             for command in supposed_commands:
                 if command[0].name == Command.UPDATE_DISPLAY.name:
                     self.screen.blit(self.content_layer, (0, 0))
-                    #print('woah')
                     break
 
         # Обновление дисплея FPS

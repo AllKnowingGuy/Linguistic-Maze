@@ -1,5 +1,21 @@
 # Changelog
 
+## 2026-03-13 - Todos done update
+
+- Filled `config.json` with game settings data
+- Created `Config.py` for keeping, providing and changing loaded config settings
+- Implemented **key binding** for almost all possible key presses in all playstates (finally - [AllKnowingGuy](https://github.com/AllKnowingGuy))
+- Slightly reorganized `handle_input` of `DialogueState`
+- Moved button state switches on mouse clicks to `BaseState`
+- Prohibited entering even more unrenderable characters in input fields
+- Implemented loading and using different backgrounds in `DialogueState`, and moved the placeholder BG to `images\dialogue\backgrounds`
+- Renamed `add_player_speak_sprite` and `add_character_speak_sprite` to `add_left_speak_sprite` and `add_right_speak_sprite` respectively
+- Added optional custom path loading for `add_left_speak_sprite`
+- Made a `Util.py` function for retrieving coordinates needed for centering objects on the screen
+- Added several constants to `AssetsCreation.py`
+- Made the tip card in challenges smaller and more centered
+- Removed image scaling in `add_window_image` of `AssetsCreation.py`
+
 ## 2026-03-12 - Draw suppression update
 
 - **Greatly optimized** all 3 game modes by making their states only redraw game components if one or more of them have changed position or have been replaced
@@ -27,6 +43,7 @@
 - Reorganized `StoryScript` to reduce unnecessary code duplication
 - Added many attributes of several classes to their `__init__`s to avoid potential exploits and test falls
 - Made a debug flag in `StoryScript.py` to skip dialogues by only playing the 1st line of each
+- Removed `ENCOUNTER_ENEMY` command for the lack of use, monster collision is now checked when `CHECK_PROGRESS` is sent
 
 ## 2026-03-09 - Dialogue independence update
 

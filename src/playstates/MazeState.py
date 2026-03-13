@@ -1,5 +1,6 @@
 import pygame
 
+from src.Config import Config
 from src.levelBuilding import Maze
 from src.levelBuilding.Enemy import Enemy, StationaryEnemy
 from src.Util import Command, WallPattern, Border, TILE_SIZE, PLAYER_SIZE, SCREEN_WIDTH, SCREEN_HEIGHT
@@ -37,6 +38,10 @@ class MazeState(BaseState):
         # Текущий уровень
         self.current_level = 0
 
+        """Управление"""
+        self.up_bind, self.down_bind, self.left_bind, self.right_bind = Config().get_maze_controls()
+
+        """Графика"""
         # Тайлы для основания и границ стен. Используют именно current level
         self.wall_tiles = AssetsCreation.add_wall_tiles(self.current_level)
 
@@ -67,7 +72,7 @@ class MazeState(BaseState):
         self.current_player_image = self.player_tile
 
         # Темнота и её параметры
-        self.darkness_enabled = False # Если темнота будет мешать тестированию других вещей, ее можно убрать
+        self.darkness_enabled = True # Если темнота будет мешать тестированию других вещей, ее можно убрать
         self.darkness_alpha = 255
         self.light_radius = 200
         self.darkness_surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
@@ -90,7 +95,6 @@ class MazeState(BaseState):
             more_random (bool): Должен ли лабиринт генерироваться по альтернативному алгоритму для увеличения ветвления
             curving (bool): Должен ли лабиринт избегать генерации прямых коридоров, если это возможно
         """
-        # TODO: maybe enable switching to a preloaded maze and specifying player position
 
         self.maze = Maze.Maze(width, height, doors_near_borders, other_door_coords)
         self.maze.generate_maze(more_random, curving)
@@ -311,23 +315,23 @@ class MazeState(BaseState):
 
     def handle_hold_input(self, pressed_keys):
         """Обработка кнопок перемещения"""
-        # TODO: for real make keybind customization
+
         new_pos = list(self.player_pos)
-        move_by = PLAYER_SIZE // 6 # would you know how tired I am of floats - Vsevolod
+        move_by = PLAYER_SIZE // 6 # please keep move_by integer - Vsevolod
         moving = False
 
-        if pressed_keys[pygame.K_LEFT] or pressed_keys[pygame.K_a]:
+        if pressed_keys[pygame.K_LEFT] or pressed_keys[self.left_bind]:
             new_pos[0] -= move_by
             self.facing_left = True
             moving = True
-        if pressed_keys[pygame.K_RIGHT] or pressed_keys[pygame.K_d]:
+        if pressed_keys[pygame.K_RIGHT] or pressed_keys[self.right_bind]:
             new_pos[0] += move_by
             self.facing_left = False
             moving = True
-        if pressed_keys[pygame.K_UP] or pressed_keys[pygame.K_w]:
+        if pressed_keys[pygame.K_UP] or pressed_keys[self.up_bind]:
             new_pos[1] -= move_by
             moving = True
-        if pressed_keys[pygame.K_DOWN] or pressed_keys[pygame.K_s]:
+        if pressed_keys[pygame.K_DOWN] or pressed_keys[self.down_bind]:
             new_pos[1] += move_by
             moving = True
 
@@ -350,9 +354,8 @@ class MazeState(BaseState):
 
     def handle_button_release(self, event, pressed_keys):
         """Сброс анимации движения при отпуске всех кнопок"""
-        # TODO: KEYBIND CUSTOMIZATION
         if not any(key in pressed_keys for key in (pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN,
-                                                   pygame.K_a, pygame.K_d, pygame.K_w, pygame.K_s)):
+                                                   self.left_bind, self.right_bind, self.up_bind, self.down_bind)):
             self.is_moving = False
             self.update_animation()
             self.needs_screen_update = True

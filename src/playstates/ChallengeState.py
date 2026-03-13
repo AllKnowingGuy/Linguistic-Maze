@@ -1,9 +1,8 @@
 from math import ceil
-import random
-
-import pygame
+import pygame, random
 
 from src import AssetsCreation
+from src.Config import Config
 from src.levelBuilding import Challenge
 from src.levelBuilding.Button import Button
 from src.Util import (
@@ -15,6 +14,7 @@ from src.Util import (
     Command,
     ButtonState,
     Awaiting,
+    get_centered_point,
 )
 from src.playstates.BaseState import BaseState
 
@@ -67,7 +67,6 @@ class ChallengeState(BaseState):
 
     playing_text: bool = False
     text_cursor: int
-    cursor_sym: str
 
     def __init__(self):
         """Задание некоторых атрибутов, загрузка изображений для отрисовки и создание шрифтов"""
@@ -108,7 +107,6 @@ class ChallengeState(BaseState):
         # Данные анимации текста
         self.playing_text = False
         self.text_cursor = 10**10
-        self.cursor_sym = ''
 
         # Наборы кнопок выбора (по окнам)
         self.choice_buttons_sets: dict[int, list[Button]] = {}
@@ -121,6 +119,9 @@ class ChallengeState(BaseState):
         self.forth_button = Button(FORTH_BUTTON_X, NAV_BUTTON_Y, CHAL_BUTTON_WIDTH, CHAL_BUTTON_HEIGHT, 'forth')
         self.submit_button = Button(FORTH_BUTTON_X, NAV_BUTTON_Y, CHAL_BUTTON_WIDTH, CHAL_BUTTON_HEIGHT, 'submit')
         self.nav_buttons = (self.back_button, self.forth_button, self.submit_button)
+
+        """Управление"""
+        self.stop_anim_bind = Config().get_challenge_controls()
 
         """Графика"""
         # Фон испытания
@@ -176,7 +177,6 @@ class ChallengeState(BaseState):
 
         # Данные анимации текста
         self.text_cursor = 10**10 # чтобы анимация не играла при заставке
-        self.cursor_sym = ''
 
         # Запрос на обновление экрана
         self.needs_screen_update = True
@@ -408,10 +408,10 @@ class ChallengeState(BaseState):
     """
 
     def handle_input(self, event):
-        """Обработка ввода с клавиатуры, когда ожидается ввод"""
+        """Обработка ввода с клавиатуры, когда ожидается ввод, и прекращения анимации печатания текста"""
 
         # Вывод всего сообщения сразу
-        if self.playing_text and event.key == pygame.K_ESCAPE:
+        if self.playing_text and event.unicode == chr(self.stop_anim_bind):
             self.text_cursor = len(self.current_task_text)
 
         # Ограничения
@@ -454,14 +454,10 @@ class ChallengeState(BaseState):
                 btn_set.extend(self.choice_buttons_sets[self.current_window_ind])
 
             for btn in btn_set:
-                if btn.state == ButtonState.HOVERED:
-                    btn.state = ButtonState.PRESSED
-                    if btn not in self.nav_buttons:
-                        # Отжатие остальных кнопок выбора
-                        for btn2 in self.choice_buttons_sets[self.current_window_ind]:
-                            # TODO: optimize or make a separate function
-                            btn2.state = ButtonState.REGULAR if not btn2 is btn else ButtonState.PRESSED
-                    self.needs_screen_update = True
+                to_reset = None
+                if btn not in self.nav_buttons:
+                    to_reset = self.choice_buttons_sets[self.current_window_ind]
+                if self.update_buttons_on_press(btn, to_reset):
                     return
 
     def handle_mouse_release(self, event):
@@ -533,15 +529,15 @@ class ChallengeState(BaseState):
             screen.blit(self.challenge_bg, (0, 0))
 
             # Отрисовываем карточку испытания
-            screen.blit(self.question_card, (SCREEN_WIDTH / 2 - self.question_card.get_width() / 2, 50))
+            screen.blit(self.question_card, (get_centered_point(self.question_card.get_width(), False), 50))
 
             # Отрисовываем заголовок
             title_sprite = self.challenge_font.render(self.current_title, True, (0, 0, 0))
-            screen.blit(title_sprite, (SCREEN_WIDTH / 2 - title_sprite.get_width() / 2, TITLE_Y))
+            screen.blit(title_sprite, (get_centered_point(title_sprite.get_width(), False), TITLE_Y))
 
             # Отрисовываем изображение из задания (если оно есть)
             if self.current_image:
-                screen.blit(self.current_image, (SCREEN_WIDTH / 2 - self.current_image.get_width() / 2, IMAGE_Y))
+                screen.blit(self.current_image, (get_centered_point(self.current_image.get_width(), False), IMAGE_Y))
 
             # Отрисовываем кнопки навигации
             btn_sprites_set = (self.back_button_sprites, self.forth_button_sprites, self.submit_button_sprites)
@@ -578,11 +574,14 @@ class ChallengeState(BaseState):
 
             # Отрисовываем штамп правильности (когда он ставится по анимации)
             if self.current_stamp:
-                screen.blit(self.current_stamp, (SCREEN_WIDTH / 2 - self.current_stamp.get_width() / 2, NAV_BUTTON_Y))
+                screen.blit(self.current_stamp,
+                            (get_centered_point(self.current_stamp.get_width(), False), NAV_BUTTON_Y)
+                            )
 
             # Отрисовываем плашку совета и кнопку продолжения (когда они появляются по анимации)
             if self.current_tip:
-                screen.blit(self.tip_card, (SCREEN_WIDTH / 2 - self.tip_card.get_width() / 2, TEXT_Y))
+                screen.blit(self.tip_card, (get_centered_point(self.tip_card.get_width(), False),
+                                            get_centered_point(self.tip_card.get_height(), True)))
 
                 if self.current_reward > 0:
                     reward_announce = f'Твой респект увеличился на {self.current_reward}!'
@@ -592,9 +591,11 @@ class ChallengeState(BaseState):
                     reward_announce = 'Твой респект не изменился!'
 
                 tip_text = self.challenge_font.render(self.current_tip, True, (0, 0, 0))
-                screen.blit(tip_text, (SCREEN_WIDTH / 2 - self.tip_card.get_width() / 2 + 40, TEXT_Y + 40))
+                screen.blit(tip_text, (get_centered_point(self.tip_card.get_width(), False) + 40,
+                                       get_centered_point(self.tip_card.get_height(), True) + 40))
                 reward_announce_text = self.challenge_font.render(reward_announce, True, (0, 0, 0))
-                screen.blit(reward_announce_text, (SCREEN_WIDTH / 2 - self.tip_card.get_width() / 2 + 40, TEXT_Y + 80))
+                screen.blit(reward_announce_text, (get_centered_point(self.tip_card.get_width(), False) + 40,
+                                                   get_centered_point(self.tip_card.get_height(), True) + 80))
 
             # Отрисовываем заставку (поверх всего-всего)
             if self.playing_start_anim:
@@ -606,7 +607,7 @@ class ChallengeState(BaseState):
                 score_text = self.challenge_font.render(f'Респект, который ты заработал: {self.score}',
                                                         True,
                                                         (255, 255, 255))
-                screen.blit(score_text, (SCREEN_WIDTH / 2 - score_text.get_width() / 2, SCREEN_HEIGHT / 2))
+                screen.blit(score_text, (get_centered_point(score_text.get_width(), False), SCREEN_HEIGHT / 2 + 100))
 
             # БЛОКИРУЕМ ПОВТОРНУЮ ОТРИСОВКУ ДО ОБНОВЛЕНИЯ ЭЛЕМЕНТОВ
             if not self.playing_text:
@@ -623,7 +624,6 @@ class ChallengeState(BaseState):
 
     def draw_text_by_letter(self, screen):
         """Приятный глазу эффект выведения текста по буковке"""
-        # TODO: MOVE TO A SEPARATE CLASS ALONG WITH ALL PLAYABLE TEXT ATTRIBUTES
 
         if self.text_cursor >= len(self.current_task_text):
             self.playing_text = False

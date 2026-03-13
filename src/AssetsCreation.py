@@ -106,10 +106,12 @@ def add_enemy_tile(level=1):
 ROOT_DIALOGUE_PATH = '..\\assets\\images\\dialogue'
 
 
-def add_dialogue_bg():
+def add_dialogue_bg(rel_path: str | None = None):
     """Загрузка фона диалога"""
-    # TODO: accept an argument that specifies the path to the BG
-    bg_path = f'{ROOT_DIALOGUE_PATH}\\bg.png'
+    if rel_path:
+        bg_path = f'{ROOT_DIALOGUE_PATH}\\backgrounds\\{rel_path}'
+    else:
+        bg_path = f'{ROOT_DIALOGUE_PATH}\\backgrounds\\bg.png'
     return load_one_object(bg_path, SCREEN_WIDTH, SCREEN_HEIGHT)
 
 
@@ -119,20 +121,23 @@ def add_dialogue_box():
     return load_one_object(box_path, SCREEN_WIDTH, SCREEN_HEIGHT // 2)
 
 
-def add_player_speak_sprite():
+def add_left_speak_sprite(rel_path: str | None = None):
     """Загрузка главного героя"""
-    # TODO: accept an argument that specifies the name of the character, the others won't be loaded
-    player_path = f'{ROOT_DIALOGUE_PATH}\\protagonists\\student.png'
-    return load_one_object(player_path, 300, 400)
+    if rel_path:
+        player_path = f'{ROOT_DIALOGUE_PATH}\\protagonists\\{rel_path}'
+    else:
+        player_path = f'{ROOT_DIALOGUE_PATH}\\protagonists\\student.png'
+    return load_one_object(player_path, 300, 300)
 
 
-def add_character_speak_sprite(rel_path: str | None = None):
+def add_right_speak_sprite(rel_path: str | None = None):
     """Загрузка собеседника"""
     if rel_path:
         char_path = f'{ROOT_DIALOGUE_PATH}\\{rel_path}'
+        # doesn't start from monsters to be able to load students as right speakers - Vsevolod
     else:
-        char_path = f'{ROOT_DIALOGUE_PATH}\\monsters\\level_0\\monster.png' # затычка
-    return load_one_object(char_path, 300, 400)
+        char_path = f'{ROOT_DIALOGUE_PATH}\\monsters\\level_0\\monster.png'
+    return load_one_object(char_path, 300, 300)
 
 
 def add_dialogue_choice_buttons():
@@ -157,6 +162,12 @@ def add_dialogue_choice_buttons():
 
 
 ROOT_CHALLENGE_PATH = '..\\assets\\images\\challenge'
+QUESTION_CARD_WIDTH = SCREEN_WIDTH - 200
+QUESTION_CARD_HEIGHT = SCREEN_HEIGHT - 100
+STAMP_WIDTH = 150
+STAMP_HEIGHT = 90
+TIP_CARD_WIDTH = SCREEN_WIDTH - 700
+TIP_CARD_HEIGHT = SCREEN_HEIGHT - 500
 
 
 def add_challenge_bg():
@@ -168,13 +179,13 @@ def add_challenge_bg():
 def add_question_card():
     """Загрузка карточки задания"""
     card_path = f'{ROOT_CHALLENGE_PATH}\\card.png'
-    return load_one_object(card_path, SCREEN_WIDTH - 200, SCREEN_HEIGHT - 100) # TODO: create size constants?
+    return load_one_object(card_path, QUESTION_CARD_WIDTH, QUESTION_CARD_HEIGHT)
 
 
 def add_window_image(rel_path: str):
     """Загрузка изображения, которое требует файл испытания"""
     image_path = f'{ROOT_CHALLENGE_PATH}\\{rel_path}'
-    return load_one_object(image_path, 400, 200) # TODO: make not the same size
+    return load_one_object(image_path)
 
 
 def add_challenge_choice_buttons():
@@ -247,8 +258,8 @@ def add_judgement_stamps():
     correct_path = f'{ROOT_CHALLENGE_PATH}\\correct.png'
     incorrect_path = f'{ROOT_CHALLENGE_PATH}\\incorrect.png'
 
-    correct_stamp = load_one_object(correct_path, CHAL_BUTTON_WIDTH, CHAL_BUTTON_HEIGHT)
-    incorrect_stamp = load_one_object(incorrect_path, CHAL_BUTTON_WIDTH, CHAL_BUTTON_HEIGHT)
+    correct_stamp = load_one_object(correct_path, STAMP_WIDTH, STAMP_HEIGHT)
+    incorrect_stamp = load_one_object(incorrect_path, STAMP_WIDTH, STAMP_HEIGHT)
 
     return correct_stamp, incorrect_stamp
 
@@ -256,7 +267,7 @@ def add_judgement_stamps():
 def add_tip_card():
     """Загрузка карточки комментария"""
     card_path = f'{ROOT_CHALLENGE_PATH}\\tip_card.png'
-    return load_one_object(card_path, SCREEN_WIDTH - 500, SCREEN_HEIGHT - 300) # TODO: create size constants?
+    return load_one_object(card_path, TIP_CARD_WIDTH, TIP_CARD_HEIGHT)
 
 
 def add_transitions():
