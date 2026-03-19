@@ -18,12 +18,11 @@ from src.Util import (
 )
 from src.playstates.BaseState import BaseState
 
-
 # Константы
 CHOICE_BUTTON_X = 210
 CHOICE_BUTTON_Y = SCREEN_HEIGHT // 2 + 90
-CHOICE_BUTTON_DIST_X = CHOICE_BUTTON_SIZE + 350 # расстояние между кнопками выбора по горизонтали
-CHOICE_BUTTON_DIST_Y = CHOICE_BUTTON_SIZE + 10 # расстояние между кнопками выбора по вертикали
+CHOICE_BUTTON_DIST_X = CHOICE_BUTTON_SIZE + 350  # расстояние между кнопками выбора по горизонтали
+CHOICE_BUTTON_DIST_Y = CHOICE_BUTTON_SIZE + 10  # расстояние между кнопками выбора по вертикали
 
 BACK_BUTTON_X = 100
 FORTH_BUTTON_X = SCREEN_WIDTH - 250
@@ -42,6 +41,9 @@ CHECK_TIME = 1000
 
 class ChallengeState(BaseState):
     challenge: Challenge.Challenge | None
+
+    choice_buttons_sets: dict[int, list[Button]]
+    input_texts: dict[int, str]
 
     playing_start_anim: bool
     submitted: bool
@@ -79,6 +81,7 @@ class ChallengeState(BaseState):
         # На запуске испытания (запуск заставки проводит StoryScript)
         self.playing_start_anim = False
         self.start_anim_time = 0
+        self.start_anim_perc = 0.0
 
         # Отправка ответов
         self.submitted = False
@@ -106,13 +109,13 @@ class ChallengeState(BaseState):
 
         # Данные анимации текста
         self.playing_text = False
-        self.text_cursor = 10**10
+        self.text_cursor = 10 ** 10
 
         # Наборы кнопок выбора (по окнам)
-        self.choice_buttons_sets: dict[int, list[Button]] = {}
+        self.choice_buttons_sets = {}
 
         # Тексты полей ввода (по окнам)
-        self.input_texts: dict[int, str] = {}
+        self.input_texts = {}
 
         # Кнопки перехода
         self.back_button = Button(BACK_BUTTON_X, NAV_BUTTON_Y, CHAL_BUTTON_WIDTH, CHAL_BUTTON_HEIGHT, 'back')
@@ -171,7 +174,11 @@ class ChallengeState(BaseState):
         self.challenge = Challenge.Challenge(json_path)
         self.score = 0
 
+        # Сброс параметров и очистка словарей ответов
+        self.choice_buttons_sets = {}
+        self.input_texts = {}
         self.playing_start_anim = False
+        self.start_anim_perc = 0.0
         self.submitted = False
         self.playing_check_load_anim = False
         self.playing_window_check_anim = False
@@ -188,10 +195,10 @@ class ChallengeState(BaseState):
         self.get_window_fields()
 
         # Данные анимации текста
-        self.text_cursor = 10**10 # чтобы анимация не играла при заставке
+        self.text_cursor = 10 ** 10  # чтобы анимация не играла при заставке
 
         # Запрос на обновление экрана
-        self.needs_screen_update = True
+        self.need_screen_update = True
 
         return self.challenge
 
@@ -203,26 +210,33 @@ class ChallengeState(BaseState):
         self.start_challenge_sound.play()
 
         self.start_anim_time = pygame.time.get_ticks()
-        self.needs_screen_update = True
+        self.need_screen_update = True
 
     def play_start_anim(self):
-        if self.playing_start_anim and pygame.time.get_ticks() >= self.start_anim_time + TRANSITION_TIME:
-            self.playing_start_anim = False
+        if self.playing_start_anim:
+            current_ticks = pygame.time.get_ticks()
+            if current_ticks >= self.start_anim_time + TRANSITION_TIME:
+                self.playing_start_anim = False
 
-            # Ставим музыку испытания
-            pygame.mixer.music.play(-1)
+                # Ставим музыку испытания
+                pygame.mixer.music.play(-1)
 
-            # Можно сразу начинать выводить текст окна
-            self.playing_text = True
-            self.text_cursor = 0
+                # Можно сразу начинать выводить текст окна
+                self.playing_text = True
+                self.text_cursor = 0
 
-            self.needs_screen_update = True
+                self.need_screen_update = True
+
+            else:
+                self.start_anim_perc = float((current_ticks - self.start_anim_time)
+                                             //
+                                             (TRANSITION_TIME // 16) * 6.25)
 
     def start_check_anim(self):
         pygame.mixer.music.stop()
         self.playing_check_load_anim = True
         self.check_load_anim_time = pygame.time.get_ticks()
-        self.needs_screen_update = True
+        self.need_screen_update = True
 
     def play_check_anim(self):
         if self.playing_check_load_anim and pygame.time.get_ticks() >= self.check_load_anim_time + TRANSITION_TIME:
@@ -236,21 +250,22 @@ class ChallengeState(BaseState):
             self.current_window_ind = -1
             self.change_card_on_checking()
 
-            self.needs_screen_update = True
+            self.need_screen_update = True
 
     def start_window_check_anim(self):
         self.playing_window_check_anim = True
         self.check_window_anim_time = pygame.time.get_ticks()
-        self.needs_screen_update = True
+        self.need_screen_update = True
 
     def play_window_check_anim(self):
         if self.playing_window_check_anim:
 
             # Анимация штампа правильности
             # TODO: maybe check the answer earlier such as in start_window_check_anim
+            current_ticks = pygame.time.get_ticks()
             if (self.current_answer_correctness is None
-                    and pygame.time.get_ticks() >= self.check_window_anim_time + CHECK_TIME):
-                self.current_answer_correctness = self.check_current_answer()
+                    and current_ticks >= self.check_window_anim_time + CHECK_TIME):
+                self.current_answer_correctness = self.challenge.check_current_answer(self.current_window_ind)
 
                 self.current_reward = (self.challenge.get_window_incorrect_respect_points(self.current_window_ind),
                                        self.challenge.get_window_correct_respect_points(self.current_window_ind)
@@ -258,10 +273,10 @@ class ChallengeState(BaseState):
                 self.score += self.current_reward
 
                 self.current_stamp = (self.incorrect_stamp, self.correct_stamp)[self.current_answer_correctness]
-                self.needs_screen_update = True
+                self.need_screen_update = True
 
             # Анимация плашки с комментарием
-            elif pygame.time.get_ticks() >= self.check_window_anim_time + CHECK_TIME * 2:
+            elif current_ticks >= self.check_window_anim_time + CHECK_TIME * 2:
 
                 self.current_tip = random.choice((self.challenge.get_window_incorrect_tips(self.current_window_ind),
                                                   self.challenge.get_window_correct_tips(self.current_window_ind)
@@ -269,16 +284,16 @@ class ChallengeState(BaseState):
 
                 self.forth_button.state = ButtonState.REGULAR
                 self.playing_window_check_anim = False
-                self.needs_screen_update = True
+                self.need_screen_update = True
 
     def start_end_anim(self):
         self.end_anim_time = pygame.time.get_ticks()
-        self.needs_screen_update = True
+        self.need_screen_update = True
 
     def play_end_anim(self):
         if not self.finished and pygame.time.get_ticks() >= self.end_anim_time + RESULTS_TIME:
             self.finished = True
-            self.needs_screen_update = True
+            self.need_screen_update = True
 
     def change_card(self, back: bool = False):
         """Переключение на следующее или предыдущее задание"""
@@ -291,7 +306,7 @@ class ChallengeState(BaseState):
         self.playing_text = True
         self.text_cursor = 0
 
-        self.needs_screen_update = True
+        self.need_screen_update = True
 
     def change_card_on_checking(self):
         """Переключение на следующее задание при отображении верных ответов"""
@@ -302,8 +317,8 @@ class ChallengeState(BaseState):
                or self.challenge.get_window_action_type(self.current_window_ind) not in ('choosefrom', 'savetyped')):
             self.current_window_ind += 1
             if self.current_window_ind >= len(self.challenge.windows):
-                self.current_window_ind -= 1 # на всякий случай остаёмся в пределах окон
-                self.get_window_fields() # последнее окно не будет видно, но обновятся параметры для отрисовки
+                self.current_window_ind -= 1  # на всякий случай остаёмся в пределах окон
+                self.get_window_fields()  # последнее окно не будет видно, но обновятся параметры для отрисовки
                 self.verdicted = True
                 self.start_end_anim()
                 return
@@ -313,15 +328,16 @@ class ChallengeState(BaseState):
         self.current_tip = None
         self.start_window_check_anim()
 
-        self.needs_screen_update = True
+        self.need_screen_update = True
 
     def get_window_fields(self):
         """Получение данных из строчки файла испытания"""
 
-        # Когда перебрали все строчки, завершаем диалог
+        # Если испытание завершено - не пытаемся извлечь данные
         if self.finished or self.verdicted:
             return
 
+        # Когда перебрали все окна при проверке, завершаем испытание
         elif self.current_window_ind >= len(self.challenge.windows):
             self.current_window_ind = len(self.challenge.windows) - 1
             self.verdicted = True
@@ -333,7 +349,7 @@ class ChallengeState(BaseState):
         # Извлекаем текст
         self.current_task_text = self.challenge.get_window_task_text(self.current_window_ind)
 
-        # Извлекаем изображение с кешированием
+        # Извлекаем и создаём изображение (с кешированием)
         image_path = self.challenge.get_window_image_path(self.current_window_ind)
         if image_path:
             if not image_path in self.image_cache:
@@ -344,49 +360,18 @@ class ChallengeState(BaseState):
 
         # Извлекаем метаданные
         action_type = self.challenge.get_window_action_type(self.current_window_ind)
-
-        # Преобразуем данные в формат, поддерживаемый ChallengeState
         if action_type:
             if action_type == 'savetyped':
                 # Создаём вводимый текст данной страницы (если ещё не был создан)
+                self.awaiting = Awaiting.INPUT
                 if not self.current_window_ind in self.input_texts:
                     self.input_texts[self.current_window_ind] = ''
-                self.awaiting = Awaiting.INPUT
-
             elif action_type == 'choosefrom':
                 # Получаем варианты ответа и создаём список кнопок данной страницы (если ещё не был создан)
-                if not self.current_window_ind in self.choice_buttons_sets:
-                    self.choice_buttons_sets[self.current_window_ind] = []
-                    current_choice_options = self.challenge.get_window_choose_options(self.current_window_ind)
-                    number_of_options = len(current_choice_options)
-
-                    for opt_ind, opt in enumerate(current_choice_options):
-                        if number_of_options < 4:
-                            # Один столбик
-                            self.choice_buttons_sets[self.current_window_ind].append(
-                                Button(
-                                CHOICE_BUTTON_X,
-                                CHOICE_BUTTON_Y + CHOICE_BUTTON_DIST_Y * opt_ind,
-                                CHOICE_BUTTON_SIZE,
-                                CHOICE_BUTTON_SIZE,
-                                opt)
-                            )
-                        else:
-                            # Два столбика
-                            self.choice_buttons_sets[self.current_window_ind].append(
-                                Button(
-                                CHOICE_BUTTON_X + CHOICE_BUTTON_DIST_X * (opt_ind >= number_of_options / 2),
-                                CHOICE_BUTTON_Y + CHOICE_BUTTON_DIST_Y * (opt_ind % ceil(number_of_options / 2)),
-                                CHOICE_BUTTON_SIZE,
-                                CHOICE_BUTTON_SIZE,
-                                opt)
-                            )
-
                 self.awaiting = Awaiting.CHOOSE
-
+                self.set_choosefrom_window()
             else:
-                raise ValueError('This action cannot be processed')
-
+                raise ValueError(f'This action cannot be processed: {action_type}')
         else:
             self.awaiting = Awaiting.CONTINUE
 
@@ -412,29 +397,33 @@ class ChallengeState(BaseState):
         # Запрашиваем обновление редко меняющихся элементов экрана
         self.need_cache = True
 
-    def check_current_answer(self):
-        """Проверка текущего ответа на правильность методом, назначенным на это задание"""
+    def set_choosefrom_window(self):
+        if not self.current_window_ind in self.choice_buttons_sets:
+            self.choice_buttons_sets[self.current_window_ind] = []
+            current_choice_options = self.challenge.get_window_choose_options(self.current_window_ind)
+            number_of_options = len(current_choice_options)
 
-        if self.current_window_ind in self.input_texts:
-            user_input = self.input_texts[self.current_window_ind]
-        elif self.current_window_ind in self.choice_buttons_sets:
-            for btn in self.choice_buttons_sets[self.current_window_ind]:
-                if btn.state == ButtonState.PRESSED:
-                    user_input = btn.text
-                    break
-            else:
-                raise Exception(f'No buttons were pressed for this question: {self.current_window_ind}')
-        else:
-            raise Exception(f'This window has no question: {self.current_window_ind}')
-        keys = self.challenge.get_window_correct_answers(self.current_window_ind)
-        checker = self.challenge.get_window_answers_checker(self.current_window_ind)
-        if checker:
-            if checker == 'plainequality':
-                return user_input in keys # затычка
-            else:
-                raise ValueError(f'This checker cannot be recognized: {checker}')
-        else:
-            return user_input in keys
+            for opt_ind, opt in enumerate(current_choice_options):
+                if number_of_options < 4:
+                    # Один столбик
+                    self.choice_buttons_sets[self.current_window_ind].append(
+                        Button(
+                            CHOICE_BUTTON_X,
+                            CHOICE_BUTTON_Y + CHOICE_BUTTON_DIST_Y * opt_ind,
+                            CHOICE_BUTTON_SIZE,
+                            CHOICE_BUTTON_SIZE,
+                            opt)
+                    )
+                else:
+                    # Два столбика
+                    self.choice_buttons_sets[self.current_window_ind].append(
+                        Button(
+                            CHOICE_BUTTON_X + CHOICE_BUTTON_DIST_X * (opt_ind >= number_of_options / 2),
+                            CHOICE_BUTTON_Y + CHOICE_BUTTON_DIST_Y * (opt_ind % ceil(number_of_options / 2)),
+                            CHOICE_BUTTON_SIZE,
+                            CHOICE_BUTTON_SIZE,
+                            opt)
+                    )
 
     """
     Переписанные функции состояния
@@ -449,16 +438,16 @@ class ChallengeState(BaseState):
 
         # Ограничения
         elif (self.awaiting.name == Awaiting.INPUT.name
-            and not self.submitted
-            and not self.playing_text
-            and not self.playing_start_anim):
+              and not self.submitted
+              and not self.playing_text
+              and not self.playing_start_anim):
 
             # Нажатие кнопок (когда есть поле ввода)
             self.input_texts[self.current_window_ind], updated = self.update_input_field(
                 self.input_texts[self.current_window_ind], event
             )
             if updated:
-                self.needs_screen_update = True
+                self.need_screen_update = True
 
     def handle_mouse_motion(self, event):
         """Обработка наведения курсора на кнопки"""
@@ -518,15 +507,7 @@ class ChallengeState(BaseState):
                         return (Command.CHECK_PROGRESS, None),
 
                     elif btn is self.submit_button:
-                        all_filled = all(field.strip() for field in self.input_texts.values())
-                        for btns in self.choice_buttons_sets.values():
-                            if not any(btn.state == ButtonState.PRESSED for btn in btns):
-                                all_filled = False
-                        if all_filled:
-                            self.submitted = True
-                            self.start_check_anim()
-                            return (Command.CHECK_PROGRESS, None),
-                        # TODO: add 'else' and make the game warn the player
+                        return self.check_save_and_submit()
 
                     else:
                         raise ValueError(f'This button is foreign: {btn.text}')
@@ -536,7 +517,7 @@ class ChallengeState(BaseState):
                 for btn in self.nav_buttons:
                     if not btn.state == ButtonState.DISABLED:
                         btn.state = ButtonState.REGULAR
-            self.needs_screen_update = True
+            self.need_screen_update = True
         return None
 
     def execute_before_draw(self):
@@ -556,7 +537,7 @@ class ChallengeState(BaseState):
         """Отрисовка испытания"""
 
         # ТОЛЬКО ЕСЛИ ЧТО-ТО ИЗМЕНИЛОСЬ НА ЭКРАНЕ
-        if self.needs_screen_update:
+        if self.need_screen_update:
 
             # Заново вносим кешируемые элементы, когда мы меняем окно
             if self.need_cache:
@@ -579,7 +560,7 @@ class ChallengeState(BaseState):
                 # Отрисовываем изображение из задания (если оно есть)
                 if self.current_image:
                     self.bg_card_task_img_cache.blit(
-                        self.current_image,(get_centered_point(self.current_image.get_width(), False), IMAGE_Y)
+                        self.current_image, (get_centered_point(self.current_image.get_width(), False), IMAGE_Y)
                     )
 
                 self.need_cache = False
@@ -603,7 +584,6 @@ class ChallengeState(BaseState):
                 # Отрисовываем кнопки выбора (если они есть)
                 if self.awaiting.name == Awaiting.CHOOSE.name:
                     for btn in self.choice_buttons_sets[self.current_window_ind]:
-
                         # Сами кнопки
                         screen.blit(self.choice_button_sprites[btn.state], (btn.x, btn.y))
 
@@ -648,6 +628,10 @@ class ChallengeState(BaseState):
             # Отрисовываем заставку (поверх всего-всего)
             if self.playing_start_anim:
                 screen.blit(self.start_cover, (0, 0))
+                percent_text = self.challenge_font.render(f'{"{:.2f}".format(self.start_anim_perc)} %',
+                                                          True,
+                                                          (255, 255, 255))
+                screen.blit(percent_text, (SCREEN_WIDTH - 200 - percent_text.get_width(), SCREEN_HEIGHT - 100))
             elif self.playing_check_load_anim:
                 screen.blit(self.check_cover, (0, 0))
             elif self.verdicted:
@@ -658,12 +642,34 @@ class ChallengeState(BaseState):
                 screen.blit(score_text, (get_centered_point(score_text.get_width(), False), SCREEN_HEIGHT / 2 + 100))
 
             # БЛОКИРУЕМ ПОВТОРНУЮ ОТРИСОВКУ ДО ОБНОВЛЕНИЯ ЭЛЕМЕНТОВ
-            if not self.playing_text:
-                self.needs_screen_update = False
+            if not self.playing_text and not self.playing_start_anim:
+                self.need_screen_update = False
 
             # Сообщаем об изменениях главному циклу
             return (Command.CHECK_PROGRESS, None), (Command.UPDATE_DISPLAY, None),
 
+        return None
+
+    """
+    Вспомогательные функции для обработки нажатия кнопок
+    """
+
+    def check_save_and_submit(self):
+        answers = self.input_texts.copy()
+        all_filled = all(field.strip() for field in self.input_texts.values())
+        for btns_ind, btns in self.choice_buttons_sets.items():
+            for btn2 in btns:
+                if btn2.state == ButtonState.PRESSED:
+                    answers[btns_ind] = btn2.text
+                    break
+            else:
+                all_filled = False
+        if all_filled:
+            self.challenge.answers = answers
+            self.submitted = True
+            self.start_check_anim()
+            return (Command.CHECK_PROGRESS, None),
+        # TODO: add 'else' and make the game warn the player
         return None
 
     """

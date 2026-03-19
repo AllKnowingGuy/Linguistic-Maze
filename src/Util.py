@@ -4,8 +4,8 @@ from enum import Enum
 Для всей игры
 """
 
-SCREEN_WIDTH = 1280 # при текущих ширине экрана и размере клеток ширина лабиринта должна быть 29 и больше
-SCREEN_HEIGHT = 720 # при текущих высоте экрана и размере клеток высота лабиринта должна быть 17 и больше
+SCREEN_WIDTH = 1280  # при текущих ширине экрана и размере клеток ширина лабиринта должна быть 29 и больше
+SCREEN_HEIGHT = 720  # при текущих высоте экрана и размере клеток высота лабиринта должна быть 17 и больше
 
 
 class StateType(Enum):
@@ -13,15 +13,16 @@ class StateType(Enum):
     MAZE = 1
     DIALOGUE = 2
     CHALLENGE = 3
+    MENU = 4
 
 
 class Command(Enum):
     """Команды циклу игры"""
-    STOP = 1 # Прекратить себя
-    WAIT = 2 # Временно перестать обновляться
-    SET_FPS = 3 # Изменить частоту обновления
-    CHECK_PROGRESS = 4 # Проверить и обновить прогресс
-    UPDATE_DISPLAY = 5 # Обновить дисплей игры (не влияет на счётчик FPS)
+    STOP = 1  # Прекратить себя
+    WAIT = 2  # Временно перестать обновляться
+    SET_FPS = 3  # Изменить частоту обновления
+    CHECK_PROGRESS = 4  # Проверить и обновить прогресс
+    UPDATE_DISPLAY = 5  # Обновить дисплей игры (не влияет на счётчик FPS)
 
 
 def get_centered_point(length: float, is_height: bool = False):
@@ -30,21 +31,34 @@ def get_centered_point(length: float, is_height: bool = False):
     else:
         return SCREEN_WIDTH / 2 - length / 2
 
+
+"""
+Для MenuState
+"""
+
+START_BUTTON_WIDTH = 150
+START_BUTTON_HEIGHT = 90
+BIND_BUTTON_WIDTH = 113
+BIND_BUTTON_HEIGHT = 90
+
+
 """
 Для Maze и MazeState (а также StoryScript и AssetsCreation)
 """
 
 TILE_SIZE = 45
-PLAYER_SIZE = 34 # при расчёте позиции игрока делится пополам, поэтому лучше брать чётные числа
+PLAYER_SIZE = 34  # при расчёте позиции игрока делится пополам, поэтому лучше брать чётные числа
+
+
 # TODO: maybe make the player rectangular and not square?
 
 
 class WallPattern(Enum):
     """Базовые паттерны стен"""
     SINGLE = 1  # Основание стены
-    STRAIGHT = 2 # Стена вдоль границы
-    STRAIGHT_SOUTH = 3 # Стена вдоль "нижней" границы
-    CORNER = 4 # Угол стены (для соединения перпендикулярных стен)
+    STRAIGHT = 2  # Стена вдоль границы
+    STRAIGHT_SOUTH = 3  # Стена вдоль "нижней" границы
+    CORNER = 4  # Угол стены (для соединения перпендикулярных стен)
     CORNER_SOUTH = 5  # Угол стены вдоль "нижней" границы
 
 
@@ -78,4 +92,3 @@ class Awaiting(Enum):
     CONTINUE = 1
     CHOOSE = 2
     INPUT = 3
-

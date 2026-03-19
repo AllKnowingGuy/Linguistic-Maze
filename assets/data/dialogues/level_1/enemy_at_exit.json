@@ -1,6 +1,7 @@
 {
     "left": "Протагонист",
-    "right": "Преддверный монстр",
+    "right": "Привратный монстр",
+    "rightsprite": "monsters\\level_1\\enemy_at_exit.png",
     "ominous": true,
     "challenge": true,
     "lines": [

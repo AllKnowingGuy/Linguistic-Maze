@@ -2,11 +2,10 @@ import pygame
 import sys
 
 from playstates.BaseState import BaseState
-from playstates import MazeState, DialogueState, ChallengeState
+from playstates import MazeState, DialogueState, ChallengeState, MenuState
 # импортируйте другие состояния через запятую
 from Util import Command, StateType, SCREEN_WIDTH, SCREEN_HEIGHT
 from StoryScript import StoryScript
-
 
 # Инициализация Pygame (теперь с музыкой!)
 if pygame.get_sdl_version()[0] == 2:
@@ -28,7 +27,7 @@ class Main:
         # Параметры
         self.running = True
         self.current_state = BaseState()
-        self.current_state_type = StateType.DIALOGUE # чтобы избежать ошибок
+        self.current_state_type = StateType.MENU
 
         # Окно и дисплей
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -52,6 +51,7 @@ class Main:
         self.maze_state = MazeState.MazeState()
         self.dialogue_state = DialogueState.DialogueState()
         self.challenge_state = ChallengeState.ChallengeState()
+        self.menu_state = MenuState.MenuState()
         # добавляйте другие состояния таким же образом (не забудьте отредактировать associate_current_state!)
 
         # Трекер прогресса
@@ -65,6 +65,8 @@ class Main:
             self.current_state = self.dialogue_state
         elif self.current_state_type == StateType.CHALLENGE:
             self.current_state = self.challenge_state
+        elif self.current_state_type == StateType.MENU:
+            self.current_state = self.menu_state
 
     def handle_input(self, event):
         """Обработка ввода с клавиатуры"""
@@ -134,9 +136,9 @@ class Main:
             Эта функция позволяет обрабатывать такие команды в разные моменты обновления окна.
             Например, до и после отрисовки.
             """
-            if commands: # проверка на None
+            if commands:  # проверка на None
                 for command in commands:
-                    if command: # проверка на None
+                    if command:  # проверка на None
                         if command[0].name == Command.STOP.name:
                             self.running = False
                         elif command[0].name == Command.WAIT.name:
@@ -147,7 +149,7 @@ class Main:
                             self.story_script.update_game_progress(self)
 
         self.story_script.update_game_progress(self)
-        while self.running: # как только running станет False, игра закроется в конце итерации
+        while self.running:  # как только running станет False, игра закроется в конце итерации
 
             for event in pygame.event.get():
                 # Обработка выхода из игры
@@ -166,17 +168,17 @@ class Main:
 
                 # Обработка движения мыши
                 elif event.type == pygame.MOUSEMOTION:
-                    if self.current_state_type in (StateType.DIALOGUE, StateType.CHALLENGE):
+                    if self.current_state_type not in (StateType.MAZE,):
                         process_commands(self.handle_mouse_motion(event))
 
                 # Обработка щелчка мышью
                 elif event.type == pygame.MOUSEBUTTONDOWN:
-                    if self.current_state_type in (StateType.DIALOGUE, StateType.CHALLENGE):
+                    if self.current_state_type not in (StateType.MAZE,):
                         process_commands(self.handle_mouse_click(event))
 
                 # Обработка отпуска мыши
                 elif event.type == pygame.MOUSEBUTTONUP:
-                    if self.current_state_type in (StateType.DIALOGUE, StateType.CHALLENGE):
+                    if self.current_state_type not in (StateType.MAZE,):
                         process_commands(self.handle_mouse_release(event))
 
             # Обработка держания кнопок
