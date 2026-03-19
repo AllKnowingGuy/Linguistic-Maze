@@ -6,8 +6,9 @@ from src.levelBuilding.Button import Button
 
 class BaseState:
     """Класс, который наследуется всеми игровыми состояниями"""
+
     def __init__(self):
-        self.needs_screen_update = False # Когда этот флаг становится True, экран обновляется и сбрасывает значение
+        self.need_screen_update = False  # Когда этот флаг становится True, экран обновляется и сбрасывает значение
 
     """
     Переписываемые функции состояния
@@ -62,7 +63,7 @@ class BaseState:
             updated = False
 
         if updated:
-            self.needs_screen_update = True
+            self.need_screen_update = True
         return field_text, updated
 
     def update_button_on_hovering(self, button: Button, event: pygame.event.Event):
@@ -80,7 +81,7 @@ class BaseState:
             updated = True
 
         if updated:
-            self.needs_screen_update = True
+            self.need_screen_update = True
         return updated
 
     def update_buttons_on_press(self, button: Button, buttons_to_unpress: tuple[Button] = None):
@@ -92,7 +93,7 @@ class BaseState:
             if buttons_to_unpress:
                 for unpress_button in buttons_to_unpress:
                     unpress_button.state = ButtonState.REGULAR if not unpress_button is button else ButtonState.PRESSED
-            self.needs_screen_update = True
+            self.need_screen_update = True
             return True
         else:
             return False

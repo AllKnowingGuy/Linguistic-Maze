@@ -8,10 +8,8 @@ from src import AssetsCreation
 from src.AssetsCreation import Transformer
 from src.playstates.BaseState import BaseState
 
-
 # Трансформер спрайтов
 transformer = Transformer()
-
 
 # Константы
 HALF_PLAYER = PLAYER_SIZE / 2
@@ -64,7 +62,7 @@ class MazeState(BaseState):
         self.wall_cache = {}
 
         # Параметры анимации персонажа
-        self.animation_index = 0 # Номер кадра анимации из списка
+        self.animation_index = 0  # Номер кадра анимации из списка
         self.last_animation_time = pygame.time.get_ticks()
         self.animation_speed = 200
         self.is_moving = False
@@ -72,7 +70,7 @@ class MazeState(BaseState):
         self.current_player_image = self.player_tile
 
         # Темнота и её параметры
-        self.darkness_enabled = True # Если темнота будет мешать тестированию других вещей, ее можно убрать
+        self.darkness_enabled = True  # Если темнота будет мешать тестированию других вещей, ее можно убрать
         self.darkness_alpha = 255
         self.light_radius = 200
         self.darkness_surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
@@ -121,7 +119,7 @@ class MazeState(BaseState):
             print(f"Не удалось создать врага: клетка ({enemy_x}, {enemy_y}) недоступна")
 
         # Запрос на обновление экрана
-        self.needs_screen_update = True
+        self.need_screen_update = True
 
         return self.maze
 
@@ -132,7 +130,7 @@ class MazeState(BaseState):
 
         if self.is_moving and self.player_walk_frames:
             if current_time - self.last_animation_time > self.animation_speed:
-                self.animation_index = (self.animation_index + 1) % len(self.player_walk_frames) # 0->1->2->3->0
+                self.animation_index = (self.animation_index + 1) % len(self.player_walk_frames)  # 0->1->2->3->0
                 self.last_animation_time = current_time
             self.current_player_image = self.player_walk_frames[self.animation_index]
         else:
@@ -173,7 +171,7 @@ class MazeState(BaseState):
                            (player_center_x, player_center_y),
                            self.light_radius - 40)
 
-        screen.blit(self.darkness_surface, (0,0))
+        screen.blit(self.darkness_surface, (0, 0))
 
     def set_level(self, level: int):
         """Задание уровня и перезагрузка изображений"""
@@ -239,36 +237,36 @@ class MazeState(BaseState):
         patterns = [WallPattern.SINGLE]
 
         # Определяем паттерн и трансформации
-        if north: # "Верхняя" граница стены
+        if north:  # "Верхняя" граница стены
             patterns.append(WallPattern.STRAIGHT)
             x_flips.append(False)
             rotations.append(0)
-        if east: # Правая граница стены
+        if east:  # Правая граница стены
             patterns.append(WallPattern.STRAIGHT)
             x_flips.append(False)
             rotations.append(90)
-        if west: # Левая граница стены
+        if west:  # Левая граница стены
             patterns.append(WallPattern.STRAIGHT)
             x_flips.append(False)
             rotations.append(270)
-        if south: # "Нижняя" граница стены (ОПРЕДЕЛЯЕМ В ПОСЛЕДНЮЮ ОЧЕРЕДЬ, ТАК КАК ОНА ОСОБАЯ!)
+        if south:  # "Нижняя" граница стены (ОПРЕДЕЛЯЕМ В ПОСЛЕДНЮЮ ОЧЕРЕДЬ, ТАК КАК ОНА ОСОБАЯ!)
             patterns.append(WallPattern.STRAIGHT_SOUTH)
             x_flips.append(False)
             rotations.append(0)
 
-        if north_west and not (north or west): # "Верхний" левый угол стены
+        if north_west and not (north or west):  # "Верхний" левый угол стены
             patterns.append(WallPattern.CORNER)
             x_flips.append(False)
             rotations.append(0)
-        if north_east and not (north or east): # "Верхний" правый угол стены
+        if north_east and not (north or east):  # "Верхний" правый угол стены
             patterns.append(WallPattern.CORNER)
             x_flips.append(True)
             rotations.append(0)
-        if south_west and not (south or west): # "Нижний" левый угол стены
+        if south_west and not (south or west):  # "Нижний" левый угол стены
             patterns.append(WallPattern.CORNER_SOUTH)
             x_flips.append(False)
             rotations.append(0)
-        if south_east and not (south or east): # "Нижний" правый угол стены
+        if south_east and not (south or east):  # "Нижний" правый угол стены
             patterns.append(WallPattern.CORNER_SOUTH)
             x_flips.append(True)
             rotations.append(0)
@@ -317,7 +315,7 @@ class MazeState(BaseState):
         """Обработка кнопок перемещения"""
 
         new_pos = list(self.player_pos)
-        move_by = PLAYER_SIZE // 11 # please keep move_by integer - Vsevolod
+        move_by = PLAYER_SIZE // 11  # please keep move_by integer - Vsevolod
         moving = False
 
         if pressed_keys[pygame.K_LEFT] or pressed_keys[self.left_bind]:
@@ -339,7 +337,7 @@ class MazeState(BaseState):
         self.update_animation()
 
         if (0 <= new_pos[0] < self.maze.width * TILE_SIZE - PLAYER_SIZE
-            and 0 <= new_pos[1] < self.maze.height * TILE_SIZE - PLAYER_SIZE):
+                and 0 <= new_pos[1] < self.maze.height * TILE_SIZE - PLAYER_SIZE):
             self.move_player(new_pos)
 
             # Столкновение с врагом
@@ -348,7 +346,7 @@ class MazeState(BaseState):
                 self.is_moving = False
 
         if self.is_moving:
-            self.needs_screen_update = True
+            self.need_screen_update = True
 
         return (Command.CHECK_PROGRESS, None),
 
@@ -358,13 +356,13 @@ class MazeState(BaseState):
                                                    self.left_bind, self.right_bind, self.up_bind, self.down_bind)):
             self.is_moving = False
             self.update_animation()
-            self.needs_screen_update = True
+            self.need_screen_update = True
 
     def draw(self, screen):
         """Отрисовка лабиринта"""
 
         # ТОЛЬКО ЕСЛИ ЧТО-ТО ИЗМЕНИЛОСЬ НА ЭКРАНЕ
-        if self.needs_screen_update:
+        if self.need_screen_update:
 
             # Отрисовываем пол и стены
             for y in range(self.maze.height):
@@ -393,7 +391,7 @@ class MazeState(BaseState):
             self.apply_darkness(screen)
 
             # БЛОКИРУЕМ ПОВТОРНУЮ ОТРИСОВКУ ДО ОБНОВЛЕНИЯ ЭЛЕМЕНТОВ
-            self.needs_screen_update = False
+            self.need_screen_update = False
 
             # Сообщаем об изменениях функции главного цикла
             return (Command.UPDATE_DISPLAY, None),
@@ -416,20 +414,20 @@ class MazeState(BaseState):
         ny_tile = ny // TILE_SIZE
         nx_tile_neighbor = (nx_tile - 1 if nx % TILE_SIZE < HALF_PLAYER
                             else nx_tile + 1 if nx % TILE_SIZE > TILE_SIZE - HALF_PLAYER
-                            else nx_tile)
+        else nx_tile)
         ny_tile_neighbor = (ny_tile - 1 if ny % TILE_SIZE < HALF_PLAYER
                             else ny_tile + 1 if ny % TILE_SIZE > TILE_SIZE - HALF_PLAYER
-                            else ny_tile)
+        else ny_tile)
 
         # То же самое для предыдущих координат
         px_tile = px // TILE_SIZE
         py_tile = py // TILE_SIZE
         px_tile_neighbor = (px_tile - 1 if px % TILE_SIZE < HALF_PLAYER
                             else px_tile + 1 if px % TILE_SIZE > TILE_SIZE - HALF_PLAYER
-                            else px_tile)
+        else px_tile)
         py_tile_neighbor = (py_tile - 1 if py % TILE_SIZE < HALF_PLAYER
                             else py_tile + 1 if py % TILE_SIZE > TILE_SIZE - HALF_PLAYER
-                            else py_tile)
+        else py_tile)
 
         # Проверка соседних клеток для движения: по X и Y -> по X -> по Y (чтобы игрок не "приклеивался" к стенам)
         for bunch in ((nx_tile, nx_tile_neighbor, ny_tile, ny_tile_neighbor, nx, ny),

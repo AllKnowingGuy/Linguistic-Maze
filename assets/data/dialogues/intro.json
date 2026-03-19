@@ -1,7 +1,6 @@
 {
     "left": "Протагонист",
     "right": "Говорящий монстр",
-    "rightsprite": "monsters\\level_0\\monster.png",
     "rpoints": 1,
     "music": "Intro.wav",
     "lines": [

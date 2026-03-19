@@ -1,7 +1,7 @@
 import os
 import pygame
 
-from src.Util import * # screw it - Vsevolod
+from src.Util import *  # screw it - Vsevolod
 
 
 def load_one_object(path: str, width: float = None, height: float = None):
@@ -31,11 +31,54 @@ def load_all_objects(root_path: str,
 
 ROOT_MUSIC_PATH = '..\\assets\\music'
 
+"""
+Для главного меню
+"""
+
+ROOT_MENU_PATH = '..\\assets\\images\\menu'
+
+
+def add_menu_bg():
+    """Загрузка фона меню"""
+    bg_path = f'{ROOT_MENU_PATH}\\bg.png'
+    return load_one_object(bg_path, SCREEN_WIDTH, SCREEN_HEIGHT)
+
+
+def add_start_buttons():
+    """Загрузка всех вариантов кнопки старта игры"""
+    buttons_path = f'{ROOT_MENU_PATH}\\start_button'
+    button_files = {
+        ButtonState.REGULAR: 'start_button.png',
+        ButtonState.HOVERED: 'start_button_hovered.png',
+        ButtonState.PRESSED: 'start_button_pressed.png'
+    }
+    button_sizes = {
+        ButtonState.REGULAR: (START_BUTTON_WIDTH, START_BUTTON_HEIGHT),
+        ButtonState.HOVERED: (START_BUTTON_WIDTH, START_BUTTON_HEIGHT),
+        ButtonState.PRESSED: (START_BUTTON_WIDTH, START_BUTTON_HEIGHT)
+    }
+    return load_all_objects(buttons_path, button_files, button_sizes)
+
+
+def add_bind_buttons(name: str):
+    """Загрузка всех вариантов одной из кнопок управления"""
+    buttons_path = f'{ROOT_MENU_PATH}\\keybind_buttons\\{name}_button'
+    button_files = {
+        ButtonState.REGULAR: f'{name}_button.png',
+        ButtonState.HOVERED: f'{name}_button_hovered.png',
+        ButtonState.PRESSED: f'{name}_button_pressed.png'
+    }
+    button_sizes = {
+        ButtonState.REGULAR: (BIND_BUTTON_WIDTH, BIND_BUTTON_HEIGHT),
+        ButtonState.HOVERED: (BIND_BUTTON_WIDTH, BIND_BUTTON_HEIGHT),
+        ButtonState.PRESSED: (BIND_BUTTON_WIDTH, BIND_BUTTON_HEIGHT)
+    }
+    return load_all_objects(buttons_path, button_files, button_sizes)
+
 
 """
 Для MazeState
 """
-
 
 ROOT_MAZE_PATH = '..\\assets\\images\\maze_tiles'
 
@@ -61,7 +104,7 @@ def add_player_tile():
 def add_player_walk():
     """Загрузка тайлов анимации игрока"""
     frames = []
-    for i in range(1,5):
+    for i in range(1, 5):
         frame_path = f'{ROOT_MAZE_PATH}\\player\\walk{i}.png'
         frame = load_one_object(frame_path, PLAYER_SIZE, PLAYER_SIZE)
         if frame:
@@ -105,7 +148,6 @@ def add_enemy_tile(level=1):
 Для DialogueState
 """
 
-
 ROOT_DIALOGUE_PATH = '..\\assets\\images\\dialogue'
 
 
@@ -139,7 +181,7 @@ def add_right_speak_sprite(rel_path: str | None = None):
         char_path = f'{ROOT_DIALOGUE_PATH}\\{rel_path}'
         # doesn't start from monsters to be able to load students as right speakers - Vsevolod
     else:
-        char_path = f'{ROOT_DIALOGUE_PATH}\\monsters\\level_0\\monster.png'
+        char_path = f'{ROOT_DIALOGUE_PATH}\\monsters\\monster.png'
     return load_one_object(char_path, 300, 300)
 
 
@@ -173,7 +215,6 @@ def set_dialogue_music(rel_path: str | None = None):
 """
 Для ChallengeState
 """
-
 
 ROOT_CHALLENGE_PATH = '..\\assets\\images\\challenge'
 QUESTION_CARD_WIDTH = SCREEN_WIDTH - 300

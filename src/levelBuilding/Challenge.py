@@ -3,7 +3,7 @@ import json
 
 class Challenge:
     windows: list[dict[str, ...]]
-    answers: list[dict[str, str]]
+    answers: dict[int, str]
 
     def __init__(self, path: str):
         self._read_and_fill(path)
@@ -93,3 +93,18 @@ class Challenge:
         if type(supposed_action) == dict:
             return supposed_action.get("incorrectrpoints", 0)
         return None
+
+    def check_current_answer(self, window_ind: int):
+        """Проверка текущего ответа на правильность методом, назначенным на это задание"""
+
+        user_input = self.answers[window_ind]
+        keys = self.get_window_correct_answers(window_ind)
+        checker = self.get_window_answers_checker(window_ind)
+        if checker:
+            if checker == 'plainequality':
+                return user_input.strip() in keys  # самый простой способ проверки
+            # добавляйте других проверщиков через elif; возможно, потребуется написать для них отдельные функции
+            else:
+                raise ValueError(f'This checker cannot be recognized: {checker}')
+        else:
+            return user_input.strip() in keys  # если проверщик не указан, то проверяем как plainequality

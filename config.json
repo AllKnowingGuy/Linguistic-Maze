@@ -1,13 +1,13 @@
 {
     "controls": {
-        "move_down": "s",
-        "move_up": "w",
-        "move_left": "a",
-        "move_right": "d",
-        "end_text_animation": "001B",
-        "increase_volume": "+",
-        "decrease_volume": "-",
-        "no_task_advance": "000D"
+        "move_down": "0073",
+        "move_up": "0077",
+        "move_left": "0061",
+        "move_right": "0064",
+        "end_text_animation": "000d",
+        "increase_volume": "002b",
+        "decrease_volume": "002d",
+        "no_task_advance": "000d"
     },
     "music": true,
     "general_difficulty": 0

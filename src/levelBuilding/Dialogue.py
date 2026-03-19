@@ -31,12 +31,11 @@ current JSON format:
 }
 """
 
-
 import json
 
 
 class Dialogue:
-    lines: list[dict[str, ...]] # damn - Vsevolod
+    lines: list[dict[str, ...]]  # damn - Vsevolod
     left_character: str | None
     right_character: str | None
     right_character_path: str | None
@@ -62,7 +61,7 @@ class Dialogue:
         self.left_character = dialogue_dict.get("left")
         self.right_character = dialogue_dict.get("right")
         self.right_character_path = dialogue_dict.get("rightsprite")
-        self.respect_points = dialogue_dict.get("rpoints", 0) # TODO: line respect points when awaiting input or choice
+        self.respect_points = dialogue_dict.get("rpoints", 0)  # TODO: line respect points when awaiting input or choice
 
         self.ominous = dialogue_dict.get("ominous", False)
         self.music_path = dialogue_dict.get("music")

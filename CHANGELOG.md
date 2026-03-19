@@ -1,5 +1,18 @@
 # Changelog
 
+## 2026-03-15 - Déjà vu update
+
+- Created `MenuState.py` for the main menu; as of now it has a start button and keybind buttons, one for each keybind
+- Implemented key binding **in game** through main menu buttons
+- Rebound text animation ending fron Esc to Enter
+- Made the game **replayable** by changing the behavior of the last dialogue in `StoryScript` (it now redirects the player to the menu)
+- Fixed a bug where `DialogueState` and `ChallengeState` would not forget answers to previous dialogues and challenges
+- Linted out all Python files
+- Answer checking has been moved from `ChallengeState` to `Challenge`
+- Monster deactivation now uses `Enemy.deactivate` instead of directly modifying the enemy's attribute
+- Added a nice on-beat loading percent animation to the challenge intro
+- Added different moster portraits to different levels, basic monster portrait is now outside all level folders
+
 ## 2026-02-13 - Let it play update
 
 - The game now uses Pygame's **mixer setup and functions** in order to control in-game music

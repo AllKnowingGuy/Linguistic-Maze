@@ -5,7 +5,7 @@ class Enemy:
         self.x = x
         self.y = y
         self.enemy_name = enemy_name
-        self.active =  True
+        self.active = True
 
     def update(self):
         pass
@@ -16,12 +16,13 @@ class Enemy:
 
     def deactivate(self):
         """Исчезновение врага после выполнения его задания"""
+        self.active = False
 
 
 class StationaryEnemy(Enemy):
     """Враги, стоящие на месте"""
 
-    def __init__(self, x: int, y:int, dialogue_id: str = 'enemy_stationary'):
+    def __init__(self, x: int, y: int, dialogue_id: str = 'enemy_stationary'):
         super().__init__(x, y, dialogue_id)
 
     def update(self):

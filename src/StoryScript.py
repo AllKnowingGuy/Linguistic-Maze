@@ -1,8 +1,7 @@
 import os, random
 
-#from Main import Main
+# from Main import Main
 from Util import Border, StateType
-
 
 intro_dialogue_path = '..\\assets\\data\\dialogues\\intro.json'
 DEBUG_DIALOGUE_SKIP = False
@@ -12,16 +11,28 @@ class StoryScript:
     def __init__(self):
         self.current_room = -1
         self.last_passed_room = -1
-        self.general_progress = {
-            'started_game': False,
-            'passed_maze': False,
-            'finished_outro': False,
-        }
+        self.general_progress = {}
 
         # Монстр, с котором в данный момент встретился игрок
         self.on_monster = None
 
         # Данные комнат (ключи - целочисленные идентификаторы комнат)
+        self.rooms_data = {}
+
+        # Прогресс по разделам игры
+        self.intro_progress = {}
+
+        self.initiate_progress()
+
+    def initiate_progress(self):
+        self.current_room = -1
+        self.last_passed_room = -1
+        self.general_progress = {
+            'launched_app': False,
+            'started_game': False,
+            'passed_maze': False,
+            'finished_outro': False,
+        }
         self.rooms_data = {
             0: {
                 "difficulty": 0,
@@ -34,14 +45,12 @@ class StoryScript:
             1: {
                 "difficulty": 0,
                 "sizes": [(29, 25), (37, 29), (37, 37)],
-                "walls_with_doors": (Border.SOUTH, Border.NORTH),
-                "other_entrance_coords": [15, 19, 19],
+                "walls_with_doors": (Border.SOUTH, Border.EAST),
+                "other_entrance_coords": [1, 1, 1],
                 "completed": False,
                 "respect": 0
             }
         }
-
-        # Прогресс по разделам игры
         self.intro_progress = {
             'answered_question': False,
             'said_no': False
@@ -51,7 +60,11 @@ class StoryScript:
         """Проверяет и обновляет состояние игры в соответствии со скриптом"""
 
         # Когда игрок только начинает игру
-        if not self.general_progress['started_game']:
+        if not self.general_progress['launched_app']:
+            self.launch_app(game)
+
+        # Когда игрок в меню и нажал "Старт"
+        elif game.current_state_type.name == StateType.MENU.name and game.menu_state.game_started:
             self.start_game(game)
 
         # Когда игрок на диалоге
@@ -60,7 +73,7 @@ class StoryScript:
                 game.dialogue_state.finished = True
 
             # Особые диалоги с сильно заскриптованным поведением
-            if self.current_room == -1: # Интро: единственный диалог до начала лабиринта
+            if self.current_room == -1:  # Интро: единственный диалог до начала лабиринта
                 self.handle_intro_dialogue(game)
 
             # По завершении стандартных диалогов
@@ -86,8 +99,8 @@ class StoryScript:
             if game.challenge_state.finished:
                 game.current_state_type = StateType.MAZE
                 game.associate_current_state()
-                game.maze_state.needs_screen_update = True
-                self.on_monster.active = False
+                game.maze_state.need_screen_update = True
+                self.on_monster.deactivate()
                 self.on_monster = None
 
     def start_game(self, game):
@@ -96,6 +109,12 @@ class StoryScript:
         game.dialogue_state.setup_dialogue(intro_dialogue_path)
         game.associate_current_state()
         game.dialogue_state.start_playing()
+
+    def launch_app(self, game):
+        self.general_progress['launched_app'] = True
+        game.current_state_type = StateType.MENU
+        game.associate_current_state()
+        game.menu_state.need_screen_update = True
 
     """
     Проверки заскриптованных диалогов
@@ -149,14 +168,16 @@ class StoryScript:
             else:
                 game.current_state_type = StateType.MAZE
                 game.associate_current_state()
-                self.on_monster.active = False
+                self.on_monster.deactivate()
                 self.on_monster = None
 
         # Если это диалог двери выхода
         elif self.last_passed_room == self.current_room:
             if self.current_room == 1:
                 # Особый случай для диалога последней комнаты
-                game.running = False
+                self.initiate_progress()
+                self.launch_app(game)
+                return
             self.generate_next_room(game)
 
     """
@@ -200,7 +221,7 @@ class StoryScript:
         difficulty = room_data.get("difficulty", 0)
 
         # Условия по сложности:
-        respect_req = (0, 0, 0)[difficulty] # 0=5, 1=2, 2=5 респектов, временно отключены
+        respect_req = (0, 0, 0)[difficulty]  # 0=5, 1=2, 2=5 респектов, временно отключены
 
         print(f"Комната {self.current_room}: {respect}/{respect_req} респектов")
         return respect >= respect_req
@@ -216,10 +237,10 @@ class StoryScript:
         """Генерация новой комнаты"""
 
         # Продвижение на одну комнату и извлечение данных
-        self.current_room = min(self.current_room + 1, 1) # временное ограничение на максимальный уровень
+        self.current_room = min(self.current_room + 1, 1)  # временное ограничение на максимальный уровень
         room_data = self.rooms_data[self.current_room]
 
-        difficulty = random.randint(0, 2) # 0=легко, 1=средне, 2=сложно
+        difficulty = random.randint(0, 2)  # 0=легко, 1=средне, 2=сложно
         # random difficulty for now - Vsevolod
 
         # Размер комнаты
