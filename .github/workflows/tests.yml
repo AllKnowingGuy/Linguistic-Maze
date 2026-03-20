@@ -20,9 +20,8 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          python -m venv .venv
-          .venv\Scripts\python -m pip install pytest pygame
+          python -m pip install pytest pygame
       - name: Run tests
         run: |
-          .venv\Scripts\python -m pytest ../tests -v
-        working-directory: src
+          cd src
+          python -m pytest ../tests -v
