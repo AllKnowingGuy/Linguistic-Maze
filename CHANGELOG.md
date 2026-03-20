@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-03-20 - Test update (as in, the update that adds tests)
+- Implemented pytest for `AssetsCreation.py`
+- Fixed an date error in `CHANGELOG.md`
+
 ## 2026-03-15 - Déjà vu update
 
 - Created `MenuState.py` for the main menu; as of now it has a start button and keybind buttons, one for each keybind
@@ -13,7 +17,7 @@
 - Added a nice on-beat loading percent animation to the challenge intro
 - Added different moster portraits to different levels, basic monster portrait is now outside all level folders
 
-## 2026-02-13 - Let it play update
+## 2026-03-13 - Let it play update
 
 - The game now uses Pygame's **mixer setup and functions** in order to control in-game music
 - Added **music playback** to dialogues and challenges (before submitting)
