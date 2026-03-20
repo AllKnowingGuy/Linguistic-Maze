@@ -1,4 +1,5 @@
 import json
+import dostoevsky
 
 
 class Challenge:
@@ -99,11 +100,19 @@ class Challenge:
 
         user_input = self.answers[window_ind]
         keys = self.get_window_correct_answers(window_ind)
+        supposed_action = self.windows[window_ind].get("action", {})
         checker = self.get_window_answers_checker(window_ind)
         if checker:
             if checker == 'plainequality':
                 return user_input.strip() in keys  # самый простой способ проверки
-            # добавляйте других проверщиков через elif; возможно, потребуется написать для них отдельные функции
+            elif checker == 'ling_terms':
+                import re
+                pattern = r'(лингвист|язык|лингв|термин|фонет|социо|нейро)'
+                return bool(re.search(pattern, user_input, re.IGNORECASE))
+            elif checker == 'wordmatch':
+                import re
+                patterns = supposed_action.get("patterns", [])
+                return any(re.search(p, user_input, re.IGNORECASE) for p in patterns)
             else:
                 raise ValueError(f'This checker cannot be recognized: {checker}')
         else:
