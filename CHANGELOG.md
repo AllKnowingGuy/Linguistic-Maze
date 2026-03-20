@@ -2,7 +2,8 @@
 
 ## 2026-03-20 - Test update (as in, the update that adds tests)
 - Implemented pytest for `AssetsCreation.py`
-- Fixed an date error in `CHANGELOG.md`
+- Fixed a date error in `CHANGELOG.md`
+- Added workflows
 
 ## 2026-03-15 - Déjà vu update
 

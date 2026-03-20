@@ -100,14 +100,12 @@ class TestDialogueAssets:
         assert isinstance(result, pygame.Surface)
         assert result.get_size() == (300, 300)
 
-    # def test_add_dialogue_choice_buttons(self):
-    #     result = add_dialogue_choice_buttons()
-    #     assert isinstance(result, dict)
-    #     for state in ButtonState:
-    #         assert state in result
-    #         assert isinstance(result[state], pygame.Surface)
-    # """There is no 4th button for now!!! Seva why!!"""
-    # TODO: fix
+    def test_add_dialogue_choice_buttons(self):
+        result = add_dialogue_choice_buttons()
+        assert isinstance(result, dict)
+        for state in [ButtonState.REGULAR, ButtonState.HOVERED, ButtonState.PRESSED]:
+            assert state in result
+            assert isinstance(result[state], pygame.Surface)
 
 
 class TestMenuAssets:
@@ -118,21 +116,19 @@ class TestMenuAssets:
         assert isinstance(result, pygame.Surface)
         assert result.get_size() == (SCREEN_WIDTH, SCREEN_HEIGHT)
 
-    # def test_add_start_buttons(self):
-    #     result = add_start_buttons()
-    #     assert isinstance(result, dict)
-    #     for state in ButtonState:
-    #         assert state in result
-    #         assert isinstance(result[state], pygame.Surface)
-    # TODO: fix too
+    def test_add_start_buttons(self):
+        result = add_start_buttons()
+        assert isinstance(result, dict)
+        for state in [ButtonState.REGULAR, ButtonState.HOVERED, ButtonState.PRESSED]:
+            assert state in result
+            assert isinstance(result[state], pygame.Surface)
 
-    # def add_bind_buttons(self):
-    #     result = add_bind_buttons('move_up')
-    #     assert isinstance(result, dict)
-    #     for state in ButtonState:
-    #         assert state in result
-    #         assert isinstance(result[state], pygame.Surface)
-    # TODO: fix these too
+    def test_add_bind_buttons(self):
+        result = add_bind_buttons('move_up')
+        assert isinstance(result, dict)
+        for state in [ButtonState.REGULAR, ButtonState.HOVERED, ButtonState.PRESSED]:
+            assert state in result
+            assert isinstance(result[state], pygame.Surface)
 
 
 class TestChallengeAssets:
@@ -148,13 +144,12 @@ class TestChallengeAssets:
         assert isinstance(result, pygame.Surface)
         assert result.get_size() == (QUESTION_CARD_WIDTH, QUESTION_CARD_HEIGHT)
 
-    # def test_add_challenge_choice_buttons(self):
-    #     result = add_challenge_choice_buttons()
-    #     assert isinstance(result, dict)
-    #     for state in ButtonState:
-    #         assert state in result
-    #         assert isinstance(result[state], pygame.Surface)
-    # TODO: Fix these too
+    def test_add_challenge_choice_buttons(self):
+        result = add_challenge_choice_buttons()
+        assert isinstance(result, dict)
+        for state in [ButtonState.REGULAR, ButtonState.HOVERED, ButtonState.PRESSED]:
+            assert state in result
+            assert isinstance(result[state], pygame.Surface)
 
     def test_add_back_buttons(self):
         result = add_back_buttons()
