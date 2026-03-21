@@ -1,6 +1,9 @@
 # Changelog
 
-## 2026-03-20 - Test update (as in, the update that adds tests)
+## 2026-03-21 - Test update 2
+- Implemented pytest and workflow for `MazeState.py`
+
+## 2026-03-20 - Test update 1 (as in, the update that adds tests)
 - Implemented pytest for `AssetsCreation.py`
 - Fixed a date error in `CHANGELOG.md`
 - Added workflows

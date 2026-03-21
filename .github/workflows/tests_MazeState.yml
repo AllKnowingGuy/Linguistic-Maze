@@ -1,4 +1,4 @@
-name: CI
+name: CI - MazeState
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
 
 jobs:
   run-tests:
-    name: Run tests
+    name: Run AssetsCreation tests
     runs-on: windows-latest
 
     steps:
@@ -24,4 +24,4 @@ jobs:
       - name: Run tests
         run: |
           cd src
-          python -m pytest ../tests -v
+          python -m pytest ../tests/MazeState_test.py -v
