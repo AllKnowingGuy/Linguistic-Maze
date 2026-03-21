@@ -16,5 +16,4 @@ def change_test_dir():
 def init_pygame():
     """Инициализирует pygame, нужно для некоторых тестов"""
     pygame.init()
-    pygame.mixer.init()
     yield

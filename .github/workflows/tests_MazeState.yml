@@ -8,7 +8,7 @@ on:
 
 jobs:
   run-tests:
-    name: Run AssetsCreation tests
+    name: Run MazeState tests
     runs-on: windows-latest
 
     steps:
