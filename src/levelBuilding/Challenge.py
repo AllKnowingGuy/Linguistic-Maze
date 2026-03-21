@@ -1,5 +1,5 @@
 import json
-import dostoevsky
+from transformers import pipeline
 
 
 class Challenge:
@@ -8,6 +8,10 @@ class Challenge:
 
     def __init__(self, path: str):
         self._read_and_fill(path)
+        self._rubert_model = pipeline(
+            "text-classification",
+            model="seara/rubert-base-cased-russian-sentiment"
+        )
 
     def _read_and_fill(self, path: str):
         with open(path, 'r', encoding='utf-8') as f:
@@ -95,6 +99,35 @@ class Challenge:
             return supposed_action.get("incorrectrpoints", 0)
         return None
 
+    #в сюжете есть монстры, которых можно пропустить, показав артефакт (например, дудку)
+
+    def can_skip_with_artifact(self, window_ind: int, artifacts: list[str]) -> bool:
+        """Проверяет, можно ли пропустить задание, имея нужный артефакт."""
+        action = self.windows[window_ind].get("action", {})
+        required = action.get("requires_artifact")
+        if required and required in artifacts:
+            return True
+        return False
+
+    def check_choice(self, window_ind: int, choice_index: int) -> tuple[bool, int, str | None]:
+        """Проверяет выбор варианта.
+        Возвращает (правильно, изменение респекта, название артефакта (если есть)).
+        """
+
+        action = self.windows[window_ind].get("action", {})
+        if action.get("type") != "choosefrom":
+            raise ValueError("Not a choosefrom window")
+
+        options = action.get("options", [])
+        if choice_index < 0 or choice_index >= len(options):
+            return False, 0, None
+
+        answers = action.get("answers", [])
+        correct = options[choice_index] in answers
+        delta = action.get("correctrpoints" if correct else "incorrectrpoints", 0)
+        artifact = action.get("artifact") if correct else None
+        return correct, delta, artifact
+
     def check_current_answer(self, window_ind: int):
         """Проверка текущего ответа на правильность методом, назначенным на это задание"""
 
@@ -113,6 +146,15 @@ class Challenge:
                 import re
                 patterns = supposed_action.get("patterns", [])
                 return any(re.search(p, user_input, re.IGNORECASE) for p in patterns)
+            elif checker == 'sentiment_rubert':
+                try:
+                    result = self._rubert_model(user_input)[0]
+                    positive_score = float(result['score'])
+                    threshold = supposed_action.get("threshold", 0.6)
+                    return positive_score > threshold
+                except Exception as e:
+                    print(f"Ошибка в sentiment_rubert: {e}")
+                    return any(w in user_input.lower() for w in ['хорошо', 'помощь'])
             else:
                 raise ValueError(f'This checker cannot be recognized: {checker}')
         else:
