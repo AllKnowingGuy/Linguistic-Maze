@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-03-22 - Documentation overhaul
+
+- Created `API.md` with comprehensive descriptions of dialogue and challenge JSON formats, checkers, artifact system, and level creation.
+- Created `INSTALL.md` with step-by-step installation instructions for Windows, Linux, and macOS, including Poetry setup, `fasttext` wheel installation, and troubleshooting.
+- Added `ARCHITECTURE.md` detailing the project structure, component interaction, and control flow between `Main`, `StoryScript`, and playstates.
+- Extended `README.md` with clearer usage instructions, control schemes, and links to developer documentation.
+- Added Mermaid class diagram to visualize relationships between key classes (`Challenge`, `Dialogue`, `MazeState`, `StoryScript`, etc.) and their dependencies.
+- Documented the role of `StoryScript` as the central story manager and how states communicate via commands.
+
 ## 2026-03-21 - Artifact and choice support
 - Added `can_skip_with_artifact` method to Challenge – allows skipping a task if the player has the required artifact (e.g., “дудка”).
 - Added check_choice method for handling multiple‑choice actions (choosefrom); returns correctness, respect change, and awarded artifact.

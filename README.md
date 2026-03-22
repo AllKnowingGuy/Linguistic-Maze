@@ -13,6 +13,8 @@ Linguistic Maze - игра, основанная на реальных собы�
 git clone https://github.com/AllKnowingGuy/Linguistic-Maze.git
 ```
 
+Всю подробную иинформацию об установке вы можете найти в [Инструкции по установке](docs/INSTALL.md).
+
 Если у вас ещё нет `poetry`, установите его (также см. [официальную документацию](https://python-poetry.org/docs/#installation)).
 
 Чтобы установить библиотеку:
@@ -32,16 +34,15 @@ pip install poetry
 poetry --version 
 ```
 
-3. Установите зависимости:
-```bash
-poetry install
-```
-
-4. Чтобы окружение создавалось прямо в папке проекта, выполните:
+3. Чтобы окружение создавалось прямо в папке проекта, выполните:
 ```bash
 poetry config virtualenvs.in-project true
 ```
 
+4. Установите зависимости:
+```bash
+poetry install
+```
 
 ## Использование
 
