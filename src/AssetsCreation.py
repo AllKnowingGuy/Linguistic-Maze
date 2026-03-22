@@ -339,14 +339,20 @@ def add_transitions():
 
 
 def set_challenge_music():
-    music_path = f'{ROOT_MUSIC_PATH}\\Challenge.wav'
-    pygame.mixer.music.load(music_path)
+    try:
+        music_path = f'{ROOT_MUSIC_PATH}\\Challenge.wav'
+        pygame.mixer.music.load(music_path)
+    except (pygame.error, AttributeError):
+        pass
 
 
 def add_challenge_start_sound():
-    sound_path = f'{ROOT_MUSIC_PATH}\\Start Challenge.wav'
-    sound = pygame.mixer.Sound(sound_path)
-    return sound
+    try:
+        sound_path = f'{ROOT_MUSIC_PATH}\\Start Challenge.wav'
+        sound = pygame.mixer.Sound(sound_path)
+        return sound
+    except (pygame.error, AttributeError):
+        return None
 
 
 class Transformer:
