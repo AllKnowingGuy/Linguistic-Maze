@@ -1,5 +1,6 @@
 import json
 from transformers import pipeline
+import re
 
 
 class Challenge:
@@ -109,25 +110,6 @@ class Challenge:
             return True
         return False
 
-    def check_choice(self, window_ind: int, choice_index: int) -> tuple[bool, int, str | None]:
-        """Проверяет выбор варианта.
-        Возвращает (правильно, изменение респекта, название артефакта (если есть)).
-        """
-
-        action = self.windows[window_ind].get("action", {})
-        if action.get("type") != "choosefrom":
-            raise ValueError("Not a choosefrom window")
-
-        options = action.get("options", [])
-        if choice_index < 0 or choice_index >= len(options):
-            return False, 0, None
-
-        answers = action.get("answers", [])
-        correct = options[choice_index] in answers
-        delta = action.get("correctrpoints" if correct else "incorrectrpoints", 0)
-        artifact = action.get("artifact") if correct else None
-        return correct, delta, artifact
-
     def check_current_answer(self, window_ind: int):
         """Проверка текущего ответа на правильность методом, назначенным на это задание"""
 
@@ -139,11 +121,9 @@ class Challenge:
             if checker == 'plainequality':
                 return user_input.strip() in keys  # самый простой способ проверки
             elif checker == 'ling_terms':
-                import re
                 pattern = r'(лингвист|язык|лингв|термин|фонет|социо|нейро)'
                 return bool(re.search(pattern, user_input, re.IGNORECASE))
             elif checker == 'wordmatch':
-                import re
                 patterns = supposed_action.get("patterns", [])
                 return any(re.search(p, user_input, re.IGNORECASE) for p in patterns)
             elif checker == 'sentiment_rubert':
