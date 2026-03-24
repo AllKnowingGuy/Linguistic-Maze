@@ -2,7 +2,7 @@ import pygame
 
 from src.Config import Config
 from src.levelBuilding import Maze
-from src.levelBuilding.Enemy import Enemy, StationaryEnemy
+from src.levelBuilding.Enemy import Enemy
 from src.Util import Command, WallPattern, Border, TILE_SIZE, PLAYER_SIZE, SCREEN_WIDTH, SCREEN_HEIGHT
 from src import AssetsCreation
 from src.AssetsCreation import Transformer
@@ -75,27 +75,28 @@ class MazeState(BaseState):
         self.light_radius = 200
         self.darkness_surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
 
-        # Список врагов лабиринта
-        self.enemies = []
-
     def setup_maze(self, width: int = 3, height: int = 3,
                    doors_near_borders: tuple[Border, Border] = (Border.WEST, Border.EAST),
                    other_door_coords: tuple[int, int] = (1, 1),
+                   monster_dict: dict[str, tuple[int, int, int, int]] = None, moving_monsters: list[str] = None,
                    more_random: bool = False, curving: bool = False):
-        """
-        Задание структурных данных лабиринта и его генерация, задание позиции игрока
+        """Задание структурных данных лабиринта и его генерация, задание позиции игрока
 
         Args:
             width (int): Ширина лабиринта (должна быть нечётным числом!)
             height (int): Высота лабиринта (должна быть нечётным числом!)
             doors_near_borders (tuple[Border]): Границы лабиринта, в которых расположены двери входа и выхода соответственно
             other_door_coords (tuple[int, int]): Определяющие координаты дверей входа и выхода (если дверь в северной или южной стене - координата X, иначе - координата Y)
+            monster_dict (dict[str, tuple[int]]): Области генерации монстров: ключи - идентификаторы монстров, значения - 4 числа: X и Y левого верхнего угла области и X и Y правого нижнего угла
+            moving_monsters (list[str]): Идентификаторы монстров, которые двигаются. Этих монстров НУЖНО также указать в monsters_dict
             more_random (bool): Должен ли лабиринт генерироваться по альтернативному алгоритму для увеличения ветвления
             curving (bool): Должен ли лабиринт избегать генерации прямых коридоров, если это возможно
         """
 
         self.maze = Maze.Maze(width, height, doors_near_borders, other_door_coords)
         self.maze.generate_maze(more_random, curving)
+        if monster_dict:
+            self.maze.place_monsters(monster_dict, moving_monsters)
         self.player_pos = [int((self.maze.start.x + 0.5) * TILE_SIZE),
                            int((self.maze.start.y + 0.5) * TILE_SIZE)]
 
@@ -103,25 +104,22 @@ class MazeState(BaseState):
         self.wall_cache.clear()
         self.precalculate_walls()
 
-        # Очищаем список врагов
-        self.enemies.clear()
-
-        # Тестовый враг перед выходом
-        enemy_x = self.maze.end.x
-        enemy_y = self.maze.end.y
-
-        # Проверяем возможность создать тут врага
-        if (0 <= enemy_x < self.maze.width) and (self.maze.pattern[enemy_y][enemy_x] == 0):
-            enemy = StationaryEnemy(enemy_x, enemy_y, "enemy_at_exit")
-            self.enemies.append(enemy)
-            print(f"Создан враг на ({enemy_x}, {enemy_y})")
-        else:
-            print(f"Не удалось создать врага: клетка ({enemy_x}, {enemy_y}) недоступна")
-
         # Запрос на обновление экрана
         self.need_screen_update = True
 
+        # Обновление клавиш перемещения (чтобы подтянулись изменения в меню)
+        self.up_bind, self.down_bind, self.left_bind, self.right_bind = Config().get_maze_controls()
+
         return self.maze
+
+    def make_alive(self):
+
+        # Ставим музыку лабиринта
+        if not pygame.mixer.music.get_busy():
+            AssetsCreation.set_maze_music()
+            pygame.mixer.music.play(-1)
+
+        self.need_screen_update = True
 
     def update_animation(self):
         """Обновление кадров анимации"""
@@ -197,7 +195,7 @@ class MazeState(BaseState):
         player_tile_x = self.player_pos[0] // TILE_SIZE
         player_tile_y = self.player_pos[1] // TILE_SIZE
 
-        for enemy in self.enemies:
+        for enemy in self.maze.monsters:
             if enemy.check_collision(player_tile_x, player_tile_y):
                 return enemy
 
@@ -379,7 +377,7 @@ class MazeState(BaseState):
             self.draw_exits(screen)
 
             # Отрисовываем врагов
-            for enemy in self.enemies:
+            for enemy in self.maze.monsters:
                 if enemy.active:
                     screen.blit(self.enemy_tile, self.apply_shift(enemy.x * TILE_SIZE, enemy.y * TILE_SIZE))
 

@@ -1,0 +1,39 @@
+{
+	"sizes": {
+		"easy": [29, 25],
+		"medium": [29, 25],
+		"hard": [29, 25]
+	},
+	"walls_with_doors": {
+		"entrance": "south",
+		"exit": "north"
+	},
+	"other_entrance_coords": {
+		"easy": 15,
+		"medium": 15,
+		"hard": 15
+	},
+	"monsters": {
+		"monster_esperanto": {
+			"easy": [1, 9, 27, 9],
+			"medium": [1, 9, 27, 9],
+			"hard": [1, 9, 27, 9]
+		},
+		"monster_motivator": {
+			"easy": [15, 21, 15, 21],
+			"medium": [15, 21, 15, 21],
+			"hard": [15, 21, 15, 21]
+		},
+		"monster_runner": {
+			"easy": [13, 13, 13, 13],
+			"medium": [13, 13, 13, 13],
+			"hard": [13, 13, 13, 13]
+		}
+	},
+	"max_respect": 4,
+	"respect_check": {
+		"easy": 2,
+		"medium": 2,
+		"hard": 2
+	}
+}

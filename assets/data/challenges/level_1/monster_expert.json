@@ -1,0 +1,43 @@
+{
+	"windows": [
+		{
+			"title": "ЗАДАНИЕ 1",
+			"text": "Ну хорошо, тогда что это за слово - [jáма]?",
+			"action": {
+				"type": "savetyped",
+				"answers": ["яма"],
+				"checker": "plainequality",
+				"correctcomments": ["Догадался, хорош!"],
+				"incorrectcomments": ["Эх ты!"],
+				"correctrpoints": 1,
+				"incorrectrpoints": -1
+			}
+		},
+		{
+			"title": "ЗАДАНИЕ 2",
+			"text": "Хм, окей-окей. А что за слово [л'эт'н'иj']?",
+			"action": {
+				"type": "savetyped",
+				"answers": ["летний"],
+				"checker": "plainequality",
+				"correctcomments": ["Молодец, не запутался в кавычках!"],
+				"incorrectcomments": ["Это было сложнее, не трону твои респекты."],
+				"correctrpoints": 1,
+				"incorrectrpoints": 0
+			}
+		},
+		{
+			"title": "ЗАДАНИЕ 3",
+			"text": "А как же [жыв'ом]?",
+			"action": {
+				"type": "savetyped",
+				"answers": ["живём", "живем"],
+				"checker": "plainequality",
+				"correctcomments": ["Ну, для тебя это несложно!"],
+				"incorrectcomments": ["Нет, не попал. И да, в транскрипции никаких жи-ши."],
+				"correctrpoints": 1,
+				"incorrectrpoints": 0
+			}
+		}
+	]
+}

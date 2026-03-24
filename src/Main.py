@@ -3,9 +3,7 @@ import sys
 
 from playstates.BaseState import BaseState
 from playstates import MazeState, DialogueState, ChallengeState, MenuState
-# импортируйте другие состояния через запятую
 from Util import Command, StateType, SCREEN_WIDTH, SCREEN_HEIGHT
-from StoryScript import StoryScript
 
 # Инициализация Pygame (теперь с музыкой!)
 if pygame.get_sdl_version()[0] == 2:
@@ -23,6 +21,7 @@ class Main:
     show_framerate = True
 
     def __init__(self):
+        from StoryScript import StoryScript
 
         # Параметры
         self.running = True

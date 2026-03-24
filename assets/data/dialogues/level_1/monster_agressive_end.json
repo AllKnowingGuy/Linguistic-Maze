@@ -1,0 +1,10 @@
+{
+	"right": "Компаративный Тиран",
+	"rightsprite": "monsters\\level_1\\monster_agressive.png",
+	"lines": [
+		{
+			"speaker": "right",
+			"text": "Я тебе в любом случае ничего не дам. Из вредности."
+		}
+	]
+}

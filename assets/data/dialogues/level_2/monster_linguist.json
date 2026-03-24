@@ -1,0 +1,13 @@
+{
+	"right": "Вова Просто",
+	"rightsprite": "monsters\\level_2\\monster_linguist.png",
+	"ominous": true,
+	"challenge": true,
+	"lines": [
+		{
+			"speaker": "right",
+			"text": "Странник, а я вот провожу много экспедиций! Хочу тебя взять с собой - даже заставляю слегка.",
+			"bg": "PREVSCREEN"
+		}
+	]
+}

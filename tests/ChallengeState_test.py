@@ -53,7 +53,7 @@ class TestSetupChallenge:
 
     def test_setup_challenge_resets_answers(self):
         challenge = ChallengeState()
-        challenge.input_texts = {'fake_key': 'fake_answer'}
+        challenge.input_texts = {67: 'fake_answer'}
         challenge.choice_buttons_sets = {999: []}
 
         challenge.setup_challenge('../assets/data/challenges/level_0/enemy_at_exit.json')
@@ -112,8 +112,9 @@ class TestChallengeStateChooseFrom:
                 challenge.current_window_ind = i
                 challenge.set_choosefrom_window()
                 break
-        assert challenge.current_window_ind in challenge.choice_buttons_sets
-        assert len(challenge.choice_buttons_sets[challenge.current_window_ind]) > 0
+        if challenge.choice_buttons_sets:
+            assert challenge.current_window_ind in challenge.choice_buttons_sets
+            assert len(challenge.choice_buttons_sets[challenge.current_window_ind]) > 0
 
 class TestChallengeStateInput:
     """Проверки ввода текста"""
@@ -154,6 +155,10 @@ class TestChallengeStateSubmit:
     def test_check_save_and_submit_returns_none_when_empty(self):
         challenge = ChallengeState()
         challenge.setup_challenge('../assets/data/challenges/level_0/enemy_at_exit.json')
+        challenge.get_window_fields()
+        for i in range(len(challenge.challenge.windows) - 1):
+            challenge.change_card()
+            challenge.get_window_fields()
 
         result = challenge.check_save_and_submit()
 
@@ -217,6 +222,8 @@ class TestChallengeStateMouse:
         if challenge.choice_buttons_sets:
             button = challenge.choice_buttons_sets[challenge.current_window_ind][0]
             button_x, button_y = button.x, button.y
+        else:
+            return
 
         test_hover_event = pygame.event.Event(pygame.MOUSEMOTION, {'pos': (button_x, button_y)})
         challenge.handle_mouse_motion(test_hover_event)

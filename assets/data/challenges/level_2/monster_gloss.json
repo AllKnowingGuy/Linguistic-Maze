@@ -1,0 +1,22 @@
+{
+	"windows": [
+		{
+			"title": "ПОДГОТОВКА",
+			"text": "Вот реальная аварская морфология:\n'Я вижу' = n-Ø-a-čːu-la\nГлосса: 1SG-1-ид-вид-PRS-вид\nОбъяснение: \nn- = 1SG ('я')\nØ- = 1 лицо\n-a- = корень 'идти/видеть'\nčːu = видовой показатель\nla = PRS (настоящее)"
+		},
+		{
+			"title": "ЗАДАНИЕ",
+			"text": "Теперь разбери: nuq'u-n?",
+			"action": {
+				"type": "choosefrom",
+				"options": ["1PL-идти-PRS", "1PL-идти-PFV", "3SG-идти-PRS", "1SG-идти-PRS"],
+				"answers": ["1PL-идти-PRS"],
+				"checker": "plainequality",
+				"correctcomments": ["Ну ладно, людишка, иди давай дальше. Помог."],
+				"incorrectcomments": ["Бестолковый ты лингвист!"],
+				"correctrpoints": 2,
+				"incorrectrpoints": 0
+			}
+		}
+	]
+}

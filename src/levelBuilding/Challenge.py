@@ -20,10 +20,10 @@ class Challenge:
             return None
         return self.windows[window_ind].get("title")
 
-    def get_window_task_text(self, window_ind: int) -> str | None:
+    def get_window_task_text(self, window_ind: int) -> list[str] | None:
         if window_ind >= len(self.windows) or window_ind < 0:
             return None
-        return self.windows[window_ind].get("text", "")
+        return self.windows[window_ind].get("text", "").split("\n")
 
     def get_window_image_path(self, window_ind: int) -> str | None:
         if window_ind >= len(self.windows) or window_ind < 0:

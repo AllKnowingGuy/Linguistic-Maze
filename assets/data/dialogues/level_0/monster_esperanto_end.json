@@ -1,0 +1,10 @@
+{
+	"right": "Эсперантист",
+	"rightsprite": "monsters\\level_0\\monster_esperanto.png",
+	"lines": [
+		{
+			"speaker": "right",
+			"text": "Вот такие испытания тебя ждут и дальше. Будь начеку!"
+		}
+	]
+}

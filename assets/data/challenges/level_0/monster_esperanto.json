@@ -1,0 +1,47 @@
+{
+	"windows": [
+		{
+			"title": "ПОДГОТОВКА",
+			"text": "Смотри, даны словосочетания на языке эсперанто и их перевод на русский язык.\n\nkoko de knabo - петух мальчика\nbela domo de rego - красивый дом короля\nkokido de filino - цыпленок дочери\nmalvarma kokino - холодная курица\nmalbona filo - плохой сын\nhoma bebo - человеческий детеныш"
+		},
+		{
+			"title": "ЗАДАНИЕ 1",
+			"text": "Переведи с языка эсперанто на русский язык это словосочетание и впиши его!\n\nbona homo:",
+			"action": {
+				"type": "savetyped",
+				"answers": ["хороший человек"],
+				"checker": "plainequality",
+				"correctcomments": ["Правильно!"],
+				"incorrectcomments": ["Нет, ошибаешься."],
+				"correctrpoints": 1,
+				"incorrectrpoints": 0
+			}
+		},
+		{
+			"title": "ЗАДАНИЕ 2",
+			"text": "Переведи с языка эсперанто на русский язык это словосочетание и впиши его!\n\nmalbela knabino:",
+			"action": {
+				"type": "savetyped",
+				"answers": ["некрасивая девочка"],
+				"checker": "plainequality",
+				"correctcomments": ["Верно!"],
+				"incorrectcomments": ["Неправильно."],
+				"correctrpoints": 1,
+				"incorrectrpoints": 0
+			}
+		},
+		{
+			"title": "ЗАДАНИЕ 3",
+			"text": "Переведи с языка эсперанто на русский язык это словосочетание и впиши его!\n\nfilino de regino:",
+			"action": {
+				"type": "savetyped",
+				"answers": ["дочь королевы"],
+				"checker": "plainequality",
+				"correctcomments": ["Точно!"],
+				"incorrectcomments": ["Это не так, увы."],
+				"correctrpoints": 1,
+				"incorrectrpoints": 0
+			}
+		}
+	]
+}

@@ -1,0 +1,16 @@
+{
+	"right": "Бегун",
+	"rightsprite": "monsters\\level_0\\monster_runner.png",
+	"lines": [
+		{
+			"speaker": "right",
+			"text": "Бе-бе-бе, а твой респект теперь мой!",
+			"rpoints": -1,
+			"bg": "PREVSCREEN"
+		},
+		{
+			"speaker": "right",
+			"text": "А вообще не стой на пути у ходячих, никто не любит врезаться в людей!"
+		}
+	]
+}

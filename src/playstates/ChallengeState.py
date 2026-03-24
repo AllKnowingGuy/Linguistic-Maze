@@ -19,8 +19,8 @@ from src.Util import (
 from src.playstates.BaseState import BaseState
 
 # Константы
-CHOICE_BUTTON_X = 210
-CHOICE_BUTTON_Y = SCREEN_HEIGHT // 2 + 90
+CHOICE_BUTTON_X = 180
+CHOICE_BUTTON_Y = SCREEN_HEIGHT // 2 + 70
 CHOICE_BUTTON_DIST_X = CHOICE_BUTTON_SIZE + 350  # расстояние между кнопками выбора по горизонтали
 CHOICE_BUTTON_DIST_Y = CHOICE_BUTTON_SIZE + 10  # расстояние между кнопками выбора по вертикали
 
@@ -28,9 +28,10 @@ BACK_BUTTON_X = 100
 FORTH_BUTTON_X = SCREEN_WIDTH - 250
 NAV_BUTTON_Y = SCREEN_HEIGHT - 140
 
-TITLE_Y = 150
-TEXT_X = 210
-TEXT_Y = TITLE_Y + 50
+TITLE_Y = 100
+TEXT_X = 150
+TEXT_Y = TITLE_Y + 40
+TEXT_DIST_Y = 40
 IMAGE_Y = TITLE_Y + 100
 
 TRANSITION_TIME = 2000
@@ -59,7 +60,7 @@ class ChallengeState(BaseState):
 
     current_window_ind: int
     current_title: str | None
-    current_task_text: str | None
+    current_task_text: list[str]
     current_image: pygame.Surface | None
     current_answer_correctness: bool | None
     current_stamp: pygame.Surface | None
@@ -68,6 +69,7 @@ class ChallengeState(BaseState):
     awaiting: Awaiting
 
     playing_text: bool = False
+    text_line: int
     text_cursor: int
 
     def __init__(self):
@@ -102,7 +104,7 @@ class ChallengeState(BaseState):
         # Данные текущего окна
         self.current_window_ind = 0
         self.current_title = None
-        self.current_task_text = None
+        self.current_task_text = []
         self.awaiting = Awaiting.CONTINUE
         self.current_answer_correctness = None
         self.current_reward = 0
@@ -110,6 +112,7 @@ class ChallengeState(BaseState):
         # Данные анимации текста
         self.playing_text = False
         self.text_cursor = 10 ** 10
+        self.text_line = 0
 
         # Наборы кнопок выбора (по окнам)
         self.choice_buttons_sets = {}
@@ -155,8 +158,6 @@ class ChallengeState(BaseState):
 
         # Шрифт испытания и выводимые тексты
         self.challenge_font = pygame.font.Font(None, 35)
-        self.current_title_sprite = self.challenge_font.render(self.current_title, True, (0, 0, 0))
-        self.current_text_sprite = self.challenge_font.render(self.current_task_text, True, (0, 0, 0))
 
         # Кэш для картинок, когда они появляются
         self.image_cache = {}
@@ -195,10 +196,13 @@ class ChallengeState(BaseState):
         self.get_window_fields()
 
         # Данные анимации текста
-        self.text_cursor = 10 ** 10  # чтобы анимация не играла при заставке
+        self.playing_text = False
 
         # Запрос на обновление экрана
         self.need_screen_update = True
+
+        # Обновление клавиши прекращения анимации (чтобы подтянулись изменения в меню)
+        self.stop_anim_bind = Config().get_challenge_controls()
 
         return self.challenge
 
@@ -222,6 +226,7 @@ class ChallengeState(BaseState):
                 pygame.mixer.music.play(-1)
 
                 # Можно сразу начинать выводить текст окна
+                self.text_line = 0
                 self.playing_text = True
                 self.text_cursor = 0
 
@@ -348,6 +353,7 @@ class ChallengeState(BaseState):
 
         # Извлекаем текст
         self.current_task_text = self.challenge.get_window_task_text(self.current_window_ind)
+        self.text_line = 0
 
         # Извлекаем и создаём изображение (с кешированием)
         image_path = self.challenge.get_window_image_path(self.current_window_ind)
@@ -404,7 +410,7 @@ class ChallengeState(BaseState):
             number_of_options = len(current_choice_options)
 
             for opt_ind, opt in enumerate(current_choice_options):
-                if number_of_options < 4:
+                if number_of_options < 5:
                     # Один столбик
                     self.choice_buttons_sets[self.current_window_ind].append(
                         Button(
@@ -434,7 +440,8 @@ class ChallengeState(BaseState):
 
         # Вывод всего сообщения сразу
         if self.playing_text and event.unicode == chr(self.stop_anim_bind):
-            self.text_cursor = len(self.current_task_text)
+            self.text_line = len(self.current_task_text) - 1
+            self.text_cursor = len(self.current_task_text[self.text_line])
 
         # Ограничения
         elif (self.awaiting.name == Awaiting.INPUT.name
@@ -507,7 +514,9 @@ class ChallengeState(BaseState):
                         return (Command.CHECK_PROGRESS, None),
 
                     elif btn is self.submit_button:
-                        return self.check_save_and_submit()
+                        supposed_command = self.check_save_and_submit()
+                        if supposed_command:
+                            return supposed_command
 
                     else:
                         raise ValueError(f'This button is foreign: {btn.text}')
@@ -679,10 +688,32 @@ class ChallengeState(BaseState):
     def draw_text_by_letter(self, screen):
         """Приятный глазу эффект выведения текста по буковке"""
 
-        if self.text_cursor >= len(self.current_task_text):
+        # Двигаем курсор
+        if self.submitted:
+            self.text_line = len(self.current_task_text) - 1
+            self.text_cursor = len(self.current_task_text[self.text_line])
             self.playing_text = False
+
+        elif self.text_cursor >= len(self.current_task_text[self.text_line]):
+            self.text_line += 1
+            if self.text_line >= len(self.current_task_text):
+                self.text_line -= 1
+                self.playing_text = False
+            else:
+                self.text_cursor = 0
+
         else:
             self.text_cursor += 0.4
 
-        text_sprite = self.challenge_font.render(self.current_task_text[:int(self.text_cursor)], True, (0, 0, 0))
-        screen.blit(text_sprite, (TEXT_X, TEXT_Y))
+        # Выводим "напечатанные" строчки сразу
+        for i in range(self.text_line):
+            text_sprite = self.challenge_font.render(
+                self.current_task_text[i], True, (0, 0, 0)
+            )
+            screen.blit(text_sprite, (TEXT_X, TEXT_Y + TEXT_DIST_Y * i))
+
+        # "Печатаем" последнюю строчку по букве
+        text_sprite = self.challenge_font.render(
+            self.current_task_text[self.text_line][:int(self.text_cursor)], True, (0, 0, 0)
+        )
+        screen.blit(text_sprite, (TEXT_X, TEXT_Y + TEXT_DIST_Y * self.text_line))

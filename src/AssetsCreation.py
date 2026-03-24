@@ -4,13 +4,23 @@ import pygame
 from src.Util import *  # screw it - Vsevolod
 
 
-def load_one_object(path: str, width: float = None, height: float = None):
+def load_one_object(path: str, width: float = None, height: float = None) -> pygame.Surface:
+    """Загрузка одного графического спрайта
+
+    Args:
+        path (str): путь к файлу, начиная с папки проекта
+        width (float): ширина спрайта, если требуется изменение размера
+        height (float): высота спрайта, если требуется изменение размера
+
+    Returns:
+        Surface: поверхность Pygame с загруженным изображением
+    """
+
     loaded_object = None
     try:
         loaded_object = pygame.image.load(path)
         if width and height:
             loaded_object = pygame.transform.scale(loaded_object, (width, height))
-        print(f"Загружен {path}")
     except Exception as e:
         print(f"Ошибка загрузки {path}: {e}")
     return loaded_object
@@ -18,8 +28,21 @@ def load_one_object(path: str, width: float = None, height: float = None):
 
 def load_all_objects(root_path: str,
                      path_map: dict[Enum, str],
-                     widths_heights_map: dict[Enum, tuple[float, float]] = None):
-    loaded_objects = {}
+                     widths_heights_map: dict[Enum, tuple[float, float]] = None) -> dict[Enum, pygame.Surface]:
+    """Загрузка нескольких графических спрайтов, обычно однотипных
+
+    Обратите внимание: ``path_map`` и ``width_heights_map`` должны использовать один и тот же Enum!
+
+    Args:
+        root_path (str): путь к папке, в которой лежат файлы, начиная с папки проекта
+        path_map (dict[Enum, str]): словарь пар Enum-путь к файлам, которые требуется загрузить
+        widths_heights_map (dict[Enum, tuple[float, float]]): словарь пар Enum-пара чисел к файлам, которые требуется загрузить
+
+    Returns:
+        dict[Enum, Surface]: словарь Enum-Surface - по одной поверхности с изображением на элемент Enum
+    """
+
+    loaded_objects: dict[Enum, pygame.Surface] = {}
     for obj_type, filename in path_map.items():
         filepath = os.path.join(root_path, filename)
         if os.path.exists(filepath):
@@ -30,22 +53,34 @@ def load_all_objects(root_path: str,
 
 
 ROOT_MUSIC_PATH = '..\\assets\\music'
+"""Главная папка музыки и звуков"""
 
 """
 Для главного меню
 """
 
 ROOT_MENU_PATH = '..\\assets\\images\\menu'
+"""Главная папка изображений меню"""
 
 
-def add_menu_bg():
-    """Загрузка фона меню"""
+def add_menu_bg() -> pygame.Surface:
+    """Загрузка фона меню
+
+    Returns:
+        Surface: фон меню
+    """
+
     bg_path = f'{ROOT_MENU_PATH}\\bg.png'
     return load_one_object(bg_path, SCREEN_WIDTH, SCREEN_HEIGHT)
 
 
-def add_start_buttons():
-    """Загрузка всех вариантов кнопки старта игры"""
+def add_start_buttons() -> dict[Enum, pygame.Surface]:
+    """Загрузка всех вариантов кнопки старта игры
+
+    Returns:
+        dict[Enum, Surface]: изображения стартовой кнопки по состояниям
+    """
+
     buttons_path = f'{ROOT_MENU_PATH}\\start_button'
     button_files = {
         ButtonState.REGULAR: 'start_button.png',
@@ -60,8 +95,16 @@ def add_start_buttons():
     return load_all_objects(buttons_path, button_files, button_sizes)
 
 
-def add_bind_buttons(name: str):
-    """Загрузка всех вариантов одной из кнопок управления"""
+def add_bind_buttons(name: str) -> dict[Enum, pygame.Surface]:
+    """Загрузка всех вариантов одной из кнопок настройки управления
+
+    Args:
+        name (str): название настройки управления
+
+    Returns:
+        dict[Enum, Surface]: изображения кнопки по состояниям
+    """
+
     buttons_path = f'{ROOT_MENU_PATH}\\keybind_buttons\\{name}_button'
     button_files = {
         ButtonState.REGULAR: f'{name}_button.png',
@@ -81,10 +124,18 @@ def add_bind_buttons(name: str):
 """
 
 ROOT_MAZE_PATH = '..\\assets\\images\\maze_tiles'
+"""Главная папка изображений лабиринта"""
 
 
-def add_entrance_exit_tiles(level=1):
-    """Загрузка изображений входа и выхода"""
+def add_entrance_exit_tiles(level: int = 0) -> tuple[pygame.Surface, pygame.Surface]:
+    """Загрузка изображений входа и выхода
+
+    Args:
+        level (int): уровень, для которого выбирается тематика
+
+    Returns:
+        tuple[Surface, Surface]: изображения дверей входа и выхода соответственно
+    """
 
     entrance_path = f'{ROOT_MAZE_PATH}\\level_{level}\\entrance.png'
     exit_path = f'{ROOT_MAZE_PATH}\\level_{level}\\exit.png'
@@ -95,14 +146,24 @@ def add_entrance_exit_tiles(level=1):
     return entrance_tile, exit_tile
 
 
-def add_player_tile():
-    """Загрузка тайла игрока"""
+def add_player_tile() -> pygame.Surface:
+    """Загрузка тайла игрока
+
+    Returns:
+        Surface: изображение стоящего игрока
+    """
+
     player_path = f'{ROOT_MAZE_PATH}\\player\\player.png'
     return load_one_object(player_path, PLAYER_SIZE, PLAYER_SIZE)
 
 
-def add_player_walk():
-    """Загрузка тайлов анимации игрока"""
+def add_player_walk() -> list[pygame.Surface]:
+    """Загрузка тайлов анимации игрока
+
+    Returns:
+        list[Surface]: изображения идущего игрока
+    """
+
     frames = []
     for i in range(1, 5):
         frame_path = f'{ROOT_MAZE_PATH}\\player\\walk{i}.png'
@@ -112,14 +173,30 @@ def add_player_walk():
     return frames
 
 
-def add_floor_tile(level=1):
-    """Загрузка тайла пола"""
+def add_floor_tile(level: int = 0) -> pygame.Surface:
+    """Загрузка тайла пола
+
+    Args:
+        level (int): уровень, для которого выбирается тематика
+
+    Returns:
+        Surface: изображение пола лабиринта
+    """
+
     floor_path = f'{ROOT_MAZE_PATH}\\level_{level}\\floor.png'
     return load_one_object(floor_path, TILE_SIZE, TILE_SIZE)
 
 
-def add_wall_tiles(level=1):
-    """Загрузка тайлов стен"""
+def add_wall_tiles(level: int = 0) -> dict[Enum, pygame.Surface]:
+    """Загрузка тайлов стен
+
+    Args:
+        level (int): уровень, для которого выбирается тематика
+
+    Returns:
+        dict[Enum, Surface]: изображения стен по типам (база и границы)
+    """
+
     tiles_path = f'{ROOT_MAZE_PATH}\\level_{level}\\walls'
     tile_files = {
         WallPattern.SINGLE: 'wall_single.png',
@@ -138,10 +215,28 @@ def add_wall_tiles(level=1):
     return load_all_objects(tiles_path, tile_files, tile_sizes)
 
 
-def add_enemy_tile(level=1):
-    """Загрузка спрайта врага по уровню"""
+def add_enemy_tile(level: int = 0) -> pygame.Surface:
+    """Загрузка спрайта врага по уровню
+
+    Args:
+        level (int): уровень, для которого выбирается тематика
+
+    Returns:
+        Surface: изображение врага
+    """
+
     enemy_path = f'{ROOT_MAZE_PATH}\\level_{level}\\enemy.png'
     return load_one_object(enemy_path, TILE_SIZE, TILE_SIZE)
+
+
+def set_maze_music():
+    """Установка музыки лабиринта"""
+
+    try:
+        music_path = f'{ROOT_MUSIC_PATH}\\Maze.wav'
+        pygame.mixer.music.load(music_path)
+    except (pygame.error, AttributeError):
+        pass
 
 
 """
@@ -149,10 +244,19 @@ def add_enemy_tile(level=1):
 """
 
 ROOT_DIALOGUE_PATH = '..\\assets\\images\\dialogue'
+"""Главная папка изображений диалогов"""
 
 
-def add_dialogue_bg(rel_path: str | None = None):
-    """Загрузка фона диалога"""
+def add_dialogue_bg(rel_path: str | None = None) -> pygame.Surface:
+    """Загрузка фона диалога
+
+    Args:
+        rel_path (str | None): опциональный относительный путь к изображению фона
+
+    Returns:
+        Surface: фон диалога
+    """
+
     if rel_path:
         bg_path = f'{ROOT_DIALOGUE_PATH}\\backgrounds\\{rel_path}'
     else:
@@ -160,14 +264,30 @@ def add_dialogue_bg(rel_path: str | None = None):
     return load_one_object(bg_path, SCREEN_WIDTH, SCREEN_HEIGHT)
 
 
-def add_dialogue_box():
-    """Загрузка диалоговой плашки"""
-    box_path = f'{ROOT_DIALOGUE_PATH}\\box.png'
+def add_dialogue_box(alt_version: bool = False) -> pygame.Surface:
+    """Загрузка диалоговой плашки
+
+    Args:
+        alt_version (bool): нужно ли загрузить альтернативную полупрозрачную плашку
+
+    Returns:
+        Surface: диалоговая плашка
+    """
+
+    box_path = f'{ROOT_DIALOGUE_PATH}\\box.png' if not alt_version else f'{ROOT_DIALOGUE_PATH}\\box_story.png'
     return load_one_object(box_path, SCREEN_WIDTH, SCREEN_HEIGHT // 2)
 
 
-def add_left_speak_sprite(rel_path: str | None = None):
-    """Загрузка главного героя"""
+def add_left_speak_sprite(rel_path: str | None = None) -> pygame.Surface:
+    """Загрузка персонажа слева
+
+    Args:
+        rel_path (str | None): опциональный относительный путь к изображению персонажа
+
+    Returns:
+        Surface: портрет персонажа слева
+    """
+
     if rel_path:
         player_path = f'{ROOT_DIALOGUE_PATH}\\protagonists\\{rel_path}'
     else:
@@ -175,8 +295,16 @@ def add_left_speak_sprite(rel_path: str | None = None):
     return load_one_object(player_path, 300, 300)
 
 
-def add_right_speak_sprite(rel_path: str | None = None):
-    """Загрузка собеседника"""
+def add_right_speak_sprite(rel_path: str | None = None) -> pygame.Surface:
+    """Загрузка персонажа справа
+
+    Args:
+        rel_path (str | None): опциональный относительный путь к изображению персонажа
+
+    Returns:
+        Surface: портрет персонажа справа
+    """
+
     if rel_path:
         char_path = f'{ROOT_DIALOGUE_PATH}\\{rel_path}'
         # doesn't start from monsters to be able to load students as right speakers - Vsevolod
@@ -185,8 +313,13 @@ def add_right_speak_sprite(rel_path: str | None = None):
     return load_one_object(char_path, 300, 300)
 
 
-def add_dialogue_choice_buttons():
-    """Загрузка всех вариантов кнопки"""
+def add_dialogue_choice_buttons() -> dict[Enum, pygame.Surface]:
+    """Загрузка всех вариантов кнопки выбора
+
+    Returns:
+        dict[Enum, Surface]: изображения кнопки по состояниям
+    """
+
     buttons_path = f'{ROOT_DIALOGUE_PATH}\\choice_button'
     button_files = {
         ButtonState.REGULAR: 'choice_button.png',
@@ -202,6 +335,8 @@ def add_dialogue_choice_buttons():
 
 
 def set_dialogue_music(rel_path: str | None = None):
+    """Установка музыки диалога"""
+
     try:
         if rel_path:
             music_path = f'{ROOT_MUSIC_PATH}\\{rel_path}'
@@ -217,8 +352,8 @@ def set_dialogue_music(rel_path: str | None = None):
 """
 
 ROOT_CHALLENGE_PATH = '..\\assets\\images\\challenge'
-QUESTION_CARD_WIDTH = SCREEN_WIDTH - 300
-QUESTION_CARD_HEIGHT = SCREEN_HEIGHT - 150
+QUESTION_CARD_WIDTH = SCREEN_WIDTH - 200
+QUESTION_CARD_HEIGHT = SCREEN_HEIGHT - 100
 STAMP_WIDTH = 150
 STAMP_HEIGHT = 90
 TIP_CARD_WIDTH = SCREEN_WIDTH - 700

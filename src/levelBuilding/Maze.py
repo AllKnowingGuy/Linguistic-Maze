@@ -1,15 +1,26 @@
 import random
 
 from src.Util import Border
+from src.levelBuilding.Enemy import Enemy, StationaryEnemy, PatrollingEnemy
 
 
 class Tile:
+    """Класс для хранения координат элемента лабиринта"""
+
     def __init__(self, x: int = None, y: int = None):
         self.x = x
         self.y = y
 
 
 class Maze:
+    width: int
+    height: int
+    start: Tile
+    end: Tile
+    start_door: Tile
+    end_door: Tile
+    monsters: list[Enemy]
+
     def __init__(self, width: int = 3, height: int = 3,
                  doors_near_borders: tuple = (Border.WEST, Border.EAST),
                  other_door_coords: tuple[int, int] = (1, 1)):
@@ -40,6 +51,7 @@ class Maze:
                 door[1].y = self.height - 1
 
         self.pattern = [[1]]
+        self.monsters = []
 
     def generate_maze(self, more_random: bool = False, curving: bool = False):
         """Генерация лабиринта модифицированным алгоритмом DFS"""
@@ -82,3 +94,12 @@ class Maze:
         # Добавляем вход и выход
         self.pattern[self.start_door.y][self.start_door.x] = 0
         self.pattern[self.end_door.y][self.end_door.x] = 0
+
+    def place_monsters(self, monsters: dict[str, tuple[int, int, int, int]], moving_monsters: list[str] = None):
+        for monster, area in monsters.items():
+            monster_x = random.randrange((area[0] // 2) * 2 + 1, (area[2] // 2) * 2 + 2, 2)
+            monster_y = random.randrange((area[1] // 2) * 2 + 1, (area[3] // 2) * 2 + 2, 2)
+            if moving_monsters and monster in moving_monsters:
+                self.monsters.append(PatrollingEnemy(monster_x, monster_y, monster))
+            else:
+                self.monsters.append(StationaryEnemy(monster_x, monster_y, monster))

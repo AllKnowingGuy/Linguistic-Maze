@@ -1,5 +1,24 @@
 # Changelog
 
+## 2026-03-23 - Path of the Linguist update
+
+- Made dialogue and challenge texts splittable by '\n' and remade `draw_text_by_letter` in the respective states
+- Added dialogue and challenge JSON files for real monsters of the game according to the story (levels 0-2)
+- Replaced intro dialogue with the final one and changed intro dialogue processing in `StoryScript`
+- Moved room structure from `StoryScript` to JSON files and added info about the monsters and the exit conditions
+- Added custom dialogue images for several monsters (levels 0-2)
+- Added a new transparent dialogue box for rich-BG dialogues and changed the texture of the standard one
+- Made `setup_dialogue` accept not only JSON paths but also local dialogue dicts
+- Made `StoryScript` build universal exit door dialogues based on player progress
+- Implemented room regeneration (without moving to the next one) and attempt system
+- Made `DialogueState` display character's name instead of 'Протагонист' based on player's intro dialogue choice
+- Added music to the maze
+- `StoryScript.py` now imports `Main` class, and the `game` argument of `update_game_progress` is now typed as `Main`
+- `StoryScript` is now imported in `Main.__init__` in `Main.py` to avoid import conflicts
+- Added some docstrings to `AssetsCreation.py`
+- Fixed menu config changes not being used in the current game session
+- Rebound text animation ending from Enter back to Esc
+
 ## 2026-03-21 - Test update 2
 - Implemented pytest and workflow for `MazeState.py` and `ChallengeState.py`
 
@@ -12,7 +31,7 @@
 
 - Created `MenuState.py` for the main menu; as of now it has a start button and keybind buttons, one for each keybind
 - Implemented key binding **in game** through main menu buttons
-- Rebound text animation ending fron Esc to Enter
+- Rebound text animation ending from Esc to Enter
 - Made the game **replayable** by changing the behavior of the last dialogue in `StoryScript` (it now redirects the player to the menu)
 - Fixed a bug where `DialogueState` and `ChallengeState` would not forget answers to previous dialogues and challenges
 - Linted out all Python files
