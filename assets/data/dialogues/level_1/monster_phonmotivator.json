@@ -1,0 +1,16 @@
+{
+	"right": "Фонемотиватор",
+	"rightsprite": "monsters\\level_1\\monster_phonmotivator.png",
+	"lines": [
+		{
+			"speaker": "right",
+			"text": "Я знаю, что путь твой нелёгок. Я не страшный монстр, а добрый -\nи готов всегда тебе помочь, если нужно.",
+			"bg": "PREVSCREEN"
+		},
+		{
+			"speaker": "right",
+			"text": "Если становится сложно, помни - всегда есть те, кто на твоей стороне.",
+			"rpoints": 1
+		}
+	]
+}

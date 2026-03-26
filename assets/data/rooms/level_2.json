@@ -1,0 +1,60 @@
+{
+	"sizes": {
+		"easy": [29, 25],
+		"medium": [33, 33],
+		"hard": [35, 39]
+	},
+	"walls_with_doors": {
+		"entrance": "west",
+		"exit": "south"
+	},
+	"other_entrance_coords": {
+		"easy": 1,
+		"medium": 1,
+		"hard": 1
+	},
+	"monsters": {
+		"monster_gloss": {
+			"easy": [8, 1, 27, 3],
+			"medium": [8, 1, 31, 3],
+			"hard": [8, 1, 33, 4]
+		},
+		"monster_linguist": {
+			"easy": [6, 20, 18, 23],
+			"medium": [2, 26, 17, 31],
+			"hard": [3, 31, 19, 37]
+		},
+		"monster_motivator": {
+			"easy": [6, 9, 13, 15],
+			"medium": [6, 9, 16, 19],
+			"hard": [6, 9, 16, 19]
+		},
+		"monster_researcher": {
+			"easy": [20, 15, 25, 23],
+			"medium": [21, 21, 30, 31],
+			"hard": [21, 21, 32, 36]
+		},
+		"monster_sphinx": {
+			"easy": [1, 5, 3, 23],
+			"medium": [1, 5, 4, 23],
+			"hard": [1, 5, 4, 27]
+		},
+		"monster_terminology": {
+			"easy": [16, 7, 27, 11],
+			"medium": [20, 6, 31, 14],
+			"hard": [20, 7, 33, 16]
+		}
+	},
+	"max_respect": 14,
+	"respect_check": {
+		"easy": 6,
+		"medium": 8,
+		"hard": 10
+	},
+	"artifacts_check": ["стрела", "гармошка"],
+	"respect_check_w_artifacts": {
+		"easy": 2,
+		"medium": 4,
+		"hard": 6
+	}
+}

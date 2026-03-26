@@ -1,0 +1,49 @@
+{
+	"windows": [
+		{
+			"title": "ЗАДАНИЕ 1",
+			"text": "Какой фонеме гласной или согласной буквы соответствует этот контур?",
+			"image": "levels\\level_1\\first_contour.png",
+			"action": {
+				"type": "choosefrom",
+				"options": ["А", "И", "Э", "У"],
+				"answers": ["Э"],
+				"checker": "plainequality",
+				"correctcomments": ["Угадал!"],
+				"incorrectcomments": ["Не угадал."],
+				"correctrpoints": 1,
+				"incorrectrpoints": 0
+			}
+		},
+		{
+			"title": "ЗАДАНИЕ 2",
+			"text": "Какой фонеме гласной или согласной буквы соответствует этот контур?",
+			"image": "levels\\level_1\\second_contour.png",
+			"action": {
+				"type": "choosefrom",
+				"options": ["О", "Д", "Ф", "И"],
+				"answers": ["О"],
+				"checker": "plainequality",
+				"correctcomments": ["Истинно так!"],
+				"incorrectcomments": ["Ответ ошибочный."],
+				"correctrpoints": 1,
+				"incorrectrpoints": 0
+			}
+		},
+		{
+			"title": "ЗАДАНИЕ 3",
+			"text": "Какой фонеме гласной или согласной буквы соответствует этот контур?",
+			"image": "levels\\level_1\\third_contour.png",
+			"action": {
+				"type": "choosefrom",
+				"options": ["Ш", "М", "З", "К"],
+				"answers": ["М"],
+				"checker": "plainequality",
+				"correctcomments": ["Несомненно!"],
+				"incorrectcomments": ["Сомневаюсь."],
+				"correctrpoints": 1,
+				"incorrectrpoints": 0
+			}
+		}
+	]
+}

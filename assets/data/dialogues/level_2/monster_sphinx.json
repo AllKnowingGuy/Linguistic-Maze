@@ -1,0 +1,24 @@
+{
+	"right": "Социосфинкс",
+	"rightsprite": "monsters\\level_2\\monster_sphinx.png",
+	"lines": [
+		{
+			"speaker": "right",
+			"text": "Странник, ты не пройдёшь! 'НОГА' у человека и 'НОГА' у стола.\nПочему одно слово — разные значения? Что это за явление, странник?",
+			"action": {"type": "savetyped"},
+			"bg": "PREVSCREEN"
+		},
+		{
+			"speaker": "right",
+			"text": "Верно, даю тебе артефакт - стрелу. Покажи на выходе её!",
+			"artifact": "стрела",
+			"jump": -1
+		},
+		{
+			"speaker": "right",
+			"text": "Неверно!",
+			"rpoints": -1,
+			"jump": -1
+		}
+	]
+}

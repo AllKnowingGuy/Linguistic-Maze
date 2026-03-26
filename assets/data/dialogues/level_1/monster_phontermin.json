@@ -1,0 +1,36 @@
+{
+	"left": "Протагонист",
+	"right": "Фон Термин",
+	"rightsprite": "monsters\\level_1\\monster_phontermin.png",
+	"ominous": true,
+	"challenge": true,
+	"lines": [
+		{
+			"speaker": "right",
+			"text": "Ну что, человек, привет! Куда следуем?",
+			"action": {"type": "savetyped"},
+			"bg": "PREVSCREEN"
+		},
+		{
+			"speaker": "right",
+			"text": "Я тебя понимаю, да... Знаешь, что можно сделать, чтобы точно куда-то прийти?"
+		},
+		{
+			"speaker": "right",
+			"text": "Ответить на мои вопросы. Я обожаю термины - это моя стихия.\nЕсли ответишь, то я тебя пропущу дальше.",
+			"jump": 4
+		},
+		{
+			"speaker": "right",
+			"text": "Не хочешь со мной нормально общаться? Ну и ладно, тогда не о чем с тобой говорить.",
+			"rpoints": -2,
+			"jump": -1,
+			"cancelchallenge": true
+		},
+		{
+			"speaker": "left",
+			"text": "Окей, давай попробую!",
+			"jump": -1
+		}
+	]
+}

@@ -1,0 +1,12 @@
+{
+	"right": "Губбль-Туи",
+	"rightsprite": "monsters\\level_2\\monster_motivator.png",
+	"lines": [
+		{
+			"speaker": "right",
+			"text": "Dum spiro, spero, дружочек мой!",
+			"rpoints": 1,
+			"bg": "PREVSCREEN"
+		}
+	]
+}

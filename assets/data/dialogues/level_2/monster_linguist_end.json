@@ -1,0 +1,19 @@
+{
+	"right": "Вова Просто",
+	"rightsprite": "monsters\\level_2\\monster_linguist.png",
+	"challengerpoints": [2, 1, 0],
+	"challengejumps": [0, 1, 1],
+	"lines": [
+		{
+			"speaker": "right",
+			"text": "Ты будешь очень полезен в моей экспедиции... когда она начнётся.\nА пока даю тебе артефакт - гармошку. Обязательно сохрани её!",
+			"artifact": "гармошка",
+			"jump": -1
+		},
+		{
+			"speaker": "right",
+			"text": "Нет, в экспедицию тебе пока рановато. Поищу других помощников",
+			"jump": -1
+		}
+	]
+}

@@ -27,4 +27,4 @@ jobs:
       - name: Run tests
         run: |
           cd src
-          python -m pytest ../tests/ChallengeState_test.py -v
+          python -m pytest ../tests/challengestate_test.py -v

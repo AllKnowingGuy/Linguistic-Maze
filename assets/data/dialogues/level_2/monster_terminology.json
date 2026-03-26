@@ -1,0 +1,36 @@
+{
+	"left": "Протагонист",
+	"right": "Социотерминариус",
+	"rightsprite": "monsters\\level_2\\monster_terminology.png",
+	"ominous": true,
+	"challenge": true,
+	"lines": [
+		{
+			"speaker": "right",
+			"text": "Остановись, человек! Куда направляешься?",
+			"action": {"type": "savetyped"},
+			"bg": "PREVSCREEN"
+		},
+		{
+			"speaker": "right",
+			"text": "Да уж... Знаешь, как тебе достигнуть цели?"
+		},
+		{
+			"speaker": "right",
+			"text": "Ответить на мои вопросы. Я - непризнанный профессионал в терминах.\nЕсли разбираешься в них, то пройдёшь дальше.",
+			"jump": 4
+		},
+		{
+			"speaker": "right",
+			"text": "Я тебя не понимаю, человек. Мой тебе совет: используй тот же язык,\nчто и все вокруг. Я знаю, ты тоже на нём умеешь говорить.",
+			"rpoints": -2,
+			"jump": -1,
+			"cancelchallenge": true
+		},
+		{
+			"speaker": "left",
+			"text": "Хорошо, попробую!",
+			"jump": -1
+		}
+	]
+}

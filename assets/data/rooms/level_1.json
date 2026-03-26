@@ -1,0 +1,60 @@
+{
+	"sizes": {
+		"easy": [29, 25],
+		"medium": [37, 29],
+		"hard": [37, 37]
+	},
+	"walls_with_doors": {
+		"entrance": "south",
+		"exit": "east"
+	},
+	"other_entrance_coords": {
+		"easy": 1,
+		"medium": 1,
+		"hard": 1
+	},
+	"monsters": {
+		"monster_agressive": {
+			"easy": [1, 1, 9, 5],
+			"medium": [1, 1, 10, 11],
+			"hard": [1, 1, 10, 11]
+		},
+		"monster_amateur": {
+			"easy": [16, 14, 21, 23],
+			"medium": [17, 15, 23, 26],
+			"hard": [14, 23, 23, 34]
+		},
+		"monster_expert": {
+			"easy": [23, 12, 27, 19],
+			"medium": [27, 14, 35, 23],
+			"hard": [26, 18, 35, 31]
+		},
+		"monster_formant": {
+			"easy": [20, 1, 27, 5],
+			"medium": [23, 1, 35, 5],
+			"hard": [23, 1, 35, 12]
+		},
+		"monster_phonmotivator": {
+			"easy": [5, 16, 12, 23],
+			"medium": [5, 18, 12, 27],
+			"hard": [5, 22, 12, 35]
+		},
+		"monster_phontermin": {
+			"easy": [13, 2, 18, 8],
+			"medium": [13, 3, 21, 10],
+			"hard": [13, 3, 21, 17]
+		}
+	},
+	"max_respect": 20,
+	"respect_check": {
+		"easy": 8,
+		"medium": 10,
+		"hard": 13
+	},
+	"artifacts_check": ["ручка"],
+	"respect_check_w_artifacts": {
+		"easy": 5,
+		"medium": 7,
+		"hard": 10
+	}
+}

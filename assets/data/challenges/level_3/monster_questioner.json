@@ -1,0 +1,46 @@
+{
+	"windows": [
+		{
+			"title": "ЗАДАНИЕ 1",
+			"text": "Что делает оператор присваивания в Python, не подскажешь ли?",
+			"action": {
+				"type": "choosefrom",
+				"options": ["Сравнивает два значения", "Присваивает значение переменной", "Выводит значение на экран", "Удаляет переменную"],
+				"answers": ["Присваивает значение переменной"],
+				"checker": "plainequality",
+				"correctcomments": ["Ну, этот вопрос был лёгкий, халтура!"],
+				"incorrectcomments": ["Ты серьёзно? Вопрос легчайший!"],
+				"correctrpoints": 1,
+				"incorrectrpoints": 0
+			}
+		},
+		{
+			"title": "ЗАДАНИЕ 2",
+			"text": "А за что в Python отвечает оператор %?",
+			"action": {
+				"type": "choosefrom",
+				"options": ["Деление с остатком", "Целочисленное деление", "Умножение", "Сложение"],
+				"answers": ["Деление с остатком"],
+				"checker": "plainequality",
+				"correctcomments": ["Тоже легкотня, посмотрим на следующий."],
+				"incorrectcomments": ["А здесь-то ты как ошибся?"],
+				"correctrpoints": 1,
+				"incorrectrpoints": 0
+			}
+		},
+		{
+			"title": "ЗАДАНИЕ 3",
+			"text": "Ну и скажи-ка, что представляет собой аргумент sep\nв функции print()?",
+			"action": {
+				"type": "choosefrom",
+				"options": ["Разделитель между другими аргументами", "Символ конца вывода", "Формат вывода", "Заголовок перед первым аргументом"],
+				"answers": ["Разделитель между другими аргументами"],
+				"checker": "plainequality",
+				"correctcomments": ["Приятно, что ты это знаешь."],
+				"incorrectcomments": ["Разочаровываешь, человек."],
+				"correctrpoints": 1,
+				"incorrectrpoints": 0
+			}
+		}
+	]
+}

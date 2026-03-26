@@ -1,0 +1,37 @@
+{
+	"right": "Супер-креон",
+	"rightsprite": "monsters\\level_4\\monster_silent.png",
+	"lines": [
+		{
+			"speaker": "right",
+			"text": "...",
+			"action": {
+				"type": "choosefrom",
+				"options": ["Пройти мимо", "Тыкнуть монстра", "Что-нибудь сказать"],
+				"jumps": [-1, null, 2]
+			},
+			"bg": "PREVSCREEN"
+		},
+		{
+			"speaker": "right",
+			"text": "(...монстр в ярости!)",
+			"rpoints": -1,
+			"jump": -1
+		},
+		{
+			"text": "Что ты скажешь?",
+			"action": {"type": "savetyped"}
+		},
+		{
+			"speaker": "right",
+			"text": "Не думал, что кто-то может со мной заговорить. Дарю тебе в качестве комплимента подарок.",
+			"artifact": "фонарик",
+			"jump": -1
+		},
+		{
+			"speaker": "right",
+			"text": "...",
+			"jump": -1
+		}
+	]
+}

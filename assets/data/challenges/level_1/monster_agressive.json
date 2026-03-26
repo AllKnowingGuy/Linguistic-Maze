@@ -1,0 +1,43 @@
+{
+	"windows": [
+		{
+			"title": "ЗАДАНИЕ 1",
+			"text": "Немецкое kaufen (покупать) равно нидерландскому kopen.\nНемецкое Haus (дом) равно нидерландскому huis.\nТеперь немецкое laufen (бежать). Какое это нидерландское слово?\nНапиши на нидерландском, живо!",
+			"action": {
+				"type": "savetyped",
+				"answers": ["lopen"],
+				"checker": "plainequality",
+				"correctcomments": ["Неплохо размышляешь."],
+				"incorrectcomments": ["Я вижу, как ты раскис! Соберись!"],
+				"correctrpoints": 1,
+				"incorrectrpoints": 0
+			}
+		},
+		{
+			"title": "ЗАДАНИЕ 2",
+			"text": "Немецкое Vater (отец) равно шведскому fader.\nНемецкое Mutter (мать) равно шведскому moder.\nНемецкое Bruder (брат) -> шведское?",
+			"action": {
+				"type": "savetyped",
+				"answers": ["broder"],
+				"checker": "plainequality",
+				"correctcomments": ["Ну вот, я понимаю - лингвист!"],
+				"incorrectcomments": ["Мое терпение лопнет, на третий вопрос хотя бы ответь!"],
+				"correctrpoints": 1,
+				"incorrectrpoints": 0
+			}
+		},
+		{
+			"title": "ЗАДАНИЕ 3",
+			"text": "И последнее.\nПольское 'włosy' (волосы) равно чешскому 'vlasy'.\nПольское 'noga' (нога) равно чешскому 'noha'.\nПольское 'woda' (вода) равно чешскому 'voda'.\nПольское 'wiatr' (ветер) равно чешскому 'vítr'.\nПольское 'głowa' (голова) -> чешское?",
+			"action": {
+				"type": "savetyped",
+				"answers": ["hlava"],
+				"checker": "plainequality",
+				"correctcomments": ["Ну вот, умеешь же размышлять!"],
+				"incorrectcomments": ["Нет, нет и нет! Ты думал над ответом?"],
+				"correctrpoints": 1,
+				"incorrectrpoints": 0
+			}
+		}
+	]
+}

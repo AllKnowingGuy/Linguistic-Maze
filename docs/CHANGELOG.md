@@ -1,21 +1,52 @@
 # Changelog
 
+## 2026-03-26 - Supervized update 1
+
+- **Renamed all Python files to use snake case instead of camel case.** As such, all content of `src` and `tests` has had capital letters replaced with lowercase ones, and `levelBuilding` has been renamed to `level_building`
+- Put almost all file paths into `Path` objects
+- Changed the gloss challenge in the 2nd maze room as the previous one contained an error
+- Made saved dialogue answers use line indices and not line texts as dict keys
+- Made dialogues check progress between inputting answers and changing line
+- Made door dialogues use the transparent box
+- Fixed a bunch of errors caused by extra or missing commas in JSONs and changed places of several '\n's
+- Added `.gitignore`
+
+## 2026-03-23 - Path of the Linguist update
+
+- Made dialogue and challenge texts splittable by '\n' and remade `draw_text_by_letter` in the respective states
+- Added dialogue and challenge JSON files for real monsters of the game according to the story (levels 0-2)
+- Replaced intro dialogue with the final one and changed intro dialogue processing in `StoryScript`
+- Moved room structure from `StoryScript` to JSON files and added info about the monsters and the exit conditions
+- Added custom dialogue images for several monsters (levels 0-2)
+- Added a new transparent dialogue box for rich-BG dialogues and changed the texture of the standard one
+- Made `setup_dialogue` accept not only JSON paths but also local dialogue dicts
+- Made `StoryScript` build universal exit door dialogues based on player progress
+- Implemented room regeneration (without moving to the next one) and attempt system
+- Made `DialogueState` display character's name instead of 'Протагонист' based on player's intro dialogue choice
+- Added music to the maze
+- `StoryScript.py` now imports `Main` class, and the `game` argument of `update_game_progress` is now typed as `Main`
+- `StoryScript` is now imported in `Main.__init__` in `Main.py` to avoid import conflicts
+- Added some docstrings to `AssetsCreation.py`
+- Fixed menu config changes not being used in the current game session
+- Rebound text animation ending from Enter back to Esc
+
 ## 2026-03-22 - Documentation overhaul
 
-- Created `API.md` with comprehensive descriptions of dialogue and challenge JSON formats, checkers, artifact system, and level creation.
-- Created `INSTALL.md` with step-by-step installation instructions for Windows, Linux, and macOS, including Poetry setup, `fasttext` wheel installation, and troubleshooting.
-- Added `ARCHITECTURE.md` detailing the project structure, component interaction, and control flow between `Main`, `StoryScript`, and playstates.
-- Extended `README.md` with clearer usage instructions, control schemes, and links to developer documentation.
-- Added Mermaid class diagram to visualize relationships between key classes (`Challenge`, `Dialogue`, `MazeState`, `StoryScript`, etc.) and their dependencies.
-- Documented the role of `StoryScript` as the central story manager and how states communicate via commands.
+- Created `API.md` with comprehensive descriptions of dialogue and challenge JSON formats, checkers, artifact system, and level creation
+- Created `INSTALL.md` with step-by-step installation instructions for Windows, Linux, and macOS, including Poetry setup, `fasttext` wheel installation, and troubleshooting
+- Added `ARCHITECTURE.md` detailing the project structure, component interaction, and control flow between `Main`, `StoryScript`, and playstates
+- Extended `README.md` with clearer usage instructions, control schemes, and links to developer documentation
+- Added Mermaid class diagram to visualize relationships between key classes (`Challenge`, `Dialogue`, `MazeState`, `StoryScript`, etc.) and their dependencies
+- Documented the role of `StoryScript` as the central story manager and how states communicate via commands
+- Moved this **CHANGELOG** to the docs folder
 
 ## 2026-03-21 - Artifact and choice support
-- Added `can_skip_with_artifact` method to Challenge – allows skipping a task if the player has the required artifact (e.g., “дудка”).
-- Added check_choice method for handling multiple‑choice actions (choosefrom); returns correctness, respect change, and awarded artifact.
-- Extended `_read_and_fill` to load optional metadata from the JSON file (e.g., background music, atmosphere settings).
-- Added `get_window_artifact` getter to retrieve the artifact granted by a specific window (if any).
-- Refactored `sentiment_rubert` checker to lazily initialize the Hugging Face pipeline only when first needed, preventing unnecessary model loading.
-- Minor linting and type hint improvements across the file.
+- Added `can_skip_with_artifact` method to Challenge – allows skipping a task if the player has the required artifact (e.g., “дудка”)
+- Added check_choice method for handling multiple‑choice actions (choosefrom); returns correctness, respect change, and awarded artifact
+- Extended `_read_and_fill` to load optional metadata from the JSON file (e.g., background music, atmosphere settings)
+- Added `get_window_artifact` getter to retrieve the artifact granted by a specific window (if any)
+- Refactored `sentiment_rubert` checker to lazily initialize the Hugging Face pipeline only when first needed, preventing unnecessary model loading
+- Minor linting and type hint improvements across the file
 
 ## 2026-03-21 - Test update 2
 - Implemented pytest and workflow for `MazeState.py` and `ChallengeState.py`
@@ -29,7 +60,7 @@
 
 - Created `MenuState.py` for the main menu; as of now it has a start button and keybind buttons, one for each keybind
 - Implemented key binding **in game** through main menu buttons
-- Rebound text animation ending fron Esc to Enter
+- Rebound text animation ending from Esc to Enter
 - Made the game **replayable** by changing the behavior of the last dialogue in `StoryScript` (it now redirects the player to the menu)
 - Fixed a bug where `DialogueState` and `ChallengeState` would not forget answers to previous dialogues and challenges
 - Linted out all Python files

@@ -1,0 +1,12 @@
+{
+	"right": "Мотиватор",
+	"rightsprite": "monsters\\level_0\\monster_motivator.png",
+	"lines": [
+		{
+			"speaker": "right",
+			"text": "Cogito ergo sum.",
+			"rpoints": 1,
+			"bg": "PREVSCREEN"
+		}
+	]
+}

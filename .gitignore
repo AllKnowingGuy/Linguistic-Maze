@@ -1,3 +1,24 @@
 # Python cache
 __pycache__/
 *.pyc
+
+# PyCharm
+.idea/
+
+# Byte-compiled / optimized / DLL files
+src/__pycache__/
+src/level_building/__pycache__/
+src/playstates/__pycache__/
+tests/__pycache__/
+
+# Default ignored files
+/shelf/
+/workspace.xml
+
+# Editor-based HTTP Client requests
+/httpRequests/
+*.iml
+/misc.xml
+/modules.xml
+/inspectionProfiles/profiles_settings.xml
+/vcs.xml

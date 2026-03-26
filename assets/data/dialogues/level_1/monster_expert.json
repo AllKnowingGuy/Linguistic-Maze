@@ -1,0 +1,18 @@
+{
+	"left": "Протагонист",
+	"right": "Филя Просто",
+	"rightsprite": "monsters\\level_1\\monster_expert.png",
+	"ominous": true,
+	"challenge": true,
+	"lines": [
+		{
+			"speaker": "right",
+			"text": "Поиграем в игру, человек! Я буду кидать транскрипцию, а ты пиши в поле ответа слово,\nкоторое соответствует этой транскрипции! Попробуешь меня победить?",
+			"bg": "PREVSCREEN"
+		},
+		{
+			"speaker": "left",
+			"text": "Давай, я не боюсь!"
+		}
+	]
+}

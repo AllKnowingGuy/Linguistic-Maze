@@ -1,0 +1,15 @@
+{
+	"right": "Цифровой сфинкс",
+	"rightsprite": "monsters\\level_3\\monster_sphinx.png",
+	"lines": [
+		{
+			"speaker": "right",
+			"text": "Ты не пройдёшь.",
+			"action": {"type": "savetyped"},
+			"bg": "PREVSCREEN"
+		},
+		{
+			"text": "Сфинкс проверил твой ответ на дружелюбие."
+		}
+	]
+}

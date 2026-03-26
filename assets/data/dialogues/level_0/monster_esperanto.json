@@ -1,0 +1,16 @@
+{
+	"right": "Эсперантист",
+	"rightsprite": "monsters\\level_0\\monster_esperanto.png",
+	"challenge": true,
+	"lines": [
+		{
+			"speaker": "right",
+			"text": "Привет, странник! Рад тебя видеть в начале лабиринта.",
+			"bg": "PREVSCREEN"
+		},
+		{
+			"speaker": "right",
+			"text": "Для начала нужно пройти первые задания для ознакомления."
+		}
+	]
+}

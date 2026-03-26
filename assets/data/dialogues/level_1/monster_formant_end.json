@@ -1,0 +1,19 @@
+{
+	"right": "Спектростраж",
+	"rightsprite": "monsters\\level_1\\monster_formant.png",
+	"challengerpoints": [3, 2, 1, 0],
+	"challengejumps": [0, 1, 1, 1],
+	"lines": [
+		{
+			"speaker": "right",
+			"text": "Ты доказал, что ты настоящий воин. Удачи тебе на дальнейшем пути!",
+			"rpoints": 3,
+			"jump": -1
+		},
+		{
+			"speaker": "right",
+			"text": "Ты пытался, и это радует. Удачи тебе на дальнейшем пути!",
+			"jump": -1
+		}
+	]
+}
