@@ -30,6 +30,23 @@
 - Fixed menu config changes not being used in the current game session
 - Rebound text animation ending from Enter back to Esc
 
+## 2026-03-22 - Documentation overhaul
+
+- Created `API.md` with comprehensive descriptions of dialogue and challenge JSON formats, checkers, artifact system, and level creation
+- Created `INSTALL.md` with step-by-step installation instructions for Windows, Linux, and macOS, including Poetry setup, `fasttext` wheel installation, and troubleshooting
+- Added `ARCHITECTURE.md` detailing the project structure, component interaction, and control flow between `Main`, `StoryScript`, and playstates
+- Extended `README.md` with clearer usage instructions, control schemes, and links to developer documentation
+- Added Mermaid class diagram to visualize relationships between key classes (`Challenge`, `Dialogue`, `MazeState`, `StoryScript`, etc.) and their dependencies
+- Documented the role of `StoryScript` as the central story manager and how states communicate via commands
+
+## 2026-03-21 - Artifact and choice support
+- Added `can_skip_with_artifact` method to Challenge – allows skipping a task if the player has the required artifact (e.g., “дудка”).
+- Added check_choice method for handling multiple‑choice actions (choosefrom); returns correctness, respect change, and awarded artifact.
+- Extended `_read_and_fill` to load optional metadata from the JSON file (e.g., background music, atmosphere settings).
+- Added `get_window_artifact` getter to retrieve the artifact granted by a specific window (if any).
+- Refactored `sentiment_rubert` checker to lazily initialize the Hugging Face pipeline only when first needed, preventing unnecessary model loading.
+- Minor linting and type hint improvements across the file.
+
 ## 2026-03-21 - Test update 2
 - Implemented pytest and workflow for `MazeState.py` and `ChallengeState.py`
 

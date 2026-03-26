@@ -1,4 +1,6 @@
 import json
+from transformers import pipeline
+import re
 from pathlib import Path
 
 
@@ -8,6 +10,10 @@ class Challenge:
 
     def __init__(self, path: Path):
         self._read_and_fill(path)
+        self._rubert_model = pipeline(
+            "text-classification",
+            model="seara/rubert-base-cased-russian-sentiment"
+        )
 
     def _read_and_fill(self, path: Path):
         with open(path, 'r', encoding='utf-8') as f:
@@ -95,16 +101,41 @@ class Challenge:
             return supposed_action.get("incorrectrpoints", 0)
         return None
 
+    # в сюжете есть монстры, которых можно пропустить, показав артефакт (например, дудку)
+    def can_skip_with_artifact(self, window_ind: int, artifacts: list[str]) -> bool:
+        """Проверка возможности пропустить задание, имея нужный артефакт"""
+
+        action = self.windows[window_ind].get("action", {})
+        required = action.get("requires_artifact")
+        if required and required in artifacts:
+            return True
+        return False
+
     def check_current_answer(self, window_ind: int):
         """Проверка текущего ответа на правильность методом, назначенным на это задание"""
 
         user_input = self.answers[window_ind]
         keys = self.get_window_correct_answers(window_ind)
+        supposed_action = self.windows[window_ind].get("action", {})
         checker = self.get_window_answers_checker(window_ind)
         if checker:
             if checker == 'plainequality':
                 return user_input.strip() in keys  # самый простой способ проверки
-            # добавляйте других проверщиков через elif; возможно, потребуется написать для них отдельные функции
+            elif checker == 'ling_terms':
+                pattern = r'(лингвист|язык|лингв|термин|фонет|социо|нейро)'
+                return bool(re.search(pattern, user_input, re.IGNORECASE))
+            elif checker == 'wordmatch':
+                patterns = supposed_action.get("patterns", [])
+                return any(re.search(p, user_input, re.IGNORECASE) for p in patterns)
+            elif checker == 'sentiment_rubert':
+                try:
+                    result = self._rubert_model(user_input)[0]
+                    positive_score = float(result['score'])
+                    threshold = supposed_action.get("threshold", 0.6)
+                    return positive_score > threshold
+                except Exception as e:
+                    print(f"Ошибка в sentiment_rubert: {e}")
+                    return any(w in user_input.lower() for w in ['хорошо', 'помощь'])
             else:
                 raise ValueError(f'This checker cannot be recognized: {checker}')
         else:
