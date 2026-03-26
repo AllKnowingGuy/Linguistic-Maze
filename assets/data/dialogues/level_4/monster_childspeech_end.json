@@ -1,0 +1,19 @@
+{
+	"right": "Детвор",
+	"rightsprite": "monsters\\level_4\\monster_childspeech.png",
+	"challengerpoints": [1, 0],
+	"challengejumps": [0, 1],
+	"lines": [
+		{
+			"speaker": "right",
+			"text": "Спасибо, дружок! Ну что же, дарю тебе спичку - сохрани её до конца лабиринта,\nа потом она тебе поможет открыть дверь.",
+			"artifact": "спичка",
+			"jump": -1
+		},
+		{
+			"speaker": "right",
+			"text": "Знаешь, не похоже, что ты изучаешь лингвистику. Не получишь от меня ничего!",
+			"jump": -1
+		},
+	]
+}

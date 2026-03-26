@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026-03-26 - Supervized update 1
+
+- **Renamed all Python files to use snake case instead of camel case.** As such, all content of `src` and `tests` has had capital letters replaced with lowercase ones, and `levelBuilding` has been renamed to `level_building`
+- Put almost all file paths into `Path` objects
+- Changed the gloss challenge in the 2nd maze room as the previous one contained an error
+- Made saved dialogue answers use line indices and not line texts as dict keys
+- Made dialogues check progress between inputting answers and changing line
+- Made door dialogues use the transparent box
+- Fixed a bunch of errors caused by extra or missing commas in JSONs and changed places of several '\n's
+- Added `.gitignore`
+
 ## 2026-03-23 - Path of the Linguist update
 
 - Made dialogue and challenge texts splittable by '\n' and remade `draw_text_by_letter` in the respective states

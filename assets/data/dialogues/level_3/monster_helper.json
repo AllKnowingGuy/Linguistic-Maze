@@ -1,0 +1,16 @@
+{
+	"right": "Помощник",
+	"rightsprite": "monsters\\level_3\\monster_helper.png",
+	"lines": [
+		{
+			"speaker": "right",
+			"text": "Помоги мне, странник!",
+			"action": {"type": "savetyped"},
+			"bg": "PREVSCREEN"
+		},
+		{
+			"speaker": "right",
+			"text": "Ха-ха, а я всё равно ничего не дам!"
+		}
+	]
+}

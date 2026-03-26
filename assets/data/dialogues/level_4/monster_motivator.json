@@ -1,0 +1,12 @@
+{
+	"right": "Мотиватор Олег",
+	"rightsprite": "monsters\\level_4\\monster_motivator.png",
+	"lines": [
+		{
+			"speaker": "right",
+			"text": "Experentia est optima magistra!",
+			"rpoints": 1,
+			"bg": "PREVSCREEN"
+		}
+	]
+}
