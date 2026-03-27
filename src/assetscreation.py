@@ -216,18 +216,24 @@ def add_wall_tiles(level: int = 0) -> dict[Enum, pygame.Surface]:
     return load_all_objects(tiles_path, tile_files, tile_sizes)
 
 
-def add_enemy_tile(level: int = 0) -> pygame.Surface:
+def add_enemy_tile(level: int = 0, enemy_name: str = None) -> pygame.Surface:
     """Загрузка спрайта врага по уровню
 
     Args:
         level (int): уровень, для которого выбирается тематика
+        enemy_name (str|None): имя монстра (если нужен конкретный)
 
     Returns:
         Surface: изображение врага
     """
 
+    if enemy_name:
+        enemy_path = Path(f'{ROOT_MAZE_PATH}\\level_{level}\\monsters\\{enemy_name}.png')
+        if enemy_path.exists():
+            return load_one_object(enemy_path, TILE_SIZE, TILE_SIZE)
     enemy_path = Path(f'{ROOT_MAZE_PATH}\\level_{level}\\enemy.png')
     return load_one_object(enemy_path, TILE_SIZE, TILE_SIZE)
+
 
 
 def set_maze_music():

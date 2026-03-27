@@ -64,6 +64,7 @@ class StoryScript:
                 "max_respect": raw_room["max_respect"], # НЕ зависит от сложности
                 "respect_check": raw_room["respect_check"], # по сложностям
                 "monsters": raw_room.get("monsters"), # координаты каждого монстра - по сложностям
+                "moving_monsters": raw_room.get("moving_monsters", []),
                 "artifacts_check": raw_room.get("artifacts_check"), # НЕ зависит от сложности
                 "respect_check_w_artifacts": raw_room.get("respect_check_w_artifacts"), # по сложностям
                 "code_check": raw_room.get("code_check"), # НЕ зависит от сложности
@@ -539,7 +540,9 @@ class StoryScript:
         for monster, areas in raw_monster_dict.items():
             processed_monster_dict[monster] = tuple(areas[diff_word])
 
-        return w, h, enum_entrance, enum_exit, en_coord, ex_coord, processed_monster_dict
+        moving_monsters = room_data.get("moving_monsters", [])
+
+        return w, h, enum_entrance, enum_exit, en_coord, ex_coord, processed_monster_dict, moving_monsters
 
     def restart_current_room(self, game: Main):
         """Рестарт текущей комнаты при провале"""
@@ -549,7 +552,7 @@ class StoryScript:
         self.rooms_data[self.current_room]["respect"] = 0
 
         # Подготовка данных для установки лабиринта
-        w, h, enum_entrance, enum_exit, en_coord, ex_coord, processed_monster_dict = self.prepare_room_gen_data(
+        w, h, enum_entrance, enum_exit, en_coord, ex_coord, processed_monster_dict, moving_monsters = self.prepare_room_gen_data(
             ("easy", "medium", "hard")[self.rooms_data[self.current_room].get("difficulty", 0)]
         )
 
@@ -558,6 +561,7 @@ class StoryScript:
         game.maze_state.setup_maze(w, h,
                                    (enum_entrance, enum_exit), (en_coord, ex_coord),
                                    monster_dict=processed_monster_dict,
+                                   moving_monsters=moving_monsters,
                                    more_random=True, curving=True)
         game.associate_current_state()
         game.maze_state.make_alive()
@@ -589,7 +593,7 @@ class StoryScript:
         self.rooms_data[self.current_room]["difficulty"] = difficulty
 
         # Подготовка данных для установки лабиринта
-        w, h, enum_entrance, enum_exit, en_coord, ex_coord, processed_monster_dict = self.prepare_room_gen_data(
+        w, h, enum_entrance, enum_exit, en_coord, ex_coord, processed_monster_dict, moving_monsters = self.prepare_room_gen_data(
             diff_word
         )
 
@@ -599,6 +603,7 @@ class StoryScript:
         game.maze_state.setup_maze(w, h,
                                    (enum_entrance, enum_exit), (en_coord, ex_coord),
                                    monster_dict=processed_monster_dict,
+                                   moving_monsters=moving_monsters,
                                    more_random=True, curving=True)
         game.associate_current_state()
         game.maze_state.make_alive()

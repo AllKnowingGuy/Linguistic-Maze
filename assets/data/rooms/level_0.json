@@ -30,6 +30,7 @@
 			"hard": [13, 13, 13, 13]
 		}
 	},
+	"moving_monsters": ["monster_runner"],
 	"max_respect": 4,
 	"respect_check": {
 		"easy": 2,

@@ -2,6 +2,7 @@ import random
 
 from src.util import Border
 from src.level_building.enemy import Enemy, StationaryEnemy, PatrollingEnemy
+from src import assetscreation
 
 
 class Tile:
@@ -95,11 +96,13 @@ class Maze:
         self.pattern[self.start_door.y][self.start_door.x] = 0
         self.pattern[self.end_door.y][self.end_door.x] = 0
 
-    def place_monsters(self, monsters: dict[str, tuple[int, int, int, int]], moving_monsters: list[str] = None):
+    def place_monsters(self, monsters: dict[str, tuple[int, int, int, int]], moving_monsters: list[str] = None, level: int = 0):
         for monster, area in monsters.items():
             monster_x = random.randrange((area[0] // 2) * 2 + 1, (area[2] // 2) * 2 + 2, 2)
             monster_y = random.randrange((area[1] // 2) * 2 + 1, (area[3] // 2) * 2 + 2, 2)
+
+            sprite = assetscreation.add_enemy_tile(level, monster)
             if moving_monsters and monster in moving_monsters:
-                self.monsters.append(PatrollingEnemy(monster_x, monster_y, monster))
+                self.monsters.append(PatrollingEnemy(monster_x, monster_y, monster, sprite))
             else:
-                self.monsters.append(StationaryEnemy(monster_x, monster_y, monster))
+                self.monsters.append(StationaryEnemy(monster_x, monster_y, monster, sprite))
