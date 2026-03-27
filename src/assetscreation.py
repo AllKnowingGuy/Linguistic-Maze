@@ -75,6 +75,28 @@ def add_menu_bg() -> pygame.Surface:
     return load_one_object(bg_path, SCREEN_WIDTH, SCREEN_HEIGHT)
 
 
+def add_menu_loss_bg() -> pygame.Surface:
+    """Загрузка фона экрана проигрыша
+
+    Returns:
+        Surface: фон экрана проигрыша
+    """
+
+    bg_path = Path(f'{ROOT_MENU_PATH}\\lossbg.png')
+    return load_one_object(bg_path, SCREEN_WIDTH, SCREEN_HEIGHT)
+
+
+def add_menu_win_bg() -> pygame.Surface:
+    """Загрузка фона экрана победы
+
+    Returns:
+        Surface: фон экрана победы
+    """
+
+    bg_path = Path(f'{ROOT_MENU_PATH}\\winbg.png')
+    return load_one_object(bg_path, SCREEN_WIDTH, SCREEN_HEIGHT)
+
+
 def add_start_buttons() -> dict[Enum, pygame.Surface]:
     """Загрузка всех вариантов кнопки старта игры
 
@@ -118,6 +140,26 @@ def add_bind_buttons(name: str) -> dict[Enum, pygame.Surface]:
         ButtonState.PRESSED: (BIND_BUTTON_WIDTH, BIND_BUTTON_HEIGHT)
     }
     return load_all_objects(buttons_path, button_files, button_sizes)
+
+
+def set_menu_music():
+    """Установка музыки главного меню"""
+
+    try:
+        music_path = Path(f'{ROOT_MUSIC_PATH}\\Menu.wav')
+        pygame.mixer.music.load(music_path)
+    except (pygame.error, AttributeError):
+        pass
+
+
+def set_gameover_music():
+    """Установка музыки проигрыша"""
+
+    try:
+        music_path = Path(f'{ROOT_MUSIC_PATH}\\Gameover.wav')
+        pygame.mixer.music.load(music_path)
+    except (pygame.error, AttributeError):
+        pass
 
 
 """
@@ -234,7 +276,7 @@ def set_maze_music():
     """Установка музыки лабиринта"""
 
     try:
-        music_path = f'{ROOT_MUSIC_PATH}\\Maze.wav'
+        music_path = Path(f'{ROOT_MUSIC_PATH}\\Maze.wav')
         pygame.mixer.music.load(music_path)
     except (pygame.error, AttributeError):
         pass
@@ -293,7 +335,7 @@ def add_left_speak_sprite(rel_path: str | None = None) -> pygame.Surface:
         player_path = Path(f'{ROOT_DIALOGUE_PATH}\\protagonists\\{rel_path}')
     else:
         player_path = Path(f'{ROOT_DIALOGUE_PATH}\\protagonists\\student.png')
-    return load_one_object(player_path, 300, 300)
+    return load_one_object(player_path, 270, 360)
 
 
 def add_right_speak_sprite(rel_path: str | None = None) -> pygame.Surface:
@@ -311,7 +353,7 @@ def add_right_speak_sprite(rel_path: str | None = None) -> pygame.Surface:
         # doesn't start from monsters to be able to load students as right speakers - Vsevolod
     else:
         char_path = f'{ROOT_DIALOGUE_PATH}\\monsters\\monster.png'
-    return load_one_object(char_path, 300, 300)
+    return load_one_object(char_path, 270, 360)
 
 
 def add_dialogue_choice_buttons() -> dict[Enum, pygame.Surface]:

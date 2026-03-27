@@ -20,14 +20,14 @@ from src.util import (
 from src.playstates.basestate import BaseState
 
 # Константы
-CHOICE_BUTTON_X = 180
+CHOICE_BUTTON_X = 150
 CHOICE_BUTTON_Y = SCREEN_HEIGHT // 2 + 70
 CHOICE_BUTTON_DIST_X = CHOICE_BUTTON_SIZE + 350  # расстояние между кнопками выбора по горизонтали
-CHOICE_BUTTON_DIST_Y = CHOICE_BUTTON_SIZE + 10  # расстояние между кнопками выбора по вертикали
+CHOICE_BUTTON_DIST_Y = CHOICE_BUTTON_SIZE + 7  # расстояние между кнопками выбора по вертикали
 
 BACK_BUTTON_X = 100
 FORTH_BUTTON_X = SCREEN_WIDTH - 250
-NAV_BUTTON_Y = SCREEN_HEIGHT - 140
+NAV_BUTTON_Y = SCREEN_HEIGHT - 110
 
 TITLE_Y = 100
 TEXT_X = 150

@@ -1,12 +1,26 @@
 # Changelog
 
+## 2026-03-28 - L update
+
+- Implemented **gameover** and proper game restart (on loss at least)
+- Added **menu and gameover music**
+- Wrote interaction scripts for several monsters in `StoryScript`, including checking existing words using **Pymorphy**
+- Made `StoryScript` not only pass the chosen character to `DialogueState` but also remember the choice itself
+- Tweaked "plainequality" challenge checker: it now makes the answer lowercase (as such, some challenge files were changed to exclude uppercase letters)
+- Brought dialogue and challenge choice buttons closer together
+- Resized dialogue portraits to the intended proportions
+- Made the transformers model load only once at each app launch to improve performance
+- Fixed various bugs and errors with door dialogue building and handling
+- Fixed a bug with unsuccessful type checking in `dialogue.py` by using `isinstance`
+- The game now has **its own icon**
+
 ## 2026-03-26 - Supervized update 1
 
-- **Renamed all Python files to use snake case instead of camel case.** As such, all content of `src` and `tests` has had capital letters replaced with lowercase ones, and `levelBuilding` has been renamed to `level_building`
+- **Renamed all Python files to use snake case instead of camel case**. As such, all content of `src` and `tests` has had capital letters replaced with lowercase ones, and `levelBuilding` has been renamed to `level_building`
 - Put almost all file paths into `Path` objects
 - Changed the gloss challenge in the 2nd maze room as the previous one contained an error
-- Made saved dialogue answers use line indices and not line texts as dict keys
-- Made dialogues check progress between inputting answers and changing line
+- Made saved dialogue answers **use line indices** and not line texts as dict keys
+- Made dialogues check progress **between inputting answers and changing lines**
 - Made door dialogues use the transparent box
 - Fixed a bunch of errors caused by extra or missing commas in JSONs and changed places of several '\n's
 - Added `.gitignore`

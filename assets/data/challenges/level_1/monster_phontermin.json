@@ -6,7 +6,7 @@
 			"action": {
 				"type": "choosefrom",
 				"options": ["Изменения согласных в истории языка", "Соотношение согласных и гласных в речи", "Система гласных звуков языка", "Система согласных звуков языка"],
-				"answers": ["Система согласных звуков языка"],
+				"answers": ["система согласных звуков языка"],
 				"checker": "plainequality",
 				"correctcomments": ["Верно! Неплохое начало!"],
 				"incorrectcomments": ["Нет, вообще не то."],
@@ -20,7 +20,7 @@
 			"action": {
 				"type": "choosefrom",
 				"options": ["ИК-1", "ИК-2", "ИК-4", "ИК-5"],
-				"answers": ["ИК-4"],
+				"answers": ["ик-4"],
 				"checker": "plainequality",
 				"correctcomments": ["Отлично!"],
 				"incorrectcomments": ["Не угадал, человек."],

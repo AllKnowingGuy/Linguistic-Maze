@@ -25,10 +25,10 @@ class Dialogue:
         self.collected_respect_points = {}
 
     def _read_and_fill(self, path_or_dict: Path | dict[str, ...]):
-        if type(path_or_dict) is Path:
+        if isinstance(path_or_dict, Path):
             with open(path_or_dict, 'r', encoding='utf-8') as f:
                 dialogue_dict: dict = json.load(f)
-        elif type(path_or_dict) is dict:
+        elif isinstance(path_or_dict, dict):
             dialogue_dict = path_or_dict
         else:
             raise ValueError(f'The argument must be Path or dict, not {type(path_or_dict)}')

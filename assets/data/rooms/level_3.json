@@ -1,0 +1,61 @@
+{
+	"sizes": {
+		"easy": [29, 25],
+		"medium": [33, 33],
+		"hard": [35, 39]
+	},
+	"walls_with_doors": {
+		"entrance": "north",
+		"exit": "south"
+	},
+	"other_entrance_coords": {
+		"easy": 15,
+		"medium": 1,
+		"hard": 1
+	},
+	"monsters": {
+		"monster_communicator": {
+			"easy": [1, 1, 1, 1],
+			"medium": [1, 1, 1, 1],
+			"hard": [1, 1, 1, 1]
+		},
+		"monster_helper": {
+			"easy": [1, 1, 1, 1],
+			"medium": [1, 1, 1, 1],
+			"hard": [1, 1, 1, 1]
+		},
+		"monster_questioner": {
+			"easy": [1, 1, 1, 1],
+			"medium": [1, 1, 1, 1],
+			"hard": [1, 1, 1, 1]
+		},
+		"monster_sphinx": {
+			"easy": [1, 1, 1, 1],
+			"medium": [1, 1, 1, 1],
+			"hard": [1, 1, 1, 1]
+		},
+		"monster_tfidf": {
+			"easy": [1, 1, 1, 1],
+			"medium": [1, 1, 1, 1],
+			"hard": [1, 1, 1, 1]
+		}
+	},
+	"max_respect": 11,
+	"respect_check": {
+		"easy": 0,
+		"medium": 0,
+		"hard": 0
+	},
+	"artifacts_check": ["скрепка"],
+	"respect_check_w_artifacts": {
+		"easy": 0,
+		"medium": 0,
+		"hard": 0
+	},
+	"code_check": "ja",
+	"respect_check_w_code": {
+		"easy": 0,
+		"medium": 0,
+		"hard": 0
+	}
+}

@@ -17,7 +17,7 @@ TEXT_DIST_Y = 40
 CHOICE_BUTTON_X = 100
 CHOICE_BUTTON_Y = SCREEN_HEIGHT // 2 + 180
 CHOICE_BUTTON_DIST_X = CHOICE_BUTTON_SIZE + 490  # расстояние между кнопками выбора по горизонтали
-CHOICE_BUTTON_DIST_Y = CHOICE_BUTTON_SIZE + 10  # расстояние между кнопками выбора по вертикали
+CHOICE_BUTTON_DIST_Y = CHOICE_BUTTON_SIZE + 7  # расстояние между кнопками выбора по вертикали
 
 
 class Speaker(Enum):
@@ -116,7 +116,7 @@ class DialogueState(BaseState):
         self.right_speaker_name_sprite = None
         self.input_text_sprite = None
         self.button_text_sprites = [] # тоже необходимо очищать после нажатия кнопки
-        self.prepare_text = self.dialogue_font.render('Приготовьтесь...', True, (0, 0, 0))
+        self.prepare_text = self.dialogue_font.render('Приготовься...', True, (0, 0, 0))
 
         # Кеш редко меняющегося содержимого дисплея
         self.need_cache = False
@@ -509,11 +509,11 @@ class DialogueState(BaseState):
 
                 # Отрисовываем участников диалога
                 if self.now_speaking == Speaker.LEFT and self.left_speaker:
-                    self.bg_chars_box_cache.blit(self.left_speaker, (100, 80))
+                    self.bg_chars_box_cache.blit(self.left_speaker, (100, 30))
                     name_sprite = self.left_speaker_name_sprite
                 elif self.now_speaking == Speaker.RIGHT and self.right_speaker:
                     self.bg_chars_box_cache.blit(self.right_speaker,
-                                                 (SCREEN_WIDTH - 100 - self.right_speaker.get_width(), 80))
+                                                 (SCREEN_WIDTH - 100 - self.right_speaker.get_width(), 30))
                     name_sprite = self.right_speaker_name_sprite
                 else:
                     name_sprite = None

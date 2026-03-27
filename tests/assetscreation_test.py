@@ -92,12 +92,12 @@ class TestDialogueAssets:
     def test_add_left_speaking_sprite(self):
         result = add_left_speak_sprite()
         assert isinstance(result, pygame.Surface)
-        assert result.get_size() == (300, 300)
+        assert result.get_size() == (270, 360)
 
     def test_add_right_speaking_sprite(self):
         result = add_right_speak_sprite()
         assert isinstance(result, pygame.Surface)
-        assert result.get_size() == (300, 300)
+        assert result.get_size() == (270, 360)
 
     def test_add_dialogue_choice_buttons(self):
         result = add_dialogue_choice_buttons()
