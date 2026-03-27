@@ -23,8 +23,8 @@ jobs:
           python -m pip install poetry
           poetry config virtualenvs.in-project true
       - name: Install dependencies
-        run: poetry install --with dev --no-interaction
+        run: poetry install --no-interaction --extras dev
       - name: Run tests
         run: |
           cd src
-          python -m pytest ../tests/challengestate_test.py -v
+          poetry run pytest ../tests/challengestate_test.py -v
