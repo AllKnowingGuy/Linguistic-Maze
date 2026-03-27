@@ -78,6 +78,9 @@ class MazeState(BaseState):
         # Время между кадрами для движений монстра
         self.last_update_time = pygame.time.get_ticks()
 
+        # Кэш для изображений монстров
+        self.enemy_sprites = {}
+
     def setup_maze(self, width: int = 3, height: int = 3,
                    doors_near_borders: tuple[Border, Border] = (Border.WEST, Border.EAST),
                    other_door_coords: tuple[int, int] = (1, 1),
@@ -99,7 +102,9 @@ class MazeState(BaseState):
         self.maze = Maze(width, height, doors_near_borders, other_door_coords)
         self.maze.generate_maze(more_random, curving)
         if monster_dict:
-            self.maze.place_monsters(monster_dict, moving_monsters, self.current_level)
+            self.maze.place_monsters(monster_dict, moving_monsters)
+            for monster in monster_dict.keys():
+                self.get_enemy_sprite(self.current_level, monster)
         self.player_pos = [int((self.maze.start.x + 0.5) * TILE_SIZE),
                            int((self.maze.start.y + 0.5) * TILE_SIZE)]
 
@@ -114,6 +119,18 @@ class MazeState(BaseState):
         self.up_bind, self.down_bind, self.left_bind, self.right_bind = Config().get_maze_controls()
 
         return self.maze
+
+    def get_enemy_sprite(self, level: int, enemy_name: str) -> pygame.Surface:
+        """Получение спрайта монстра по имени"""
+        if level not in self.enemy_sprites:
+            self.enemy_sprites[level] = {}
+
+        if enemy_name in self.enemy_sprites[level]:
+            return self.enemy_sprites[level][enemy_name]
+
+        sprite = assetscreation.add_enemy_tile(level, enemy_name)
+        self.enemy_sprites[level][enemy_name] = sprite
+        return sprite
 
     def make_alive(self):
 
@@ -382,7 +399,7 @@ class MazeState(BaseState):
             # Отрисовываем врагов
             for enemy in self.maze.monsters:
                 if enemy.active:
-                    sprite = enemy.get_sprite()
+                    sprite = self.get_enemy_sprite(self.current_level, enemy.enemy_name)
                     if isinstance(enemy, PatrollingEnemy):
                         # Для движущихся врагов отрисовка использует пиксельную позицию
                         x, y = enemy.get_pixel_position()

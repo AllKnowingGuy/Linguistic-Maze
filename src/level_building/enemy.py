@@ -23,18 +23,14 @@ class Enemy:
 class StationaryEnemy(Enemy):
     """Враги, стоящие на месте"""
 
-    def __init__(self, x: int, y: int, enemy_name: str = 'enemy_stationary', sprite=None):
+    def __init__(self, x: int, y: int, enemy_name: str = 'enemy_stationary'):
         super().__init__(x, y, enemy_name)
-        self.sprite = sprite
-
-    def get_sprite(self):
-        return self.sprite
 
 
 class PatrollingEnemy(Enemy):
     """Враги, движущиеся по лабиринту"""
 
-    def __init__(self, x: int, y: int, enemy_name: str = 'enemy_moving', sprite=None):
+    def __init__(self, x: int, y: int, enemy_name: str = 'enemy_moving'):
         super().__init__(x, y, enemy_name)
 
         self.pixel_x = x * TILE_SIZE + TILE_SIZE // 2
@@ -57,10 +53,6 @@ class PatrollingEnemy(Enemy):
         self.tiles_to_move = 0
         self.tiles_moved = 0
 
-        self.sprite = sprite
-
-    def get_sprite(self):
-        return self.sprite
 
     def get_directions(self, maze):
         """Сбор возможных направлений движения"""
@@ -157,7 +149,4 @@ class PatrollingEnemy(Enemy):
 
     def get_pixel_position(self):
         """Возвращение позиции в пикселях для отрисовки"""
-        if self.sprite:
-            return (self.pixel_x - self.sprite.get_width() // 2,
-                    self.pixel_y - self.sprite.get_height() // 2)
         return (self.pixel_x - TILE_SIZE // 2, self.pixel_y - TILE_SIZE // 2)
