@@ -1,5 +1,7 @@
 import random
 
+import pygame
+
 from src.util import Border
 from src.level_building.enemy import Enemy, StationaryEnemy, PatrollingEnemy
 
@@ -95,7 +97,7 @@ class Maze:
         self.pattern[self.start_door.y][self.start_door.x] = 0
         self.pattern[self.end_door.y][self.end_door.x] = 0
 
-    def place_monsters(self, monsters: dict[str, tuple[int, int, int, int]], moving_monsters: list[str] = None):
+    def place_monsters(self, monsters: dict[str, tuple[int, int, int, int]], moving_monsters: list[str]):
         for monster, area in monsters.items():
             monster_x = random.randrange((area[0] // 2) * 2 + 1, (area[2] // 2) * 2 + 2, 2)
             monster_y = random.randrange((area[1] // 2) * 2 + 1, (area[3] // 2) * 2 + 2, 2)
