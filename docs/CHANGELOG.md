@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-03-27 Running monsters update
+
+- Implemented the `PatrollingEnemy` class in `Enemy.py` for enemies that run around the levels
+- Changed the sprite loading functions for enemies. Each enemy now has its own personal sprite, as seen by the `enemy_name` parameter in `load_enemy_tile` in `assetscreation.py`
+- Added `monsters` folders in maze tiles of each level, which hold individual monster sprites
+- Changed `workflows` to work with poetry instead of pip
+
 ## 2026-03-26 - Supervized update 1
 
 - **Renamed all Python files to use snake case instead of camel case.** As such, all content of `src` and `tests` has had capital letters replaced with lowercase ones, and `levelBuilding` has been renamed to `level_building`
