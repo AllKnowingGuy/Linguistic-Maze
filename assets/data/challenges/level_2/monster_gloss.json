@@ -10,7 +10,7 @@
 			"action": {
 				"type": "choosefrom",
 				"options": ["ветер сила-VBZ-AOR", "ветер сила-VBZ-PASS", "ветер сила-VBZ-FUT", "ветер сила-VBZ-IMP"],
-				"answers": ["ветер сила-VBZ-AOR"],
+				"answers": ["ветер сила-vbz-aor"],
 				"checker": "plainequality",
 				"correctcomments": ["Ну ладно, людишка, иди давай дальше. Помог."],
 				"incorrectcomments": ["Бестолковый ты лингвист!"],

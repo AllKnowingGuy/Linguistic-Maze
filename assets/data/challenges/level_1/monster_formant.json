@@ -7,7 +7,7 @@
 			"action": {
 				"type": "choosefrom",
 				"options": ["А", "И", "Э", "У"],
-				"answers": ["Э"],
+				"answers": ["э"],
 				"checker": "plainequality",
 				"correctcomments": ["Угадал!"],
 				"incorrectcomments": ["Не угадал."],
@@ -22,7 +22,7 @@
 			"action": {
 				"type": "choosefrom",
 				"options": ["О", "Д", "Ф", "И"],
-				"answers": ["О"],
+				"answers": ["о"],
 				"checker": "plainequality",
 				"correctcomments": ["Истинно так!"],
 				"incorrectcomments": ["Ответ ошибочный."],
@@ -37,7 +37,7 @@
 			"action": {
 				"type": "choosefrom",
 				"options": ["Ш", "М", "З", "К"],
-				"answers": ["М"],
+				"answers": ["м"],
 				"checker": "plainequality",
 				"correctcomments": ["Несомненно!"],
 				"incorrectcomments": ["Сомневаюсь."],

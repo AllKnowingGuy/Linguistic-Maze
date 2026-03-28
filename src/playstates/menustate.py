@@ -57,6 +57,11 @@ class MenuState(BaseState):
         super().__init__()
         self.game_started = False
 
+        self.just_lost = False
+        self.just_won = False
+        self.game_end_score = None
+        self.game_end_artifacts = []
+
         self.awaiting_input = False
         self.current_action_binding = ''
         self.start_setting_time = 0
@@ -71,6 +76,8 @@ class MenuState(BaseState):
         self.bg_overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
         self.bg_overlay.set_alpha(200)
         self.bg_overlay.fill((255, 255, 255))
+
+        self.loss_bg = assetscreation.add_menu_loss_bg()
 
         self.start_button_sprite = assetscreation.add_start_buttons()
         self.keybind_button_sprites_dict = {}
@@ -92,6 +99,10 @@ class MenuState(BaseState):
         self.menu_font = pygame.font.Font(None, 35)
         self.setting_text_sprite = None
         self.current_bind_sprite = None
+
+        # Музыка
+        assetscreation.set_menu_music()
+        pygame.mixer.music.play(-1)
 
         self.need_screen_update = True
 
@@ -122,6 +133,14 @@ class MenuState(BaseState):
 
     def handle_input(self, event):
         """Обработка назначения клавиш"""
+
+        if self.just_lost and event.unicode == self.keybind_dict["no_task_advance"]:
+            self.just_lost = False
+            self.game_end_score = None
+            self.game_end_artifacts.clear()
+            assetscreation.set_menu_music()
+            pygame.mixer.music.play(-1)
+            self.need_screen_update = True
 
         if self.awaiting_input and self.current_action_binding and event.unicode:
             # Установка кнопок
@@ -175,7 +194,11 @@ class MenuState(BaseState):
         return None
 
     def execute_before_draw(self):
-        """Проверка истечения таймера настройки"""
+        """Проверка истечения таймера настройки, а также возвратов в меню"""
+
+        if self.just_lost and not pygame.mixer.music.get_busy():
+            assetscreation.set_gameover_music()
+            pygame.mixer.music.play(-1)
 
         if self.awaiting_input:
             self.play_input_timer()
@@ -186,41 +209,76 @@ class MenuState(BaseState):
         # ТОЛЬКО ЕСЛИ ЧТО-ТО ИЗМЕНИЛОСЬ НА ЭКРАНЕ
         if self.need_screen_update:
 
-            screen.blit(self.bg, (0, 0))
-            screen.blit(self.start_button_sprite[self.start_button.state], (self.start_button.x, self.start_button.y))
-            for s_btn in self.keybind_button_dict.values():
-                screen.blit(self.keybind_button_sprites_dict[s_btn.text][s_btn.state], (s_btn.x, s_btn.y))
+            if self.just_lost:
+                screen.blit(self.loss_bg, (0, 0))
 
-            if self.awaiting_input:
-                screen.blit(self.bg_overlay, (0, 0))
+                cheer_text = self.menu_font.render(
+                    "Ничего страшного, игру можно пройти снова!", True, (255, 255, 255))
+                score_text = self.menu_font.render(
+                    f"Общий респект: {self.game_end_score}", True, (255, 255, 255))
+                artifacts_text = self.menu_font.render("", True, (255, 255, 255))
+                artifacts_text_2 = self.menu_font.render("", True, (255, 255, 255))
+                if len(self.game_end_artifacts) > 3:
+                    artifacts_text = self.menu_font.render(
+                        f"Найденные артефакты: {", ".join(self.game_end_artifacts[:3])},", True, (255, 255, 255)
+                    )
+                    artifacts_text_2 = self.menu_font.render(
+                        f"{", ".join(self.game_end_artifacts[3:])}", True, (255, 255, 255)
+                    )
+                elif len(self.game_end_artifacts) > 0:
+                    artifacts_text = self.menu_font.render(
+                        f"Найденные артефакты: {", ".join(self.game_end_artifacts)}", True, (255, 255, 255)
+                    )
+                advance_bind = self.keybind_dict["no_task_advance"]
+                continue_text = self.menu_font.render(
+                    f"Нажмите {SPECIAL_CHARACTER_NAMES[advance_bind] if advance_bind in SPECIAL_CHARACTER_NAMES
+                    else advance_bind}, чтобы продолжить...", True, (255, 255, 255))
 
-                setting_text = self.menu_font.render(
-                    f"Задайте клавишу для {KEYBIND_SETUP_TEXTS[self.current_action_binding]}:",
-                    True,
-                    (0, 0, 0))
+                screen.blit(cheer_text, (get_centered_point(cheer_text.get_width(), False), 300))
+                screen.blit(score_text, (SCREEN_WIDTH / 2, 500))
+                screen.blit(artifacts_text, (SCREEN_WIDTH / 2, 540))
+                screen.blit(artifacts_text_2, (SCREEN_WIDTH / 2, 580))
+                screen.blit(continue_text, (SCREEN_WIDTH / 2, 650))
 
-                if self.keybind_dict[self.current_action_binding] in SPECIAL_CHARACTER_NAMES:
-                    bind_text = self.menu_font.render(
-                        SPECIAL_CHARACTER_NAMES[self.keybind_dict[self.current_action_binding]],
+            elif self.just_won:
+                pass
+
+            else:
+                screen.blit(self.bg, (0, 0))
+                screen.blit(self.start_button_sprite[self.start_button.state], (self.start_button.x, self.start_button.y))
+                for s_btn in self.keybind_button_dict.values():
+                    screen.blit(self.keybind_button_sprites_dict[s_btn.text][s_btn.state], (s_btn.x, s_btn.y))
+
+                if self.awaiting_input:
+                    screen.blit(self.bg_overlay, (0, 0))
+
+                    setting_text = self.menu_font.render(
+                        f"Задайте клавишу для {KEYBIND_SETUP_TEXTS[self.current_action_binding]}:",
                         True,
                         (0, 0, 0))
-                else:
-                    bind_text = self.menu_font.render(
-                        self.keybind_dict[self.current_action_binding],
+
+                    if self.keybind_dict[self.current_action_binding] in SPECIAL_CHARACTER_NAMES:
+                        bind_text = self.menu_font.render(
+                            SPECIAL_CHARACTER_NAMES[self.keybind_dict[self.current_action_binding]],
+                            True,
+                            (0, 0, 0))
+                    else:
+                        bind_text = self.menu_font.render(
+                            self.keybind_dict[self.current_action_binding],
+                            True,
+                            (0, 0, 0))
+
+                    seconds_text = self.menu_font.render(
+                        f"Клавиша сохранится через {self.setting_seconds}...",
                         True,
                         (0, 0, 0))
 
-                seconds_text = self.menu_font.render(
-                    f"Клавиша сохранится через {self.setting_seconds}...",
-                    True,
-                    (0, 0, 0))
-
-                screen.blit(setting_text,
-                            (get_centered_point(setting_text.get_width(), False), SCREEN_HEIGHT / 2 - 50))
-                screen.blit(bind_text,
-                            (get_centered_point(bind_text.get_width(), False), SCREEN_HEIGHT / 2))
-                screen.blit(seconds_text,
-                            (get_centered_point(seconds_text.get_width(), False), SCREEN_HEIGHT / 2 + 50))
+                    screen.blit(setting_text,
+                                (get_centered_point(setting_text.get_width(), False), SCREEN_HEIGHT / 2 - 50))
+                    screen.blit(bind_text,
+                                (get_centered_point(bind_text.get_width(), False), SCREEN_HEIGHT / 2))
+                    screen.blit(seconds_text,
+                                (get_centered_point(seconds_text.get_width(), False), SCREEN_HEIGHT / 2 + 50))
 
             self.need_screen_update = False
 

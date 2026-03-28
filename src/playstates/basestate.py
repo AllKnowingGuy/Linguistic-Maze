@@ -14,7 +14,7 @@ class BaseState:
     Переписываемые функции состояния
     """
 
-    def handle_input(self, event):
+    def handle_input(self, event: pygame.event.Event):
         """Обработка нажатия кнопок"""
         pass
 
@@ -22,19 +22,19 @@ class BaseState:
         """Обработка нажатия и удержания кнопок"""
         pass
 
-    def handle_button_release(self, event, pressed_keys):
+    def handle_button_release(self, event: pygame.event.Event, pressed_keys):
         """Обработка отпускания кнопок"""
         pass
 
-    def handle_mouse_motion(self, event):
+    def handle_mouse_motion(self, event: pygame.event.Event):
         """Обработка позиции курсора мыши"""
         pass
 
-    def handle_mouse_click(self, event):
+    def handle_mouse_click(self, event: pygame.event.Event):
         """Обработка щелчка мышью"""
         pass
 
-    def handle_mouse_release(self, event):
+    def handle_mouse_release(self, event: pygame.event.Event):
         """Обработка отпускания кнопок мыши"""
         pass
 
@@ -42,7 +42,7 @@ class BaseState:
         """Отправление особой команды циклу игры"""
         return None
 
-    def draw(self, screen):
+    def draw(self, screen: pygame.Surface):
         """Отрисовка {того, за что отвечает состояние}"""
         pass
 
@@ -50,7 +50,7 @@ class BaseState:
         """Отправление особой команды циклу игры"""
         return None
 
-    def update_input_field(self, field_text, event):
+    def update_input_field(self, field_text: str, event: pygame.event.Event):
         """Обновление текстового поля введённым символом"""
 
         updated = True

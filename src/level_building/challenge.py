@@ -4,16 +4,16 @@ import re
 from pathlib import Path
 
 
+preloaded_model = pipeline("text-classification", model="seara/rubert-base-cased-russian-sentiment")
+
+
 class Challenge:
     windows: list[dict[str, ...]]
     answers: dict[int, str]
 
     def __init__(self, path: Path):
         self._read_and_fill(path)
-        self._rubert_model = pipeline(
-            "text-classification",
-            model="seara/rubert-base-cased-russian-sentiment"
-        )
+        self._rubert_model = preloaded_model
 
     def _read_and_fill(self, path: Path):
         with open(path, 'r', encoding='utf-8') as f:
@@ -120,7 +120,7 @@ class Challenge:
         checker = self.get_window_answers_checker(window_ind)
         if checker:
             if checker == 'plainequality':
-                return user_input.strip() in keys  # самый простой способ проверки
+                return user_input.strip().lower() in keys  # самый простой способ проверки
             elif checker == 'ling_terms':
                 pattern = r'(лингвист|язык|лингв|термин|фонет|социо|нейро)'
                 return bool(re.search(pattern, user_input, re.IGNORECASE))
@@ -139,4 +139,4 @@ class Challenge:
             else:
                 raise ValueError(f'This checker cannot be recognized: {checker}')
         else:
-            return user_input.strip() in keys  # если проверщик не указан, то проверяем как plainequality
+            return user_input.strip().lower() in keys  # если проверщик не указан, то проверяем как plainequality

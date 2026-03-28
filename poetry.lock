@@ -159,6 +159,18 @@ files = [
 ]
 
 [[package]]
+name = "dawg-python"
+version = "0.7.2"
+description = "Pure-python reader for DAWGs (DAFSAs) created by dawgdic C++ library or DAWG Python extension."
+optional = false
+python-versions = "*"
+groups = ["main"]
+files = [
+    {file = "DAWG-Python-0.7.2.tar.gz", hash = "sha256:4a5e3286e6261cca02f205cfd5516a7ab10190fa30c51c28d345808f595e3421"},
+    {file = "DAWG_Python-0.7.2-py2.py3-none-any.whl", hash = "sha256:4941d5df081b8d6fcb4597e073a9f60d5c1ccc9d17cd733e8744d7ecfec94ef3"},
+]
+
+[[package]]
 name = "filelock"
 version = "3.25.2"
 description = "A platform independent file lock."
@@ -511,6 +523,28 @@ files = [
     {file = "markupsafe-3.0.3-cp39-cp39-win_arm64.whl", hash = "sha256:38664109c14ffc9e7437e86b4dceb442b0096dfe3541d7864d9cbe1da4cf36c8"},
     {file = "markupsafe-3.0.3.tar.gz", hash = "sha256:722695808f4b6457b320fdc131280796bdceb04ab50fe1795cd540799ebe1698"},
 ]
+
+[[package]]
+name = "mawo-pymorphy3"
+version = "1.0.4"
+description = "Улучшенный морфологический анализатор для русского языка с DAWG-оптимизацией и сокращением памяти на 90%"
+optional = false
+python-versions = ">=3.9"
+groups = ["main"]
+files = [
+    {file = "mawo_pymorphy3-1.0.4-py3-none-any.whl", hash = "sha256:00dd18458b42959949424424a8c8d4c3782f0180ea8ea1468ea25ae419a574c5"},
+    {file = "mawo_pymorphy3-1.0.4.tar.gz", hash = "sha256:6124bc7a7e4136f06b1f69def7d0d8cbecd4320b745a9a282de65846c7a8aa55"},
+]
+
+[package.dependencies]
+dawg-python = ">=0.7.2"
+tqdm = ">=4.66.0"
+
+[package.extras]
+all = ["mawo-pymorphy3[dev,rich,security]"]
+dev = ["black (>=23.0)", "mypy (>=1.0)", "pytest (>=7.0)", "ruff (>=0.1.0)"]
+rich = ["rich (>=13.0)"]
+security = ["defusedxml (>=0.7.1)"]
 
 [[package]]
 name = "mdurl"
@@ -1629,4 +1663,4 @@ dev = ["pytest"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11,<3.14"
-content-hash = "b9df2d2558ac5ab4519aa05608a85bf3eea2ab9482720da1f6554da14743deb8"
+content-hash = "0b7883e35665e00c1917a3c087c3829dc930ec5bd7afd0a0ce4fe83a8a00618e"

@@ -122,6 +122,7 @@ class MazeState(BaseState):
 
     def get_enemy_sprite(self, level: int, enemy_name: str) -> pygame.Surface:
         """Получение спрайта монстра по имени"""
+
         if level not in self.enemy_sprites:
             self.enemy_sprites[level] = {}
 
@@ -133,6 +134,7 @@ class MazeState(BaseState):
         return sprite
 
     def make_alive(self):
+        """Действия при первом показе лабиринта игроку"""
 
         # Ставим музыку лабиринта
         if not pygame.mixer.music.get_busy():
@@ -376,6 +378,27 @@ class MazeState(BaseState):
             self.update_animation()
             self.need_screen_update = True
 
+    def execute_before_draw(self):
+        """Вызов перед отрисовкой каждого кадра"""
+
+        if not self.maze:
+            return None
+
+        current_time = pygame.time.get_ticks()
+        dt = current_time - self.last_update_time
+        self.last_update_time = current_time
+
+        if dt > 100:
+            dt = 100
+
+        for enemy in self.maze.monsters:
+            if isinstance(enemy, PatrollingEnemy):
+                enemy.update(self.maze, dt)
+
+        self.need_screen_update = True
+
+        return (Command.CHECK_PROGRESS, None),
+
     def draw(self, screen):
         """Отрисовка лабиринта"""
 
@@ -396,6 +419,10 @@ class MazeState(BaseState):
             # Отрисовываем вход и выход
             self.draw_exits(screen)
 
+            # Отрисовываем игрока (поверх стен, но за монстрами + с текущим кадром анимации)
+            screen.blit(self.current_player_image,
+                        self.apply_shift((self.player_pos[0]) - HALF_PLAYER, (self.player_pos[1]) - HALF_PLAYER))
+
             # Отрисовываем врагов
             for enemy in self.maze.monsters:
                 if enemy.active:
@@ -406,10 +433,6 @@ class MazeState(BaseState):
                         screen.blit(sprite, self.apply_shift(x, y))
                     else:
                         screen.blit(sprite, self.apply_shift(enemy.x * TILE_SIZE, enemy.y * TILE_SIZE))
-
-            # Отрисовываем игрока (поверх всего! + с текущим кадром анимации)
-            screen.blit(self.current_player_image,
-                        self.apply_shift((self.player_pos[0]) - HALF_PLAYER, (self.player_pos[1]) - HALF_PLAYER))
 
             # Накладываем темноту поверх всего-всего
             self.apply_darkness(screen)
@@ -496,24 +519,3 @@ class MazeState(BaseState):
         x_shift = (self.player_pos[0] if self.player_pos[0] < east_x_margin else east_x_margin) - HALF_WIDTH
         y_shift = (self.player_pos[1] if self.player_pos[1] < south_y_margin else south_y_margin) - HALF_HEIGHT
         return x - (x_shift if x_shift > 0 else 0), y - (y_shift if y_shift > 0 else 0)
-
-    def execute_before_draw(self):
-        """Вызов перед отрисовкой каждого кадра"""
-
-        if not self.maze:
-            return None
-
-        current_time = pygame.time.get_ticks()
-        dt = current_time - self.last_update_time
-        self.last_update_time = current_time
-
-        if dt > 100:
-            dt = 100
-
-        for enemy in self.maze.monsters:
-            if isinstance(enemy, PatrollingEnemy):
-                enemy.update(self.maze, dt)
-
-        self.need_screen_update = True
-
-        return None

@@ -7,7 +7,7 @@
 	"lines": [
 		{
 			"speaker": "right",
-			"text": "Ну что, человек, привет! Куда следуем?",
+			"text": "Ну что, человек, привет! Что делаешь здесь?",
 			"action": {"type": "savetyped"},
 			"bg": "PREVSCREEN"
 		},

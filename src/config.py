@@ -35,7 +35,7 @@ class Config:
         with open('..\\config.json', 'r', encoding='utf-8') as f:
             self.config_dict: dict = json.load(f)
 
-    def get_all_controls(self):
+    def get_all_controls(self) -> dict[str, str]:
         return dict(zip(
             self.config_dict['controls'].keys(),
             [extract_character(control) for control in self.config_dict['controls'].values()]

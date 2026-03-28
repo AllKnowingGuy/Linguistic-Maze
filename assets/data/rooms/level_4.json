@@ -1,0 +1,76 @@
+{
+	"sizes": {
+		"easy": [29, 25],
+		"medium": [33, 33],
+		"hard": [35, 39]
+	},
+	"walls_with_doors": {
+		"entrance": "north",
+		"exit": "west"
+	},
+	"other_entrance_coords": {
+		"easy": 27,
+		"medium": 1,
+		"hard": 1
+	},
+	"monsters": {
+		"monster_childspeech": {
+			"easy": [1, 1, 1, 1],
+			"medium": [1, 1, 1, 1],
+			"hard": [1, 1, 1, 1]
+		},
+		"monster_motivator": {
+			"easy": [1, 1, 1, 1],
+			"medium": [1, 1, 1, 1],
+			"hard": [1, 1, 1, 1]
+		},
+		"monster_neuroanatomy": {
+			"easy": [1, 1, 1, 1],
+			"medium": [1, 1, 1, 1],
+			"hard": [1, 1, 1, 1]
+		},
+		"monster_schizophrenia_1": {
+			"easy": [1, 1, 1, 1],
+			"medium": [1, 1, 1, 1],
+			"hard": [1, 1, 1, 1]
+		},
+		"monster_schizophrenia_2": {
+			"easy": [1, 1, 1, 1],
+			"medium": [1, 1, 1, 1],
+			"hard": [1, 1, 1, 1]
+		},
+		"monster_schizophrenia_3": {
+			"easy": [1, 1, 1, 1],
+			"medium": [1, 1, 1, 1],
+			"hard": [1, 1, 1, 1]
+		},
+		"monster_schizophrenia_4": {
+			"easy": [1, 1, 1, 1],
+			"medium": [1, 1, 1, 1],
+			"hard": [1, 1, 1, 1]
+		},
+		"monster_silent": {
+			"easy": [1, 1, 1, 1],
+			"medium": [1, 1, 1, 1],
+			"hard": [1, 1, 1, 1]
+		}
+	},
+	"max_respect": 0,
+	"respect_check": {
+		"easy": 0,
+		"medium": 0,
+		"hard": 0
+	},
+	"artifacts_check": ["спичка", "дудка", "фонарик"],
+	"respect_check_w_artifacts": {
+		"easy": 0,
+		"medium": 0,
+		"hard": 0
+	},
+	"code_check": "зять",
+	"respect_check_w_code": {
+		"easy": 0,
+		"medium": 0,
+		"hard": 0
+	}
+}

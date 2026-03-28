@@ -34,6 +34,7 @@ class Main:
         # Окно и дисплей
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         pygame.display.set_caption("Лингвист в лабиринте")
+        pygame.display.set_icon(pygame.image.load('../assets/images/icon.png'))
         self.clock = pygame.time.Clock()
 
         # Слои дисплея
