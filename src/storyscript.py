@@ -211,6 +211,10 @@ class StoryScript:
         if game.dialogue_state.current_line_ind == 5:
             chosen_name = game.dialogue_state.dialogue.saved_choices.get(5)
             if chosen_name:
+                # Преобразование русского имени в диалоге в английское для папок с файлами
+                ru_to_eng_names = {'Аня': 'Anya', 'Денис': 'Denis', 'Даня' : 'Danya', 'Лера': 'Lera'}
+                player_sprite_name = ru_to_eng_names.get(chosen_name, 'student')
+                game.maze_state.get_player_name(player_sprite_name)
                 self.player_name = chosen_name
                 game.dialogue_state.left_name = chosen_name
                 game.dialogue_state.left_speaker_name_sprite = game.dialogue_state.dialogue_font.render(

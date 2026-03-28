@@ -189,19 +189,19 @@ def add_entrance_exit_tiles(level: int = 0) -> tuple[pygame.Surface, pygame.Surf
     return entrance_tile, exit_tile
 
 
-def add_player_tile() -> pygame.Surface:
-    """Загрузка тайла игрока
+def add_player_tile(player_name: str = 'student') -> pygame.Surface:
+    """Загрузка тайла игрока с учетом выбранного имени
 
     Returns:
         Surface: изображение стоящего игрока
     """
 
-    player_path = Path(f'{ROOT_MAZE_PATH}\\player\\player.png')
+    player_path = Path(f'{ROOT_MAZE_PATH}\\player\\{player_name}\\player.png')
     return load_one_object(player_path, PLAYER_SIZE, PLAYER_SIZE)
 
 
-def add_player_walk() -> list[pygame.Surface]:
-    """Загрузка тайлов анимации игрока
+def add_player_walk(player_name: str = 'student') -> list[pygame.Surface]:
+    """Загрузка тайлов анимации игрока с учетом выбранного имени
 
     Returns:
         list[Surface]: изображения идущего игрока
@@ -209,7 +209,7 @@ def add_player_walk() -> list[pygame.Surface]:
 
     frames = []
     for i in range(1, 5):
-        frame_path = Path(f'{ROOT_MAZE_PATH}\\player\\walk{i}.png')
+        frame_path = Path(f'{ROOT_MAZE_PATH}\\player\\{player_name}\\walk{i}.png')
         frame = load_one_object(frame_path, PLAYER_SIZE, PLAYER_SIZE)
         if frame:
             frames.append(frame)

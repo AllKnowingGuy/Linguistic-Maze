@@ -30,6 +30,9 @@ class MazeState(BaseState):
         """Параметры по умолчанию"""
         self.maze = None
 
+        # Имя игрока для персонализированных спрайтов
+        self.player_name = 'student'
+
         # Позиция игрока
         self.player_pos = [int(1.5 * TILE_SIZE), int(1.5 * TILE_SIZE)]
 
@@ -50,10 +53,10 @@ class MazeState(BaseState):
         self.entrance_tile, self.exit_tile = assetscreation.add_entrance_exit_tiles(self.current_level)
 
         # Тайл для игрока
-        self.player_tile = assetscreation.add_player_tile()
+        self.player_tile = assetscreation.add_player_tile(self.player_name)
 
         # Список спрайтов ходьбы персонажа
-        self.player_walk_frames = assetscreation.add_player_walk()
+        self.player_walk_frames = assetscreation.add_player_walk(self.player_name)
 
         # Тайл для монстра
         self.enemy_tile = assetscreation.add_enemy_tile(self.current_level)
@@ -133,6 +136,11 @@ class MazeState(BaseState):
         self.enemy_sprites[level][enemy_name] = sprite
         return sprite
 
+    def get_player_name(self, name: str):
+        """Получение имени персонажа для персонализированных спрайтов"""
+        self.player_name = name
+        self.reload_tiles()
+
     def make_alive(self):
         """Действия при первом показе лабиринта игроку"""
 
@@ -207,8 +215,12 @@ class MazeState(BaseState):
         self.wall_tiles = assetscreation.add_wall_tiles(self.current_level)
         self.floor_tile = assetscreation.add_floor_tile(self.current_level)
         self.entrance_tile, self.exit_tile = assetscreation.add_entrance_exit_tiles(self.current_level)
-        self.player_tile = assetscreation.add_player_tile()
         self.enemy_tile = assetscreation.add_enemy_tile(self.current_level)
+
+        self.player_tile = assetscreation.add_player_tile(self.player_name)
+        self.player_walk_frames = assetscreation.add_player_walk(self.player_name)
+        self.current_player_image = self.player_tile
+
         self.wall_cache.clear()
 
     def check_enemy_collision(self) -> Enemy | None:
