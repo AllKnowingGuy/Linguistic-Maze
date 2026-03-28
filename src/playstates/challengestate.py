@@ -169,6 +169,7 @@ class ChallengeState(BaseState):
 
         """Звуки"""
         self.start_challenge_sound = assetscreation.add_challenge_start_sound()
+        self.transition_sound = assetscreation.add_challenge_transition_sound()
 
     def setup_challenge(self, json_path: Path):
         """Задание структурных данных испытания, сброс параметров этапов испытания"""
@@ -240,6 +241,7 @@ class ChallengeState(BaseState):
 
     def start_check_anim(self):
         pygame.mixer.music.stop()
+        self.transition_sound.play()
         self.playing_check_load_anim = True
         self.check_load_anim_time = pygame.time.get_ticks()
         self.need_screen_update = True
@@ -293,6 +295,7 @@ class ChallengeState(BaseState):
                 self.need_screen_update = True
 
     def start_end_anim(self):
+        self.transition_sound.play()
         self.end_anim_time = pygame.time.get_ticks()
         self.need_screen_update = True
 

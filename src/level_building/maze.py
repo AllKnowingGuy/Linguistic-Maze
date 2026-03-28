@@ -1,5 +1,7 @@
 import random
 
+import pygame
+
 from src.util import Border
 from src.level_building.enemy import Enemy, StationaryEnemy, PatrollingEnemy
 

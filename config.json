@@ -5,9 +5,9 @@
         "move_left": "0061",
         "move_right": "0064",
         "end_text_animation": "001b",
+        "no_task_advance": "000d",
         "increase_volume": "002b",
-        "decrease_volume": "002d",
-        "no_task_advance": "000d"
+        "decrease_volume": "002d"
     },
     "music": true,
     "general_difficulty": 0

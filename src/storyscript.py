@@ -10,7 +10,6 @@ from util import Border, StateType, TILE_SIZE
 intro_dialogue_path = Path('..\\assets\\data\\dialogues\\intro.json')
 DEBUG_DIALOGUE_SKIP = False
 
-
 existing_words_analyzer = create_analyzer()
 
 
@@ -73,16 +72,17 @@ class StoryScript:
                 "difficulty": 0,
                 "completed": False,
                 "respect": 0,
-                "sizes": raw_room["sizes"], # по сложностям
-                "walls_with_doors": raw_room["walls_with_doors"], # НЕ зависит от сложности
-                "other_entrance_coords": raw_room["other_entrance_coords"], # по сложностям
-                "max_respect": raw_room["max_respect"], # НЕ зависит от сложности
-                "respect_check": raw_room["respect_check"], # по сложностям
-                "monsters": raw_room.get("monsters"), # координаты каждого монстра - по сложностям
-                "artifacts_check": raw_room.get("artifacts_check"), # НЕ зависит от сложности
-                "respect_check_w_artifacts": raw_room.get("respect_check_w_artifacts"), # по сложностям
-                "code_check": raw_room.get("code_check"), # НЕ зависит от сложности
-                "respect_check_w_code": raw_room.get("respect_check_w_code") # по сложностям
+                "sizes": raw_room["sizes"],  # по сложностям
+                "walls_with_doors": raw_room["walls_with_doors"],  # НЕ зависит от сложности
+                "other_entrance_coords": raw_room["other_entrance_coords"],  # по сложностям
+                "max_respect": raw_room["max_respect"],  # НЕ зависит от сложности
+                "respect_check": raw_room["respect_check"],  # по сложностям
+                "monsters": raw_room.get("monsters"),  # координаты каждого монстра - по сложностям
+                "moving_monsters": raw_room.get("moving_monsters", []),  # НЕ зависит от сложности
+                "artifacts_check": raw_room.get("artifacts_check"),  # НЕ зависит от сложности
+                "respect_check_w_artifacts": raw_room.get("respect_check_w_artifacts"),  # по сложностям
+                "code_check": raw_room.get("code_check"),  # НЕ зависит от сложности
+                "respect_check_w_code": raw_room.get("respect_check_w_code")  # по сложностям
             }
 
     def update_game_progress(self, game: Main):
@@ -381,7 +381,7 @@ class StoryScript:
             respect, respect_req, artifacts_req, respect_req_w_artifacts, respect_req_w_code)
 
         # Постройка диалога
-        door_dialogue = {"lines": []} # минимальный диалог, из уникального только задний фон двери
+        door_dialogue = {"lines": []}  # минимальный диалог, из уникального только задний фон двери
         stop_building = False
 
         if scored_respect:
@@ -406,7 +406,7 @@ class StoryScript:
             door_dialogue["lines"].append(
                 {
                     "text": f"Но у тебя в инвентаре {
-                    f"лежит {artifacts_req[0]}" if len(artifacts_req) == 1 else 
+                    f"лежит {artifacts_req[0]}" if len(artifacts_req) == 1 else
                     f"лежат {", ".join(artifacts_req[:-1])} и {artifacts_req[-1]}"
                     }.\nЗа твою находку я сделаю тебе скидку на респект: теперь достаточно набрать {respect_req_w_artifacts}."
                 }
@@ -420,7 +420,7 @@ class StoryScript:
             door_dialogue["lines"].append(
                 {
                     "text": f"Но если тебе {
-                    f"попадётся {artifacts_req[0]}" if len(artifacts_req) == 1 else 
+                    f"попадётся {artifacts_req[0]}" if len(artifacts_req) == 1 else
                     f"попадутся {", ".join(artifacts_req[:-1])} и {artifacts_req[-1]}"
                     }, и ты {"этот предмет" if len(artifacts_req) == 1 else "эти предметы"} "
                             f"принесёшь сюда,\nто я сделаю тебе скидку на респект."
@@ -520,8 +520,8 @@ class StoryScript:
         return door_dialogue
 
     def check_room_exit_conditions(self, respect, respect_req,
-                                   artifacts_req = None, respect_req_w_artifacts = None,
-                                   respect_req_w_code = None):
+                                   artifacts_req=None, respect_req_w_artifacts=None,
+                                   respect_req_w_code=None):
         scored_respect = got_artifact = scored_discounted_respect = can_enter_code = False
         if respect >= respect_req:
             scored_respect = True
@@ -544,14 +544,18 @@ class StoryScript:
         walls_with_doors = room_data.get("walls_with_doors", {"entrance": "west", "exit": "east"})
         string_entrance = walls_with_doors["entrance"]
         string_exit = walls_with_doors["exit"]
-        enum_entrance = (Border.NORTH if string_entrance == "north"
-                         else Border.SOUTH if string_entrance == "south"
-                         else Border.WEST if string_entrance == "west"
-                         else Border.EAST)
-        enum_exit = (Border.NORTH if string_exit == "north"
-                     else Border.SOUTH if string_exit == "south"
-                     else Border.WEST if string_exit == "west"
-                     else Border.EAST)
+        enum_entrance = (
+            Border.NORTH if string_entrance == "north"
+            else Border.SOUTH if string_entrance == "south"
+            else Border.WEST if string_entrance == "west"
+            else Border.EAST
+        )
+        enum_exit = (
+            Border.NORTH if string_exit == "north"
+            else Border.SOUTH if string_exit == "south"
+            else Border.WEST if string_exit == "west"
+            else Border.EAST
+        )
 
         # Определение координаты двери выхода в её стене
         entrance_coords = room_data.get("other_entrance_coords", {"easy": 9, "medium": 13, "hard": 19})
@@ -567,7 +571,9 @@ class StoryScript:
         for monster, areas in raw_monster_dict.items():
             processed_monster_dict[monster] = tuple(areas[diff_word])
 
-        return w, h, enum_entrance, enum_exit, en_coord, ex_coord, processed_monster_dict
+        moving_monsters = room_data.get("moving_monsters", [])
+
+        return w, h, enum_entrance, enum_exit, en_coord, ex_coord, processed_monster_dict, moving_monsters
 
     def restart_current_room(self, game: Main):
         """Рестарт текущей комнаты при провале"""
@@ -577,15 +583,16 @@ class StoryScript:
         self.rooms_data[self.current_room]["respect"] = 0
 
         # Подготовка данных для установки лабиринта
-        w, h, enum_entrance, enum_exit, en_coord, ex_coord, processed_monster_dict = self.prepare_room_gen_data(
+        w, h, en, ex, en_coord, ex_coord, processed_monster_dict, moving_monsters = self.prepare_room_gen_data(
             ("easy", "medium", "hard")[self.rooms_data[self.current_room].get("difficulty", 0)]
         )
 
         # Переключение состояния и генерация лабиринта
         game.current_state_type = StateType.MAZE
         game.maze_state.setup_maze(w, h,
-                                   (enum_entrance, enum_exit), (en_coord, ex_coord),
+                                   (en, ex), (en_coord, ex_coord),
                                    monster_dict=processed_monster_dict,
+                                   moving_monsters=moving_monsters,
                                    more_random=True, curving=True)
         game.associate_current_state()
         game.maze_state.make_alive()
@@ -603,11 +610,11 @@ class StoryScript:
             relative_respects = prev_room_data["respect"] - min_respects
             respect_span = max_respects - min_respects + 1
             if relative_respects < respect_span // 3:
-                difficulty = 0 # легко
+                difficulty = 0  # легко
             elif relative_respects >= (respect_span * 2) // 3:
-                difficulty = 2 # сложно
+                difficulty = 2  # сложно
             else:
-                difficulty = 1 # средне
+                difficulty = 1  # средне
         else:
             difficulty = set_difficulty
         diff_word = ("easy", "medium", "hard")[difficulty]
@@ -617,7 +624,7 @@ class StoryScript:
         self.rooms_data[self.current_room]["difficulty"] = difficulty
 
         # Подготовка данных для установки лабиринта
-        w, h, enum_entrance, enum_exit, en_coord, ex_coord, processed_monster_dict = self.prepare_room_gen_data(
+        w, h, en, ex, en_coord, ex_coord, processed_monster_dict, moving_monsters = self.prepare_room_gen_data(
             diff_word
         )
 
@@ -625,8 +632,9 @@ class StoryScript:
         game.current_state_type = StateType.MAZE
         game.maze_state.set_level(self.current_room)
         game.maze_state.setup_maze(w, h,
-                                   (enum_entrance, enum_exit), (en_coord, ex_coord),
+                                   (en, ex), (en_coord, ex_coord),
                                    monster_dict=processed_monster_dict,
+                                   moving_monsters=moving_monsters,
                                    more_random=True, curving=True)
         game.associate_current_state()
         game.maze_state.make_alive()

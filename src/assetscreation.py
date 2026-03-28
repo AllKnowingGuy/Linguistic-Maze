@@ -258,17 +258,22 @@ def add_wall_tiles(level: int = 0) -> dict[Enum, pygame.Surface]:
     return load_all_objects(tiles_path, tile_files, tile_sizes)
 
 
-def add_enemy_tile(level: int = 0) -> pygame.Surface:
+def add_enemy_tile(level: int = 0, enemy_name: str = None) -> pygame.Surface:
     """Загрузка спрайта врага по уровню
 
     Args:
         level (int): уровень, для которого выбирается тематика
+        enemy_name (str | None): имя монстра (если нужен конкретный)
 
     Returns:
         Surface: изображение врага
     """
 
-    enemy_path = Path(f'{ROOT_MAZE_PATH}\\level_{level}\\enemy.png')
+    if enemy_name:
+        enemy_path = Path(f'{ROOT_MAZE_PATH}\\level_{level}\\monsters\\{enemy_name}.png')
+        # load_one_object will take care of whether the path exists or not - Vsevolod
+    else:
+        enemy_path = Path(f'{ROOT_MAZE_PATH}\\level_{level}\\enemy.png')
     return load_one_object(enemy_path, TILE_SIZE, TILE_SIZE)
 
 
@@ -527,6 +532,15 @@ def set_challenge_music():
 def add_challenge_start_sound():
     try:
         sound_path = Path(f'{ROOT_MUSIC_PATH}\\Start Challenge.wav')
+        sound = pygame.mixer.Sound(sound_path)
+        return sound
+    except (pygame.error, AttributeError):
+        return None
+
+
+def add_challenge_transition_sound():
+    try:
+        sound_path = Path(f'{ROOT_MUSIC_PATH}\\temporary deltarune sound.ogg')
         sound = pygame.mixer.Sound(sound_path)
         return sound
     except (pygame.error, AttributeError):
