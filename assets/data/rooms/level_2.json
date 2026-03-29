@@ -34,6 +34,11 @@
 			"medium": [21, 21, 30, 31],
 			"hard": [21, 21, 32, 36]
 		},
+		"monster_runner": {
+			"easy": [13, 17, 13, 17],
+			"medium": [13, 23, 13, 23],
+			"hard": [13, 23, 13, 23]
+		},
 		"monster_sphinx": {
 			"easy": [1, 5, 3, 23],
 			"medium": [1, 5, 4, 23],
@@ -45,6 +50,7 @@
 			"hard": [20, 7, 33, 16]
 		}
 	},
+	"moving_monsters": ["monster_runner"],
 	"max_respect": 14,
 	"respect_check": {
 		"easy": 6,

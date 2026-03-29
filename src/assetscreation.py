@@ -162,6 +162,24 @@ def set_gameover_music():
         pass
 
 
+def add_enter_maze_sound():
+    try:
+        sound_path = Path(f'{ROOT_MUSIC_PATH}\\Start Game.wav')
+        sound = pygame.mixer.Sound(sound_path)
+        return sound
+    except (pygame.error, AttributeError):
+        return None
+
+
+def add_victory_sound():
+    try:
+        sound_path = Path(f'{ROOT_MUSIC_PATH}\\Victory.wav')
+        sound = pygame.mixer.Sound(sound_path)
+        return sound
+    except (pygame.error, AttributeError):
+        return None
+
+
 """
 Для MazeState
 """
@@ -395,6 +413,17 @@ def set_dialogue_music(rel_path: str | None = None):
         print(f"Ошибка загрузки {rel_path}: {e}")
 
 
+def add_dialogue_sound(rel_path: str | None = None):
+    if not rel_path:
+        return None
+    try:
+        sound_path = Path(f'{ROOT_MUSIC_PATH}\\{rel_path}')
+        sound = pygame.mixer.Sound(sound_path)
+        return sound
+    except (pygame.error, AttributeError):
+        return None
+
+
 """
 Для ChallengeState
 """
@@ -540,7 +569,25 @@ def add_challenge_start_sound():
 
 def add_challenge_transition_sound():
     try:
-        sound_path = Path(f'{ROOT_MUSIC_PATH}\\temporary deltarune sound.ogg')
+        sound_path = Path(f'{ROOT_MUSIC_PATH}\\Transition.wav')
+        sound = pygame.mixer.Sound(sound_path)
+        return sound
+    except (pygame.error, AttributeError):
+        return None
+
+
+def add_correct_stamp_sound():
+    try:
+        sound_path = Path(f'{ROOT_MUSIC_PATH}\\Correct Stamp.wav')
+        sound = pygame.mixer.Sound(sound_path)
+        return sound
+    except (pygame.error, AttributeError):
+        return None
+
+
+def add_incorrect_stamp_sound():
+    try:
+        sound_path = Path(f'{ROOT_MUSIC_PATH}\\Incorrect Stamp.wav')
         sound = pygame.mixer.Sound(sound_path)
         return sound
     except (pygame.error, AttributeError):

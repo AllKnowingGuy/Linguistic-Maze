@@ -2,7 +2,7 @@
 	"sizes": {
 		"easy": [29, 25],
 		"medium": [33, 33],
-		"hard": [35, 39]
+		"hard": [37, 37]
 	},
 	"walls_with_doors": {
 		"entrance": "north",
@@ -10,67 +10,73 @@
 	},
 	"other_entrance_coords": {
 		"easy": 27,
-		"medium": 1,
-		"hard": 1
+		"medium": 31,
+		"hard": 35
 	},
 	"monsters": {
 		"monster_childspeech": {
-			"easy": [1, 1, 1, 1],
-			"medium": [1, 1, 1, 1],
-			"hard": [1, 1, 1, 1]
+			"easy": [20, 8, 23, 15],
+			"medium": [23, 9, 28, 22],
+			"hard": [27, 11, 31, 25]
 		},
 		"monster_motivator": {
-			"easy": [1, 1, 1, 1],
-			"medium": [1, 1, 1, 1],
-			"hard": [1, 1, 1, 1]
+			"easy": [11, 3, 17, 6],
+			"medium": [11, 4, 21, 11],
+			"hard": [11, 5, 25, 13]
 		},
 		"monster_neuroanatomy": {
-			"easy": [1, 1, 1, 1],
-			"medium": [1, 1, 1, 1],
-			"hard": [1, 1, 1, 1]
+			"easy": [5, 8, 8, 15],
+			"medium": [4, 10, 9, 22],
+			"hard": [5, 11, 9, 25]
+		},
+		"monster_runner": {
+			"easy": [13, 13, 13, 13],
+			"medium": [13, 13, 13, 13],
+			"hard": [13, 17, 13, 17]
 		},
 		"monster_schizophrenia_1": {
-			"easy": [1, 1, 1, 1],
-			"medium": [1, 1, 1, 1],
-			"hard": [1, 1, 1, 1]
+			"easy": [1, 1, 6, 4],
+			"medium": [1, 1, 6, 6],
+			"hard": [1, 1, 9, 9]
 		},
 		"monster_schizophrenia_2": {
-			"easy": [1, 1, 1, 1],
-			"medium": [1, 1, 1, 1],
-			"hard": [1, 1, 1, 1]
+			"easy": [22, 1, 27, 4],
+			"medium": [26, 1, 31, 6],
+			"hard": [27, 1, 35, 9]
 		},
 		"monster_schizophrenia_3": {
-			"easy": [1, 1, 1, 1],
-			"medium": [1, 1, 1, 1],
-			"hard": [1, 1, 1, 1]
+			"easy": [1, 20, 6, 23],
+			"medium": [1, 26, 6, 31],
+			"hard": [1, 27, 9, 35]
 		},
 		"monster_schizophrenia_4": {
-			"easy": [1, 1, 1, 1],
-			"medium": [1, 1, 1, 1],
-			"hard": [1, 1, 1, 1]
+			"easy": [22, 20, 27, 23],
+			"medium": [26, 26, 31, 31],
+			"hard": [27, 27, 35, 35]
 		},
 		"monster_silent": {
-			"easy": [1, 1, 1, 1],
-			"medium": [1, 1, 1, 1],
-			"hard": [1, 1, 1, 1]
+			"easy": [11, 18, 17, 21],
+			"medium": [11, 21, 21, 28],
+			"hard": [11, 23, 25, 31]
 		}
 	},
-	"max_respect": 0,
+	"moving_monsters": ["monster_runner"],
+	"max_respect": 10,
 	"respect_check": {
-		"easy": 0,
-		"medium": 0,
-		"hard": 0
+		"easy": 5,
+		"medium": 6,
+		"hard": 7
 	},
 	"artifacts_check": ["спичка", "дудка", "фонарик"],
 	"respect_check_w_artifacts": {
-		"easy": 0,
-		"medium": 0,
-		"hard": 0
+		"easy": 1,
+		"medium": 2,
+		"hard": 4
 	},
 	"code_check": "зять",
 	"respect_check_w_code": {
-		"easy": 0,
-		"medium": 0,
-		"hard": 0
+		"easy": 4,
+		"medium": 5,
+		"hard": 6
 	}
 }

@@ -170,6 +170,8 @@ class ChallengeState(BaseState):
         """Звуки"""
         self.start_challenge_sound = assetscreation.add_challenge_start_sound()
         self.transition_sound = assetscreation.add_challenge_transition_sound()
+        self.correct_stamp_sound = assetscreation.add_correct_stamp_sound()
+        self.incorrect_stamp_sound = assetscreation.add_incorrect_stamp_sound()
 
     def setup_challenge(self, json_path: Path):
         """Задание структурных данных испытания, сброс параметров этапов испытания"""
@@ -268,7 +270,7 @@ class ChallengeState(BaseState):
     def play_window_check_anim(self):
         if self.playing_window_check_anim:
 
-            # Анимация штампа правильности
+            # Анимация и звук штампа правильности
             # TODO: maybe check the answer earlier such as in start_window_check_anim
             current_ticks = pygame.time.get_ticks()
             if (self.current_answer_correctness is None
@@ -281,6 +283,8 @@ class ChallengeState(BaseState):
                 self.score += self.current_reward
 
                 self.current_stamp = (self.incorrect_stamp, self.correct_stamp)[self.current_answer_correctness]
+                self.correct_stamp_sound.play() if self.current_answer_correctness else self.incorrect_stamp_sound.play()
+
                 self.need_screen_update = True
 
             # Анимация плашки с комментарием

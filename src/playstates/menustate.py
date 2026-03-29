@@ -78,6 +78,7 @@ class MenuState(BaseState):
         self.bg_overlay.fill((255, 255, 255))
 
         self.loss_bg = assetscreation.add_menu_loss_bg()
+        self.win_bg = assetscreation.add_menu_win_bg()
 
         self.start_button_sprite = assetscreation.add_start_buttons()
         self.keybind_button_sprites_dict = {}
@@ -103,6 +104,7 @@ class MenuState(BaseState):
         # Музыка
         assetscreation.set_menu_music()
         pygame.mixer.music.play(-1)
+        self.victory_sound = assetscreation.add_victory_sound()
 
         self.need_screen_update = True
 
@@ -134,8 +136,9 @@ class MenuState(BaseState):
     def handle_input(self, event):
         """Обработка назначения клавиш"""
 
-        if self.just_lost and event.unicode == self.keybind_dict["no_task_advance"]:
+        if (self.just_lost or self.just_won) and event.unicode == self.keybind_dict["no_task_advance"]:
             self.just_lost = False
+            self.just_won = False
             self.game_end_score = None
             self.game_end_artifacts.clear()
             assetscreation.set_menu_music()
@@ -200,6 +203,10 @@ class MenuState(BaseState):
             assetscreation.set_gameover_music()
             pygame.mixer.music.play(-1)
 
+        elif self.just_won:
+            pygame.mixer.music.stop()
+            self.victory_sound.play()
+
         if self.awaiting_input:
             self.play_input_timer()
 
@@ -209,11 +216,14 @@ class MenuState(BaseState):
         # ТОЛЬКО ЕСЛИ ЧТО-ТО ИЗМЕНИЛОСЬ НА ЭКРАНЕ
         if self.need_screen_update:
 
-            if self.just_lost:
-                screen.blit(self.loss_bg, (0, 0))
+            if self.just_lost or self.just_won:
+                screen.blit(self.loss_bg, (0, 0)) if self.just_lost else screen.blit(self.win_bg, (0, 0))
 
                 cheer_text = self.menu_font.render(
-                    "Ничего страшного, игру можно пройти снова!", True, (255, 255, 255))
+                    "Ничего страшного, игру можно пройти снова!", True, (255, 255, 255)
+                ) if self.just_lost else self.menu_font.render(
+                    "Практика закрыта, игра пройдена!", True, (255, 255, 255)
+                )
                 score_text = self.menu_font.render(
                     f"Общий респект: {self.game_end_score}", True, (255, 255, 255))
                 artifacts_text = self.menu_font.render("", True, (255, 255, 255))
@@ -239,9 +249,6 @@ class MenuState(BaseState):
                 screen.blit(artifacts_text, (SCREEN_WIDTH / 2, 540))
                 screen.blit(artifacts_text_2, (SCREEN_WIDTH / 2, 580))
                 screen.blit(continue_text, (SCREEN_WIDTH / 2, 650))
-
-            elif self.just_won:
-                pass
 
             else:
                 screen.blit(self.bg, (0, 0))

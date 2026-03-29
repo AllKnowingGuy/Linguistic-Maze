@@ -1,0 +1,16 @@
+{
+	"right": "Раннер кода",
+	"rightsprite": "monsters\\level_3\\monster_runner.png",
+	"lines": [
+		{
+			"speaker": "right",
+			"text": "ValueError: unexpected Human on the ClearWay"
+			"bg": "PREVSCREEN"
+		},
+		{
+			"speaker": "right",
+			"text": "Warning: Human.respect depleted, don't do this again",
+			"rpoints": -1,
+		}
+	]
+}

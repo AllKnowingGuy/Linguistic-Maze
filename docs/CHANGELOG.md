@@ -1,5 +1,17 @@
 # Changelog
 
+## 2026-03-30 - W update
+
+- Created **boss and outro dialogues** with proper transitions
+- Added remaining monster checks to `StoryScript`
+- Finished Room 3 and Room 4 planning
+- Added remaining monster portraits and **all character portraits**
+- Updated some graphic assets and added a bunch of **sounds and music**
+- Implemented **win screen** and even better game restart
+- Dialogue files now have info on whether they are story dialogues and require transparent boxes
+- Dialogue files can now have info on the sound to be played before the line is printed if needed
+- Dialogues can now set protagonists as right speakers, checking that they're different from the chosen one
+
 ## 2026-03-28 - L update
 
 - Implemented **gameover** and proper game restart (on loss at least)

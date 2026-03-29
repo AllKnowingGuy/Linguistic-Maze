@@ -1,0 +1,12 @@
+{
+	"right": "Блуждающий Нерв",
+	"rightsprite": "monsters\\level_4\\monster_runner.png",
+	"lines": [
+		{
+			"speaker": "right",
+			"text": "Отойди с дороги, хорошо? Я тут работаю, эксперименты сами себя не проведут.",
+			"rpoints": -1,
+			"bg": "PREVSCREEN"
+		}
+	]
+}
