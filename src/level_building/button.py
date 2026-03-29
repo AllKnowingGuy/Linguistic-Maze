@@ -11,4 +11,7 @@ class Button:
         self.state = ButtonState.REGULAR
 
     def is_hovered(self, mouse_pos):
-        return self.x <= mouse_pos[0] <= self.x + self.width and self.y <= mouse_pos[1] <= self.y + self.height
+        return (
+            self.x <= mouse_pos[0] <= self.x + self.width
+            and self.y <= mouse_pos[1] <= self.y + self.height
+        )

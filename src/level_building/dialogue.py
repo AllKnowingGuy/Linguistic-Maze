@@ -26,15 +26,17 @@ class Dialogue:
 
     def _read_and_fill(self, path_or_dict: Path | dict[str, ...]):
         if isinstance(path_or_dict, Path):
-            with open(path_or_dict, 'r', encoding='utf-8') as f:
+            with open(path_or_dict, "r", encoding="utf-8") as f:
                 dialogue_dict: dict = json.load(f)
         elif isinstance(path_or_dict, dict):
             dialogue_dict = path_or_dict
         else:
-            raise ValueError(f'The argument must be Path or dict, not {type(path_or_dict)}')
+            raise ValueError(
+                f"The argument must be Path or dict, not {type(path_or_dict)}"
+            )
 
         # Список сложно устроенных диалоговых строчек
-        self.lines = dialogue_dict['lines']
+        self.lines = dialogue_dict["lines"]
 
         # Метаданные диалога
         self.left_character = dialogue_dict.get("left", "")

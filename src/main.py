@@ -1,12 +1,13 @@
-import pygame
 import sys
 
+import pygame
+
 from playstates.basestate import BaseState
-from playstates.mazestate import MazeState
-from playstates.dialoguestate import DialogueState
 from playstates.challengestate import ChallengeState
+from playstates.dialoguestate import DialogueState
+from playstates.mazestate import MazeState
 from playstates.menustate import MenuState
-from util import Command, StateType, SCREEN_WIDTH, SCREEN_HEIGHT
+from util import SCREEN_HEIGHT, SCREEN_WIDTH, Command, StateType
 
 # Инициализация Pygame (теперь с музыкой!)
 if pygame.get_sdl_version()[0] == 2:
@@ -34,7 +35,7 @@ class Main:
         # Окно и дисплей
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         pygame.display.set_caption("Лингвист в лабиринте")
-        pygame.display.set_icon(pygame.image.load('../assets/images/icon.png'))
+        pygame.display.set_icon(pygame.image.load("../assets/images/icon.png"))
         self.clock = pygame.time.Clock()
 
         # Слои дисплея
@@ -48,7 +49,9 @@ class Main:
         self.fps_underlay = pygame.Surface((65, 20), pygame.SRCALPHA)
         self.fps_underlay.set_alpha(128)
         self.fps_underlay.fill((255, 255, 255))
-        self.fps_text_sprite = self.base_font.render('FPS: ' + 'pending...', True, (0, 0, 0))
+        self.fps_text_sprite = self.base_font.render(
+            "FPS: " + "pending...", True, (0, 0, 0)
+        )
 
         # Состояния игры
         self.maze_state = MazeState()
@@ -85,7 +88,9 @@ class Main:
     def handle_button_release(self, event):
         """Обработка отпущенных кнопок"""
         pressed_keys = pygame.key.get_pressed()
-        supposed_commands = self.current_state.handle_button_release(event, pressed_keys)
+        supposed_commands = self.current_state.handle_button_release(
+            event, pressed_keys
+        )
         return supposed_commands
 
     def handle_mouse_motion(self, event):
@@ -113,7 +118,9 @@ class Main:
         self.hud_layer.fill((0, 0, 0, 0))
         if self.show_framerate:
             self.hud_layer.blit(self.fps_underlay, (5, 5))
-            self.fps_text_sprite = self.base_font.render('FPS: ' + str(int(self.clock.get_fps())), True, (0, 0, 0))
+            self.fps_text_sprite = self.base_font.render(
+                "FPS: " + str(int(self.clock.get_fps())), True, (0, 0, 0)
+            )
             self.hud_layer.blit(self.fps_text_sprite, (10, 10))
 
         # Обновление дисплея содержимого (теперь со строгими ограничениями)
@@ -152,7 +159,9 @@ class Main:
                             self.story_script.update_game_progress(self)
 
         self.story_script.update_game_progress(self)
-        while self.running:  # как только running станет False, игра закроется в конце итерации
+        while (
+            self.running
+        ):  # как только running станет False, игра закроется в конце итерации
 
             for event in pygame.event.get():
                 # Обработка выхода из игры
