@@ -29,7 +29,8 @@ def load_one_object(path: Path, width: float = None, height: float = None) -> py
 
 def load_all_objects(root_path: Path,
                      path_map: dict[Enum, Path],
-                     widths_heights_map: dict[Enum, tuple[float, float]] = None) -> dict[Enum, pygame.Surface]:
+                     widths_heights_map: dict[Enum, tuple[float, float]] = None)\
+        -> dict[Enum, pygame.Surface]:
     """Загрузка нескольких графических спрайтов, обычно однотипных
 
     Обратите внимание: ``path_map`` и ``width_heights_map`` должны использовать один и тот же Enum!
@@ -37,7 +38,8 @@ def load_all_objects(root_path: Path,
     Args:
         root_path (str): путь к папке, в которой лежат файлы, начиная с папки проекта
         path_map (dict[Enum, str]): словарь пар Enum-путь к файлам, которые требуется загрузить
-        widths_heights_map (dict[Enum, tuple[float, float]]): словарь пар Enum-пара чисел к файлам, которые требуется загрузить
+        widths_heights_map (dict[Enum, tuple[float, float]]): словарь пар Enum-пара чисел к файлам,
+         которые требуется загрузить
 
     Returns:
         dict[Enum, Surface]: словарь Enum-Surface - по одной поверхности с изображением на элемент Enum
@@ -322,7 +324,8 @@ def add_dialogue_box(alt_version: bool = False) -> pygame.Surface:
         Surface: диалоговая плашка
     """
 
-    box_path = Path(f'{ROOT_DIALOGUE_PATH}\\box.png' if not alt_version else f'{ROOT_DIALOGUE_PATH}\\box_story.png')
+    box_path = Path(f'{ROOT_DIALOGUE_PATH}\\box.png' if not alt_version
+                    else f'{ROOT_DIALOGUE_PATH}\\box_story.png')
     return load_one_object(box_path, SCREEN_WIDTH, SCREEN_HEIGHT // 2)
 
 

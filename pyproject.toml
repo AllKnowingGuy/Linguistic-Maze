@@ -13,6 +13,7 @@ dependencies = [
     "torch>=2.10.0",
     "accelerate>=1.13.0",
     "mawo_pymorphy3>=1.0.4",
+    "pylint (>=4.0.5,<5.0.0)",
 ]
 
 [project.optional-dependencies]
