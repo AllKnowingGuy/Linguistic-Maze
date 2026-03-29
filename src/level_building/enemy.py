@@ -1,11 +1,12 @@
 import random
+
 from src.util import TILE_SIZE
 
 
 class Enemy:
     """Родительский класс для всех врагов"""
 
-    def __init__(self, x: int, y: int, enemy_name: str = 'enemy'):
+    def __init__(self, x: int, y: int, enemy_name: str = "enemy"):
         self.x = x
         self.y = y
         self.enemy_name = enemy_name
@@ -23,14 +24,14 @@ class Enemy:
 class StationaryEnemy(Enemy):
     """Враги, стоящие на месте"""
 
-    def __init__(self, x: int, y: int, enemy_name: str = 'enemy_stationary'):
+    def __init__(self, x: int, y: int, enemy_name: str = "enemy_stationary"):
         super().__init__(x, y, enemy_name)
 
 
 class PatrollingEnemy(Enemy):
     """Враги, движущиеся по лабиринту"""
 
-    def __init__(self, x: int, y: int, enemy_name: str = 'enemy_moving'):
+    def __init__(self, x: int, y: int, enemy_name: str = "enemy_moving"):
         super().__init__(x, y, enemy_name)
 
         self.pixel_x = x * TILE_SIZE + TILE_SIZE // 2
@@ -64,7 +65,9 @@ class PatrollingEnemy(Enemy):
             new_x = self.x + dx
             new_y = self.y + dy
 
-            if (0 <= new_x < maze.width and 0 <= new_y < maze.height) and maze.pattern[new_y][new_x] == 0:
+            if (0 <= new_x < maze.width and 0 <= new_y < maze.height) and maze.pattern[
+                new_y
+            ][new_x] == 0:
                 available_directions.append((dx, dy))
 
         return available_directions
@@ -73,7 +76,9 @@ class PatrollingEnemy(Enemy):
         """Максимальное количество клеток на выбранном направлении"""
         distance = 0
         x, y = self.x + self.direction_x, self.y + self.direction_y
-        while (0 <= x < maze.width and 0 <= y < maze.height) and maze.pattern[y][x] == 0:
+        while (0 <= x < maze.width and 0 <= y < maze.height) and maze.pattern[y][
+            x
+        ] == 0:
             distance += 1
             x += self.direction_x
             y += self.direction_y
@@ -98,7 +103,9 @@ class PatrollingEnemy(Enemy):
 
         max_distance = self.get_max_distance(maze)
 
-        self.tiles_to_move = random.randrange(2, min(max_distance, self.max_tiles) + 1, 2)
+        self.tiles_to_move = random.randrange(
+            2, min(max_distance, self.max_tiles) + 1, 2
+        )
         self.tiles_moved = 0
 
         step_size = TILE_SIZE / self.steps_per_tile
@@ -134,7 +141,9 @@ class PatrollingEnemy(Enemy):
                     self.start_rest()
                 else:
                     new_x, new_y = self.x + self.direction_x, self.y + self.direction_y
-                    if (0 <= new_x < maze.width and 0 <= new_y < maze.height) and maze.pattern[new_y][new_x] == 0:
+                    if (
+                        0 <= new_x < maze.width and 0 <= new_y < maze.height
+                    ) and maze.pattern[new_y][new_x] == 0:
                         self.remaining_steps = self.steps_per_tile
                     else:
                         self.start_rest()

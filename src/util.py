@@ -10,6 +10,7 @@ SCREEN_HEIGHT = 720  # при текущих высоте экрана и раз
 
 class StateType(Enum):
     """Типы состояний, в которых находится игра"""
+
     MAZE = 1
     DIALOGUE = 2
     CHALLENGE = 3
@@ -18,6 +19,7 @@ class StateType(Enum):
 
 class Command(Enum):
     """Команды циклу игры"""
+
     STOP = 1  # Прекратить себя
     WAIT = 2  # Временно перестать обновляться
     SET_FPS = 3  # Изменить частоту обновления
@@ -47,7 +49,9 @@ BIND_BUTTON_HEIGHT = 90
 """
 
 TILE_SIZE = 45
-PLAYER_SIZE = 34  # при расчёте позиции игрока делится пополам, поэтому лучше брать чётные числа
+PLAYER_SIZE = (
+    34  # при расчёте позиции игрока делится пополам, поэтому лучше брать чётные числа
+)
 
 
 # TODO: maybe make the player rectangular and not square?
@@ -55,6 +59,7 @@ PLAYER_SIZE = 34  # при расчёте позиции игрока делит
 
 class WallPattern(Enum):
     """Базовые паттерны стен"""
+
     SINGLE = 1  # Основание стены
     STRAIGHT = 2  # Стена вдоль границы
     STRAIGHT_SOUTH = 3  # Стена вдоль "нижней" границы
@@ -64,10 +69,11 @@ class WallPattern(Enum):
 
 class Border(Enum):
     """Границы лабиринта"""
-    NORTH = 'NORTH'  # "Верхняя" граница
-    WEST = 'WEST'  # Левая граница
-    EAST = 'EAST'  # Правая граница
-    SOUTH = 'SOUTH'  # "Нижняя" граница
+
+    NORTH = "NORTH"  # "Верхняя" граница
+    WEST = "WEST"  # Левая граница
+    EAST = "EAST"  # Правая граница
+    SOUTH = "SOUTH"  # "Нижняя" граница
 
 
 """
@@ -81,6 +87,7 @@ CHAL_BUTTON_HEIGHT = 90
 
 class ButtonState(Enum):
     """Состояния кнопки"""
+
     REGULAR = 1
     HOVERED = 2
     PRESSED = 3
@@ -89,6 +96,7 @@ class ButtonState(Enum):
 
 class Awaiting(Enum):
     """Действия игрока на определённом этапе"""
+
     CONTINUE = 1
     CHOOSE = 2
     INPUT = 3

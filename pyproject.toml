@@ -13,12 +13,12 @@ dependencies = [
     "torch>=2.10.0",
     "accelerate>=1.13.0",
     "mawo_pymorphy3>=1.0.4",
-    "pylint (>=4.0.5,<5.0.0)",
 ]
 
 [project.optional-dependencies]
 dev = [
     "pytest>=7.0.0",
+    "pylint (>=4.0.5,<5.0.0)",
 ]
 
 
@@ -28,3 +28,38 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 package-mode = false
+
+[tool.pylint]
+disable = ['C0415', 'C0209',
+    'E0611', 'E0401', 'E0602', 'E0015',
+    'R1705', 'R1729', 'R0902', 'R0904', 'R0903', 'R0801', 'R0401',
+    'W0511', 'W1309', 'W0120']
+max-line-length = 130
+max-statements = 70
+max-branches = 30
+max-locals = 20
+max-nested-blocks = 10
+max-positional-arguments = 10
+
+
+[tool.pylint."messages control"]
+disable = [
+    "missing-module-docstring",
+    "missing-function-docstring",
+    "missing-class-docstring",
+    "wildcard-import",
+    "broad-exception-caught",
+    'attribute-defined-outside-init',
+    'no-member',
+    'pointless-string-statement',
+    'unidiomatic-typecheck',
+    'line-too-long',
+    'too-many-arguments',
+    'assignment-from-no-return',
+    'unnecessary-pass',
+    'unused-variable',
+    'unused-argument'
+]
+
+[tool.pylint."import"]
+bad-function-names = ["*"]

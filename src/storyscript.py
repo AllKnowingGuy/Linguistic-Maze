@@ -1,13 +1,16 @@
-import json, re
-import os, random
+import json
+import os
+import random
+import re
 from pathlib import Path
+
 from mawo_pymorphy3 import create_analyzer
 
 from main import Main
 from src.level_building.enemy import Enemy
-from util import Border, StateType, TILE_SIZE
+from util import TILE_SIZE, Border, StateType
 
-intro_dialogue_path = Path('..\\assets\\data\\dialogues\\intro.json')
+intro_dialogue_path = Path("..\\assets\\data\\dialogues\\intro.json")
 DEBUG_DIALOGUE_SKIP = False
 
 existing_words_analyzer = create_analyzer()
@@ -15,9 +18,11 @@ existing_words_analyzer = create_analyzer()
 
 def check_all_words_exist(text: str) -> bool:
     punctuation = r"""[\.,:;\?!<>\(\)\[\]"'&~]"""
-    text = re.sub(punctuation, '', text).split()
+    text = re.sub(punctuation, "", text).split()
     # TODO: probably make the check softer
-    return all([1 in [form.score for form in existing_words_analyzer.parse(w)] for w in text])
+    return all(
+        [1 in [form.score for form in existing_words_analyzer.parse(w)] for w in text]
+    )
 
 
 class StoryScript:
@@ -58,42 +63,61 @@ class StoryScript:
         self.rooms_data = {}
 
         self.general_progress = {
-            'launched_app': False,
-            'started_game': False,
-            'passed_maze': False,
-            'finished_outro': False,
+            "launched_app": False,
+            "started_game": False,
+            "passed_maze": False,
+            "finished_outro": False,
         }
 
         # Внесение данных обо всех комнатах
         for i in range(5):
-            with open(Path(f'..\\assets\\data\\rooms\\level_{i}.json'), 'r', encoding='utf-8') as f:
+            with open(
+                Path(f"..\\assets\\data\\rooms\\level_{i}.json"), "r", encoding="utf-8"
+            ) as f:
                 raw_room = json.load(f)
             self.rooms_data[i] = {
                 "difficulty": 0,
                 "completed": False,
                 "respect": 0,
                 "sizes": raw_room["sizes"],  # по сложностям
-                "walls_with_doors": raw_room["walls_with_doors"],  # НЕ зависит от сложности
-                "other_entrance_coords": raw_room["other_entrance_coords"],  # по сложностям
+                "walls_with_doors": raw_room[
+                    "walls_with_doors"
+                ],  # НЕ зависит от сложности
+                "other_entrance_coords": raw_room[
+                    "other_entrance_coords"
+                ],  # по сложностям
                 "max_respect": raw_room["max_respect"],  # НЕ зависит от сложности
                 "respect_check": raw_room["respect_check"],  # по сложностям
-                "monsters": raw_room.get("monsters"),  # координаты каждого монстра - по сложностям
-                "moving_monsters": raw_room.get("moving_monsters", []),  # НЕ зависит от сложности
-                "artifacts_check": raw_room.get("artifacts_check"),  # НЕ зависит от сложности
-                "respect_check_w_artifacts": raw_room.get("respect_check_w_artifacts"),  # по сложностям
+                "monsters": raw_room.get(
+                    "monsters"
+                ),  # координаты каждого монстра - по сложностям
+                "moving_monsters": raw_room.get(
+                    "moving_monsters", []
+                ),  # НЕ зависит от сложности
+                "artifacts_check": raw_room.get(
+                    "artifacts_check"
+                ),  # НЕ зависит от сложности
+                "respect_check_w_artifacts": raw_room.get(
+                    "respect_check_w_artifacts"
+                ),  # по сложностям
                 "code_check": raw_room.get("code_check"),  # НЕ зависит от сложности
-                "respect_check_w_code": raw_room.get("respect_check_w_code")  # по сложностям
+                "respect_check_w_code": raw_room.get(
+                    "respect_check_w_code"
+                ),  # по сложностям
             }
 
     def update_game_progress(self, game: Main):
         """Проверяет и обновляет состояние игры в соответствии со скриптом"""
 
         # Когда игрок только начинает игру
-        if not self.general_progress['launched_app']:
+        if not self.general_progress["launched_app"]:
             self.launch_app(game)
 
         # Когда игрок в меню и нажал "Старт"
-        elif game.current_state_type.name == StateType.MENU.name and game.menu_state.game_started:
+        elif (
+            game.current_state_type.name == StateType.MENU.name
+            and game.menu_state.game_started
+        ):
             self.start_game(game)
 
         # Когда игрок на диалоге
@@ -105,34 +129,59 @@ class StoryScript:
             self.collect_dialogue_bonuses(game)
 
             # Особые диалоги с заскриптованным поведением
-            if self.current_room == -1:  # Интро: единственный диалог до начала лабиринта
+            if (
+                self.current_room == -1
+            ):  # Интро: единственный диалог до начала лабиринта
                 self.handle_intro_dialogue(game)
 
             elif self.on_monster:
                 # Особые диалоги монстров
 
-                if self.on_monster.enemy_name == 'monster_gloss':
+                if self.on_monster.enemy_name == "monster_gloss":
                     # Выбор формы слова: "студентка" или "студент"
-                    if game.dialogue_state.current_line_ind == 0 and self.player_name in ['Денис', 'Даня']:
+                    if (
+                        game.dialogue_state.current_line_ind == 0
+                        and self.player_name in ["Денис", "Даня"]
+                    ):
                         game.dialogue_state.current_line_ind += 1
 
-                elif self.on_monster.enemy_name == 'monster_amateur':
+                elif self.on_monster.enemy_name == "monster_amateur":
                     # Проверка введённого ответа
-                    keywords = ('редукци', 'редуцир', 'позици', 'слаб', 'предударн')
+                    keywords = ("редукци", "редуцир", "позици", "слаб", "предударн")
                     if game.dialogue_state.current_line_ind == 2:
-                        if not any([kw in game.dialogue_state.dialogue.saved_inputs.get(2, '') for kw in keywords]):
+                        if not any(
+                            [
+                                kw
+                                in game.dialogue_state.dialogue.saved_inputs.get(2, "")
+                                for kw in keywords
+                            ]
+                        ):
                             game.dialogue_state.current_line_ind += 1
 
-                elif self.on_monster.enemy_name in ('monster_phontermin', 'monster_terminology'):
+                elif self.on_monster.enemy_name in (
+                    "monster_phontermin",
+                    "monster_terminology",
+                ):
                     # Проверка намерений игрока (и того, что он говорит реальные слова)
-                    keywords = ('практик', 'лингвист', 'наук', 'учен', 'учён', 'термин',
-                                ('фонет' if self.on_monster.enemy_name == 'monster_phontermin' else 'социо'))
+                    keywords = (
+                        "практик",
+                        "лингвист",
+                        "наук",
+                        "учен",
+                        "учён",
+                        "термин",
+                        (
+                            "фонет"
+                            if self.on_monster.enemy_name == "monster_phontermin"
+                            else "социо"
+                        ),
+                    )
                     if game.dialogue_state.current_line_ind == 0:
-                        response = game.dialogue_state.dialogue.saved_inputs.get(0, '')
+                        response = game.dialogue_state.dialogue.saved_inputs.get(0, "")
                         if check_all_words_exist(response):
                             if any([kw in response for kw in keywords]):
                                 # I'm gonna regret this - Vsevolod
-                                game.dialogue_state.dialogue.lines[1]['rpoints'] = 2
+                                game.dialogue_state.dialogue.lines[1]["rpoints"] = 2
                         else:
                             game.dialogue_state.current_line_ind += 2
 
@@ -160,15 +209,19 @@ class StoryScript:
 
             # Конец испытания
             if game.challenge_state.finished:
-                self.rooms_data[self.current_room]["respect"] += game.challenge_state.score
+                self.rooms_data[self.current_room][
+                    "respect"
+                ] += game.challenge_state.score
                 supposed_end_dialogue = Path(
-                    f'..\\assets\\data\\dialogues\\level_{self.current_room}\\{self.on_monster.enemy_name}_end.json'
+                    f"..\\assets\\data\\dialogues\\level_{self.current_room}\\{self.on_monster.enemy_name}_end.json"
                 )
 
                 # Если есть диалог после испытания - играем его
                 if os.path.exists(supposed_end_dialogue):
                     game.current_state_type = StateType.DIALOGUE
-                    game.dialogue_state.setup_dialogue(supposed_end_dialogue, game.challenge_state.score)
+                    game.dialogue_state.setup_dialogue(
+                        supposed_end_dialogue, game.challenge_state.score
+                    )
                     game.associate_current_state()
                     game.dialogue_state.start_playing()
 
@@ -183,7 +236,7 @@ class StoryScript:
                         self.on_monster = None
 
     def start_game(self, game: Main):
-        self.general_progress['started_game'] = True
+        self.general_progress["started_game"] = True
         game.current_state_type = StateType.DIALOGUE
         game.dialogue_state.setup_dialogue(intro_dialogue_path)
         game.dialogue_state.story_mode = True
@@ -191,7 +244,7 @@ class StoryScript:
         game.dialogue_state.start_playing()
 
     def launch_app(self, game: Main):
-        self.general_progress['launched_app'] = True
+        self.general_progress["launched_app"] = True
         game.current_state_type = StateType.MENU
         game.associate_current_state()
         game.menu_state.need_screen_update = True
@@ -204,24 +257,35 @@ class StoryScript:
         # Когда игрок отвечает на вопрос тестового вступления
 
         """if DEBUG_DIALOGUE_SKIP:
-            game.dialogue_state.finished = True
-            self.intro_progress['said_yes'] = True"""
+        game.dialogue_state.finished = True
+        self.intro_progress['said_yes'] = True"""
 
         # Когда игрок выбирает персонажа
         if game.dialogue_state.current_line_ind == 5:
             chosen_name = game.dialogue_state.dialogue.saved_choices.get(5)
             if chosen_name:
                 # Преобразование русского имени в диалоге в английское для папок с файлами
-                ru_to_eng_names = {'Аня': 'Anya', 'Денис': 'Denis', 'Даня' : 'Danya', 'Лера': 'Lera'}
-                player_sprite_name = ru_to_eng_names.get(chosen_name, 'student')
+                ru_to_eng_names = {
+                    "Аня": "Anya",
+                    "Денис": "Denis",
+                    "Даня": "Danya",
+                    "Лера": "Lera",
+                }
+                player_sprite_name = ru_to_eng_names.get(chosen_name, "student")
                 game.maze_state.get_player_name(player_sprite_name)
                 self.player_name = chosen_name
                 game.dialogue_state.left_name = chosen_name
-                game.dialogue_state.left_speaker_name_sprite = game.dialogue_state.dialogue_font.render(
-                    chosen_name, True, (255, 255, 255)
+                game.dialogue_state.left_speaker_name_sprite = (
+                    game.dialogue_state.dialogue_font.render(
+                        chosen_name, True, (255, 255, 255)
+                    )
                 )
-                game.dialogue_state.right_speaker_name_sprite = game.dialogue_state.dialogue_font.render(
-                    game.dialogue_state.dialogue.right_character, True, (255, 255, 255)
+                game.dialogue_state.right_speaker_name_sprite = (
+                    game.dialogue_state.dialogue_font.render(
+                        game.dialogue_state.dialogue.right_character,
+                        True,
+                        (255, 255, 255),
+                    )
                 )
 
         # Когда игрок завершает тестовое вступление
@@ -237,13 +301,19 @@ class StoryScript:
         """Действия при завершении диалога с монстром"""
 
         # Если после встречи должно начаться испытание - запускаем
-        if (game.dialogue_state.dialogue.starts_challenge
-                and not game.dialogue_state.dialogue.get_line_challenge_cancel(game.dialogue_state.current_line_ind)):
+        if (
+            game.dialogue_state.dialogue.starts_challenge
+            and not game.dialogue_state.dialogue.get_line_challenge_cancel(
+                game.dialogue_state.current_line_ind
+            )
+        ):
             game.current_state_type = StateType.CHALLENGE
-            game.challenge_state.setup_challenge(Path(
-                f'..\\assets\\data\\challenges\\level_{self.current_room}\\'
-                f'{self.on_monster.enemy_name}.json'
-            ))
+            game.challenge_state.setup_challenge(
+                Path(
+                    f"..\\assets\\data\\challenges\\level_{self.current_room}\\"
+                    f"{self.on_monster.enemy_name}.json"
+                )
+            )
             game.associate_current_state()
             game.challenge_state.start_start_anim()
 
@@ -260,16 +330,26 @@ class StoryScript:
 
         # Ввод кода и его проверка
         if game.dialogue_state.current_line == ["Тогда введи код!"]:
-            code_guess = game.dialogue_state.dialogue.saved_inputs.get(game.dialogue_state.current_line_ind, "")
+            code_guess = game.dialogue_state.dialogue.saved_inputs.get(
+                game.dialogue_state.current_line_ind, ""
+            )
             if code_guess != self.current_door_code:
-                game.dialogue_state.current_line_ind += (1 if self.attempts_left > 0 else 2)
+                game.dialogue_state.current_line_ind += (
+                    1 if self.attempts_left > 0 else 2
+                )
 
         # Выбор поискать монстров или воссоздать комнату
-        fate_text = "Что ж, ступай, поищи ещё монстров, выполни мои требования и возвращайся!"
+        fate_text = (
+            "Что ж, ступай, поищи ещё монстров, выполни мои требования и возвращайся!"
+        )
         if game.dialogue_state.current_line == [fate_text]:
-            fate = game.dialogue_state.dialogue.saved_choices.get(game.dialogue_state.current_line_ind, "Пойду поищу")
+            fate = game.dialogue_state.dialogue.saved_choices.get(
+                game.dialogue_state.current_line_ind, "Пойду поищу"
+            )
             if fate == "Никак не могу найти...":
-                game.dialogue_state.current_line_ind += (0 if self.attempts_left > 0 else 1)
+                game.dialogue_state.current_line_ind += (
+                    0 if self.attempts_left > 0 else 1
+                )
 
     def handle_dialogue_finish(self, game: Main):
         """Выбор действия после конца диалога"""
@@ -297,8 +377,10 @@ class StoryScript:
                 game.current_state_type = StateType.MAZE
                 game.associate_current_state()
                 # Выдвигаем игрока из двери
-                game.maze_state.player_pos = [int((game.maze_state.maze.end.x + 0.5) * TILE_SIZE),
-                                              int((game.maze_state.maze.end.y + 0.5) * TILE_SIZE)]
+                game.maze_state.player_pos = [
+                    int((game.maze_state.maze.end.x + 0.5) * TILE_SIZE),
+                    int((game.maze_state.maze.end.y + 0.5) * TILE_SIZE),
+                ]
                 game.maze_state.make_alive()
 
             self.on_door = False
@@ -311,7 +393,9 @@ class StoryScript:
         respect = game.dialogue_state.dialogue.get_line_respect_points(line_ind)
         artifact = game.dialogue_state.dialogue.get_line_artifact(line_ind)
 
-        if not game.dialogue_state.dialogue.collected_respect_points.get(line_ind, False):
+        if not game.dialogue_state.dialogue.collected_respect_points.get(
+            line_ind, False
+        ):
             if self.current_room in self.rooms_data:
                 self.rooms_data[self.current_room]["respect"] += respect
             else:
@@ -330,9 +414,11 @@ class StoryScript:
 
         self.on_monster = supposed_monster
         game.current_state_type = StateType.DIALOGUE
-        game.dialogue_state.setup_dialogue(Path(
-            f'..\\assets\\data\\dialogues\\level_{self.current_room}\\{supposed_monster.enemy_name}.json'
-        ))
+        game.dialogue_state.setup_dialogue(
+            Path(
+                f"..\\assets\\data\\dialogues\\level_{self.current_room}\\{supposed_monster.enemy_name}.json"
+            )
+        )
         game.associate_current_state()
         game.dialogue_state.start_playing()
 
@@ -378,22 +464,33 @@ class StoryScript:
         self.current_door_code = code_req
 
         # Получение собранных респектов
-        respect = room_data["respect"]  # I made sure there are such attributes in rooms_data - Vsevolod
+        respect = room_data[
+            "respect"
+        ]  # I made sure there are such attributes in rooms_data - Vsevolod
 
         # Проверка всех 3 способов прохода через дверь
-        scored_respect, got_artifact, scored_discounted_respect, can_enter_code = self.check_room_exit_conditions(
-            respect, respect_req, artifacts_req, respect_req_w_artifacts, respect_req_w_code)
+        scored_respect, got_artifact, scored_discounted_respect, can_enter_code = (
+            self.check_room_exit_conditions(
+                respect,
+                respect_req,
+                artifacts_req,
+                respect_req_w_artifacts,
+                respect_req_w_code,
+            )
+        )
 
         # Постройка диалога
-        door_dialogue = {"lines": []}  # минимальный диалог, из уникального только задний фон двери
+        door_dialogue = {
+            "lines": []
+        }  # минимальный диалог, из уникального только задний фон двери
         stop_building = False
 
         if scored_respect:
             door_dialogue["lines"].append(
                 {
                     "text": f"Чтобы пройти через меня, требуется заслужить респект монстров на уровне {respect_req} или выше.\n"
-                            f"Ты заслужил {respect} и справился с задачей.",
-                    "bg": "doorbg.png"
+                    f"Ты заслужил {respect} и справился с задачей.",
+                    "bg": "doorbg.png",
                 }
             )
             stop_building = True
@@ -401,8 +498,8 @@ class StoryScript:
             door_dialogue["lines"].append(
                 {
                     "text": f"Чтобы пройти через меня, требуется заслужить респект монстров на уровне {respect_req} или выше.\n"
-                            f"Ты заслужил всего {respect}, человек.",
-                    "bg": "doorbg.png"
+                    f"Ты заслужил всего {respect}, человек.",
+                    "bg": "doorbg.png",
                 }
             )
 
@@ -427,111 +524,126 @@ class StoryScript:
                     f"попадётся {artifacts_req[0]}" if len(artifacts_req) == 1 else
                     f"попадутся {", ".join(artifacts_req[:-1])} и {artifacts_req[-1]}"
                     }, и ты {"этот предмет" if len(artifacts_req) == 1 else "эти предметы"} "
-                            f"принесёшь сюда,\nто я сделаю тебе скидку на респект."
+                    f"принесёшь сюда,\nто я сделаю тебе скидку на респект."
                 }
             )
 
         if not stop_building and code_req and can_enter_code:
-            door_dialogue["lines"].extend([
-                {
-                    "text": f"Впрочем, если ты знаешь мой секретный код, то минимальный уровень респекта будет "
-                            f"{respect_req_w_code}. И твоего респекта хватит.\n"
-                            f"Готов ввести код? Предупреждаю: у тебя на это 1 попытка!",
-                    "action": {
-                        "type": "choosefrom",
-                        "options": ["Да", "Нет"],
-                        "jumps": [None, len(door_dialogue["lines"]) + 5]
-                    }
-                },
-                {
-                    "text": "Тогда введи код!",
-                    "action": {"type": "savetyped"}
-                },
-                {
-                    "text": "Код верный! Проходи, человек!",
-                    "bg": "dooropenbg.png",
-                    "jump": -1,
-                    "nextroom": True
-                },
-                {
-                    "text": f"Код неверный!\nТеперь тебе придётся пройти комнату заново, но она будет воссоздана. "
-                            f"После этого у тебя останется "
-                            f"{f"1 воссоздание!" if self.attempts_left >= 2 else f"0 воссозданий!"}",
-                    "jump": -1,
-                    "restartroom": True
-                },
-                {
-                    "text": "Код неверный!\nВоссоздать комнату больше нельзя, так что дальше тебе дороги нет!",
-                    "music": "STOP",
-                    "jump": -1,
-                    "gameover": True
-                }
-            ])
+            door_dialogue["lines"].extend(
+                [
+                    {
+                        "text": f"Впрочем, если ты знаешь мой секретный код, то минимальный уровень респекта будет "
+                        f"{respect_req_w_code}. И твоего респекта хватит.\n"
+                        f"Готов ввести код? Предупреждаю: у тебя на это 1 попытка!",
+                        "action": {
+                            "type": "choosefrom",
+                            "options": ["Да", "Нет"],
+                            "jumps": [None, len(door_dialogue["lines"]) + 5],
+                        },
+                    },
+                    {"text": "Тогда введи код!", "action": {"type": "savetyped"}},
+                    {
+                        "text": "Код верный! Проходи, человек!",
+                        "bg": "dooropenbg.png",
+                        "jump": -1,
+                        "nextroom": True,
+                    },
+                    {
+                        "text": f"Код неверный!\nТеперь тебе придётся пройти комнату заново, но она будет воссоздана. "
+                        f"После этого у тебя останется "
+                        f"{f"1 воссоздание!" if self.attempts_left >= 2 else f"0 воссозданий!"}",
+                        "jump": -1,
+                        "restartroom": True,
+                    },
+                    {
+                        "text": "Код неверный!\nВоссоздать комнату больше нельзя, так что дальше тебе дороги нет!",
+                        "music": "STOP",
+                        "jump": -1,
+                        "gameover": True,
+                    },
+                ]
+            )
         elif not stop_building and code_req:
             door_dialogue["lines"].append(
                 {
                     "text": f"Впрочем, если ты знаешь мой секретный код, "
-                            f"то минимальный уровень респекта будет {respect_req_w_code}."
+                    f"то минимальный уровень респекта будет {respect_req_w_code}."
                 }
             )
 
         if scored_respect or scored_discounted_respect:
-            door_dialogue["lines"].extend([
-                {
-                    "text": "Готов попасть в следующую комнату?",
-                    "action": {
-                        "type": "choosefrom",
-                        "options": ["Да", "Нет"],
-                        "jumps": [None, len(door_dialogue["lines"]) + 2]
-                    }
-                },
-                {
-                    "text": "Тогда проходи, человек!",
-                    "bg": "dooropenbg.png",
-                    "jump": -1,
-                    "nextroom": True
-                },
-                {
-                    "text": "Тогда возвращайся, когда будешь готов. И не растрать респект!",
-                    "jump": -1
-                }
-            ])
+            door_dialogue["lines"].extend(
+                [
+                    {
+                        "text": "Готов попасть в следующую комнату?",
+                        "action": {
+                            "type": "choosefrom",
+                            "options": ["Да", "Нет"],
+                            "jumps": [None, len(door_dialogue["lines"]) + 2],
+                        },
+                    },
+                    {
+                        "text": "Тогда проходи, человек!",
+                        "bg": "dooropenbg.png",
+                        "jump": -1,
+                        "nextroom": True,
+                    },
+                    {
+                        "text": "Тогда возвращайся, когда будешь готов. И не растрать респект!",
+                        "jump": -1,
+                    },
+                ]
+            )
         else:
-            door_dialogue["lines"].extend([
-                {
-                    "text": "Что ж, ступай, поищи ещё монстров, выполни мои требования и возвращайся!",
-                    "action": {
-                        "type": "choosefrom",
-                        "options": ["Пойду поищу", "Никак не могу найти..."],
-                        "jumps": [-1, None]
-                    }
-                },
-                {
-                    "text": f"Прискорбно! Придётся воссоздать комнату, чтобы пройти её ещё раз.\n"
-                            f"После этого у тебя останется "
-                            f"{f"1 воссоздание!" if self.attempts_left >= 2 else f"0 воссозданий!"}",
-                    "jump": -1,
-                    "restartroom": True
-                },
-                {
-                    "text": "Прискорбно! Воссоздать комнату больше нельзя, так что дальше тебе дороги нет!",
-                    "music": "STOP",
-                    "jump": -1,
-                    "gameover": True
-                }
-            ])
+            door_dialogue["lines"].extend(
+                [
+                    {
+                        "text": "Что ж, ступай, поищи ещё монстров, выполни мои требования и возвращайся!",
+                        "action": {
+                            "type": "choosefrom",
+                            "options": ["Пойду поищу", "Никак не могу найти..."],
+                            "jumps": [-1, None],
+                        },
+                    },
+                    {
+                        "text": f"Прискорбно! Придётся воссоздать комнату, чтобы пройти её ещё раз.\n"
+                        f"После этого у тебя останется "
+                        f"{f"1 воссоздание!" if self.attempts_left >= 2 else f"0 воссозданий!"}",
+                        "jump": -1,
+                        "restartroom": True,
+                    },
+                    {
+                        "text": "Прискорбно! Воссоздать комнату больше нельзя, так что дальше тебе дороги нет!",
+                        "music": "STOP",
+                        "jump": -1,
+                        "gameover": True,
+                    },
+                ]
+            )
 
         return door_dialogue
 
-    def check_room_exit_conditions(self, respect, respect_req,
-                                   artifacts_req=None, respect_req_w_artifacts=None,
-                                   respect_req_w_code=None):
-        scored_respect = got_artifact = scored_discounted_respect = can_enter_code = False
+    def check_room_exit_conditions(
+        self,
+        respect,
+        respect_req,
+        artifacts_req=None,
+        respect_req_w_artifacts=None,
+        respect_req_w_code=None,
+    ):
+        scored_respect = got_artifact = scored_discounted_respect = can_enter_code = (
+            False
+        )
         if respect >= respect_req:
             scored_respect = True
-        if artifacts_req is not None and all([artifact in self.artifacts for artifact in artifacts_req]):
+        if artifacts_req is not None and all(
+            [artifact in self.artifacts for artifact in artifacts_req]
+        ):
             got_artifact = True
-            if respect_req_w_artifacts is not None and respect >= respect_req_w_artifacts:
+            if (
+                respect_req_w_artifacts is not None
+                and respect >= respect_req_w_artifacts
+            ):
                 scored_discounted_respect = True
         if respect_req_w_code is not None and respect >= respect_req_w_code:
             can_enter_code = True
@@ -541,32 +653,46 @@ class StoryScript:
         room_data = self.rooms_data[self.current_room]
 
         # Размер комнаты
-        sizes = room_data.get("sizes", {"easy": (31, 19), "medium": (31, 25), "hard": (37, 37)})
+        sizes = room_data.get(
+            "sizes", {"easy": (31, 19), "medium": (31, 25), "hard": (37, 37)}
+        )
         w, h = sizes[diff_word]
 
         # Определение стен с дверьми
-        walls_with_doors = room_data.get("walls_with_doors", {"entrance": "west", "exit": "east"})
+        walls_with_doors = room_data.get(
+            "walls_with_doors", {"entrance": "west", "exit": "east"}
+        )
         string_entrance = walls_with_doors["entrance"]
         string_exit = walls_with_doors["exit"]
         enum_entrance = (
-            Border.NORTH if string_entrance == "north"
-            else Border.SOUTH if string_entrance == "south"
-            else Border.WEST if string_entrance == "west"
-            else Border.EAST
+            Border.NORTH
+            if string_entrance == "north"
+            else (
+                Border.SOUTH
+                if string_entrance == "south"
+                else Border.WEST if string_entrance == "west" else Border.EAST
+            )
         )
         enum_exit = (
-            Border.NORTH if string_exit == "north"
-            else Border.SOUTH if string_exit == "south"
-            else Border.WEST if string_exit == "west"
-            else Border.EAST
+            Border.NORTH
+            if string_exit == "north"
+            else (
+                Border.SOUTH
+                if string_exit == "south"
+                else Border.WEST if string_exit == "west" else Border.EAST
+            )
         )
 
         # Определение координаты двери выхода в её стене
-        entrance_coords = room_data.get("other_entrance_coords", {"easy": 9, "medium": 13, "hard": 19})
+        entrance_coords = room_data.get(
+            "other_entrance_coords", {"easy": 9, "medium": 13, "hard": 19}
+        )
         en_coord = entrance_coords[diff_word]
-        ex_coord = (random.choice(range(1, h - 1, 2))
-                    if enum_entrance in (Border.WEST, Border.EAST)
-                    else random.randrange(1, w - 1, 2))
+        ex_coord = (
+            random.choice(range(1, h - 1, 2))
+            if enum_entrance in (Border.WEST, Border.EAST)
+            else random.randrange(1, w - 1, 2)
+        )
         # входная дверь в одном и том же месте, дверь выхода в разных, но всегда в одной стене
 
         # Выбор областей генерации монстров по сложности
@@ -577,7 +703,16 @@ class StoryScript:
 
         moving_monsters = room_data.get("moving_monsters", [])
 
-        return w, h, enum_entrance, enum_exit, en_coord, ex_coord, processed_monster_dict, moving_monsters
+        return (
+            w,
+            h,
+            enum_entrance,
+            enum_exit,
+            en_coord,
+            ex_coord,
+            processed_monster_dict,
+            moving_monsters,
+        )
 
     def restart_current_room(self, game: Main):
         """Рестарт текущей комнаты при провале"""
@@ -587,17 +722,26 @@ class StoryScript:
         self.rooms_data[self.current_room]["respect"] = 0
 
         # Подготовка данных для установки лабиринта
-        w, h, en, ex, en_coord, ex_coord, processed_monster_dict, moving_monsters = self.prepare_room_gen_data(
-            ("easy", "medium", "hard")[self.rooms_data[self.current_room].get("difficulty", 0)]
+        w, h, en, ex, en_coord, ex_coord, processed_monster_dict, moving_monsters = (
+            self.prepare_room_gen_data(
+                ("easy", "medium", "hard")[
+                    self.rooms_data[self.current_room].get("difficulty", 0)
+                ]
+            )
         )
 
         # Переключение состояния и генерация лабиринта
         game.current_state_type = StateType.MAZE
-        game.maze_state.setup_maze(w, h,
-                                   (en, ex), (en_coord, ex_coord),
-                                   monster_dict=processed_monster_dict,
-                                   moving_monsters=moving_monsters,
-                                   more_random=True, curving=True)
+        game.maze_state.setup_maze(
+            w,
+            h,
+            (en, ex),
+            (en_coord, ex_coord),
+            monster_dict=processed_monster_dict,
+            moving_monsters=moving_monsters,
+            more_random=True,
+            curving=True,
+        )
         game.associate_current_state()
         game.maze_state.make_alive()
 
@@ -624,21 +768,28 @@ class StoryScript:
         diff_word = ("easy", "medium", "hard")[difficulty]
 
         # Продвижение на одну комнату и установка сложности
-        self.current_room = min(self.current_room + 1, 2)  # временное ограничение на максимальный уровень
+        self.current_room = min(
+            self.current_room + 1, 2
+        )  # временное ограничение на максимальный уровень
         self.rooms_data[self.current_room]["difficulty"] = difficulty
 
         # Подготовка данных для установки лабиринта
-        w, h, en, ex, en_coord, ex_coord, processed_monster_dict, moving_monsters = self.prepare_room_gen_data(
-            diff_word
+        w, h, en, ex, en_coord, ex_coord, processed_monster_dict, moving_monsters = (
+            self.prepare_room_gen_data(diff_word)
         )
 
         # Переключение состояния и генерация лабиринта
         game.current_state_type = StateType.MAZE
         game.maze_state.set_level(self.current_room)
-        game.maze_state.setup_maze(w, h,
-                                   (en, ex), (en_coord, ex_coord),
-                                   monster_dict=processed_monster_dict,
-                                   moving_monsters=moving_monsters,
-                                   more_random=True, curving=True)
+        game.maze_state.setup_maze(
+            w,
+            h,
+            (en, ex),
+            (en_coord, ex_coord),
+            monster_dict=processed_monster_dict,
+            moving_monsters=moving_monsters,
+            more_random=True,
+            curving=True,
+        )
         game.associate_current_state()
         game.maze_state.make_alive()
