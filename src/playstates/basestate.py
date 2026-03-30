@@ -1,7 +1,7 @@
 import pygame
 
-from src.util import ButtonState
 from src.level_building.button import Button
+from src.util import ButtonState
 
 
 class BaseState:
@@ -56,7 +56,11 @@ class BaseState:
         updated = True
         if event.key == pygame.K_BACKSPACE:
             field_text = field_text[:-1]
-        elif event.unicode and 31 < ord(event.unicode) and ord(event.unicode) not in (127,):
+        elif (
+            event.unicode
+            and 31 < ord(event.unicode)
+            and ord(event.unicode) not in (127,)
+        ):
             # TODO: uhh find all unrenderable characters?? idk ;(
             field_text += event.unicode
         else:
@@ -84,7 +88,9 @@ class BaseState:
             self.need_screen_update = True
         return updated
 
-    def update_buttons_on_press(self, button: Button, buttons_to_unpress: tuple[Button] = None):
+    def update_buttons_on_press(
+        self, button: Button, buttons_to_unpress: tuple[Button] = None
+    ):
         """Зажатие подсвеченной кнопки, когда происходит щелчок мышью"""
 
         if button.state == ButtonState.HOVERED:
@@ -92,7 +98,11 @@ class BaseState:
             # Отжатие других кнопок (если необходимо)
             if buttons_to_unpress:
                 for unpress_button in buttons_to_unpress:
-                    unpress_button.state = ButtonState.REGULAR if not unpress_button is button else ButtonState.PRESSED
+                    unpress_button.state = (
+                        ButtonState.REGULAR
+                        if not unpress_button is button
+                        else ButtonState.PRESSED
+                    )
             self.need_screen_update = True
             return True
         else:

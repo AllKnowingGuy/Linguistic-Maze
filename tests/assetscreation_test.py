@@ -13,7 +13,7 @@ class TestLoadOneObject:
     def test_load_existing_file(self):
         """Проверка загрузки существующего файла"""
         result = load_one_object(
-            Path('../assets/images/maze_tiles/player/player.png'), PLAYER_SIZE, PLAYER_SIZE)
+            Path('../assets/images/maze_tiles/player/student/player.png'), PLAYER_SIZE, PLAYER_SIZE)
         assert result is not None
         assert isinstance(result, pygame.Surface)
 

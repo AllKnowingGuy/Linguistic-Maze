@@ -12,6 +12,12 @@
 - Dialogue files can now have info on the sound to be played before the line is printed if needed
 - Dialogues can now set protagonists as right speakers, checking that they're different from the chosen one
 
+## 2026-03-28 - Skin update
+- Implemented differentiated skins for four playable characters, chosen during the intro
+- `mazestate.py` has a new `self.player_name` attribute, which is responsible for different playable characters' tiles
+- Created four playable character folders in `images/maze_tiles/player`, with the fifth one being the default one
+- Added new monster sprites
+
 ## 2026-03-28 - L update
 
 - Implemented **gameover** and proper game restart (on loss at least)

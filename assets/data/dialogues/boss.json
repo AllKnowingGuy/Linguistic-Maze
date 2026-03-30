@@ -6,6 +6,7 @@
 		{
 			"text": "Внезапно дерь закрывается за тобой! Ты остаёшься в кромешной тьме.",
 			"bg": "pitchblack.png",
+			"music": "STOP",
 			"sound": "Door Closes.wav"
 		},
 		{

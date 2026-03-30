@@ -53,9 +53,9 @@
 	"moving_monsters": ["monster_runner"],
 	"max_respect": 20,
 	"respect_check": {
-		"easy": 8,
-		"medium": 10,
-		"hard": 13
+		"easy": 0,
+		"medium": 0,
+		"hard": 0
 	},
 	"artifacts_check": ["ручка"],
 	"respect_check_w_artifacts": {

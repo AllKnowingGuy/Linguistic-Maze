@@ -4,13 +4,13 @@
 	"lines": [
 		{
 			"speaker": "right",
-			"text": "ValueError: unexpected Human on the ClearWay"
+			"text": "ValueError: unexpected Human on the ClearWay",
 			"bg": "PREVSCREEN"
 		},
 		{
 			"speaker": "right",
 			"text": "Warning: Human.respect depleted, don't do this again",
-			"rpoints": -1,
+			"rpoints": -1
 		}
 	]
 }
