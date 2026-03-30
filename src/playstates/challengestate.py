@@ -176,7 +176,7 @@ class ChallengeState(BaseState):
         )
 
         # Шрифт испытания и выводимые тексты
-        self.challenge_font = pygame.font.Font(None, 35)
+        self.challenge_font = pygame.font.SysFont("comicsans", 24, bold=True)
 
         # Кэш для картинок, когда они появляются
         self.image_cache = {}

@@ -101,18 +101,7 @@ class Maze:
 
         # Добавляем вход и выход
         self.pattern[self.start_door.y][self.start_door.x] = 0
-        try:
-            self.pattern[self.end_door.y][self.end_door.x] = 0
-        except IndexError as e:
-            raise ValueError(
-                f"The maze randomly failed to generate with these parameters:\n"
-                f"width: {self.width}, height: {self.height},\n"
-                f"start X: {self.start.x}, start Y: {self.start.y},\n"
-                f"end X: {self.end.x}, end Y: {self.end.y},\n"
-                f"start door X: {self.start_door.x}, start door Y: {self.start_door.y},\n"
-                f"end door X: {self.end_door.x}, end door Y: {self.end_door.y}.\n\n"
-                f"Original exception: {e}"
-            )
+        self.pattern[self.end_door.y][self.end_door.x] = 0
 
     def place_monsters(
         self,

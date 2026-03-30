@@ -16,8 +16,8 @@ from src.util import (
     get_centered_point,
 )
 
-START_BUTTON_X = get_centered_point(START_BUTTON_WIDTH, False)
-START_BUTTON_Y = SCREEN_HEIGHT / 2 + 100
+START_BUTTON_X = get_centered_point(START_BUTTON_WIDTH, False) - 50
+START_BUTTON_Y = SCREEN_HEIGHT / 2 + 130
 LEFT_BIND_BUTTON_X = 5
 RIGHT_BIND_BUTTON_X = SCREEN_WIDTH - 5 - BIND_BUTTON_WIDTH
 BIND_BUTTON_Y = 165
@@ -111,7 +111,7 @@ class MenuState(BaseState):
         self.btn_set.extend(self.keybind_button_dict.values())
 
         # Шрифт меню и выводимые тексты
-        self.menu_font = pygame.font.Font(None, 35)
+        self.menu_font = pygame.font.SysFont("comicsans", 24, bold=True)
         self.setting_text_sprite = None
         self.current_bind_sprite = None
 
@@ -287,7 +287,7 @@ class MenuState(BaseState):
                 )
 
                 screen.blit(
-                    cheer_text, (get_centered_point(cheer_text.get_width(), False), 300)
+                    cheer_text, (get_centered_point(cheer_text.get_width(), False), 350)
                 )
                 screen.blit(score_text, (SCREEN_WIDTH / 2, 500))
                 screen.blit(artifacts_text, (SCREEN_WIDTH / 2, 540))

@@ -69,6 +69,7 @@
 		{
 			"speaker": "right",
 			"text": "Анна, поздравляю с успешным, так сказать, скоропостижным прохождением практики!\nВаша оценка - 8.",
+			"sprite": "monsters\\empty.png",
 			"bg": "pass_practicum_plz.png",
 			"jump": 16
 		},
