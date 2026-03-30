@@ -135,7 +135,7 @@ class Challenge:
                     result = RUBERT_MODEL(user_input)[0]
                     positive_score = float(result["score"])
                     threshold = supposed_action.get("threshold", 0.6)
-                    if not (0 <= threshold <= 1):
+                    if not 0 <= threshold <= 1:
                         raise ValueError(
                             f"Threshold must be between 0 and 1, got {threshold}"
                         )

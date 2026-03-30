@@ -317,11 +317,10 @@ class ChallengeState(BaseState):
                 self.current_stamp = (self.incorrect_stamp, self.correct_stamp)[
                     self.current_answer_correctness
                 ]
-                (
+                if self.current_answer_correctness:
                     self.correct_stamp_sound.play()
-                    if self.current_answer_correctness
-                    else self.incorrect_stamp_sound.play()
-                )
+                else:
+                    self.incorrect_stamp_sound.play()
 
                 self.need_screen_update = True
 

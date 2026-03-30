@@ -240,11 +240,10 @@ class MenuState(BaseState):
         if self.need_screen_update:
 
             if self.just_lost or self.just_won:
-                (
+                if self.just_lost:
                     screen.blit(self.loss_bg, (0, 0))
-                    if self.just_lost
-                    else screen.blit(self.win_bg, (0, 0))
-                )
+                else:
+                    screen.blit(self.win_bg, (0, 0))
 
                 cheer_text = (
                     self.menu_font.render(

@@ -38,7 +38,7 @@ def check_sentiment_with_rubert(
     try:
         result = RUBERT_MODEL(text)[0]
         positive_score = float(result["score"])
-        if not (0 <= threshold <= 1):
+        if not 0 <= threshold <= 1:
             raise ValueError(f"Threshold must be between 0 and 1, got {threshold}")
         return positive_score > threshold
     except Exception as e:
