@@ -1,0 +1,16 @@
+{
+	"right": "Ходун-молчун",
+	"rightsprite": "monsters\\level_2\\monster_runner.png",
+	"lines": [
+		{
+			"speaker": "right",
+			"text": "Пам-парам-парам- ой, кто здесь?",
+			"bg": "PREVSCREEN"
+		},
+		{
+			"speaker": "right",
+			"text": "Я тут хожу и размышляю. Будь добр не стоять на пути, сбиваешь с мысли!",
+			"rpoints": -1
+		}
+	]
+}

@@ -43,7 +43,9 @@ class Dialogue:
         self.right_character = dialogue_dict.get("right", "")
         self.right_character_path = dialogue_dict.get("rightsprite")
 
+        self.story_dialogue = dialogue_dict.get("story", False)
         self.ominous = dialogue_dict.get("ominous", False)
+        self.victorious = dialogue_dict.get("victorious", False)
         self.music_path = dialogue_dict.get("music")
         self.starts_challenge = dialogue_dict.get("challenge", False)
         self.respect_checks = dialogue_dict.get("challengerpoints")
@@ -92,6 +94,21 @@ class Dialogue:
         if line_ind >= len(self.lines):
             return None
         return self.lines[line_ind].get("music")
+
+    def get_line_sound(self, line_ind: int) -> str | None:
+        if line_ind >= len(self.lines):
+            return None
+        return self.lines[line_ind].get("sound")
+
+    def get_line_character(self, line_ind: int) -> str | None:
+        if line_ind >= len(self.lines):
+            return None
+        return self.lines[line_ind].get("name")
+
+    def get_line_sprite(self, line_ind: int) -> str | None:
+        if line_ind >= len(self.lines):
+            return None
+        return self.lines[line_ind].get("sprite")
 
     def get_line_jump(self, line_ind: int) -> int | None:
         if line_ind >= len(self.lines):

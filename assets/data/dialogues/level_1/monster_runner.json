@@ -1,0 +1,12 @@
+{
+	"right": "Бегун-шелестун",
+	"rightsprite": "monsters\\level_1\\monster_runner.png",
+	"lines": [
+		{
+			"speaker": "right",
+			"text": "Слышь, не колебайся у меня под ногами!",
+			"rpoints": -1,
+			"bg": "PREVSCREEN"
+		}
+	]
+}

@@ -4,7 +4,7 @@ from pathlib import Path
 
 from transformers import pipeline
 
-preloaded_model = pipeline(
+RUBERT_MODEL = pipeline(
     "text-classification", model="seara/rubert-base-cased-russian-sentiment"
 )
 
@@ -15,7 +15,6 @@ class Challenge:
 
     def __init__(self, path: Path):
         self._read_and_fill(path)
-        self._rubert_model = preloaded_model
 
     def _read_and_fill(self, path: Path):
         with open(path, "r", encoding="utf-8") as f:
@@ -103,7 +102,7 @@ class Challenge:
             return supposed_action.get("incorrectrpoints", 0)
         return None
 
-    # в сюжете есть монстры, которых можно пропустить, показав артефакт (например, дудку)
+    # на случай, если в сюжете появятся монстры, которых можно пропустить, показав артефакт
     def can_skip_with_artifact(self, window_ind: int, artifacts: list[str]) -> bool:
         """Проверка возможности пропустить задание, имея нужный артефакт"""
 
@@ -133,9 +132,13 @@ class Challenge:
                 return any(re.search(p, user_input, re.IGNORECASE) for p in patterns)
             elif checker == "sentiment_rubert":
                 try:
-                    result = self._rubert_model(user_input)[0]
+                    result = RUBERT_MODEL(user_input)[0]
                     positive_score = float(result["score"])
                     threshold = supposed_action.get("threshold", 0.6)
+                    if not 0 <= threshold <= 1:
+                        raise ValueError(
+                            f"Threshold must be between 0 and 1, got {threshold}"
+                        )
                     return positive_score > threshold
                 except Exception as e:
                     print(f"Ошибка в sentiment_rubert: {e}")

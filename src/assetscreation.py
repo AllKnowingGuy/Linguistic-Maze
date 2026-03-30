@@ -170,6 +170,24 @@ def set_gameover_music():
         pass
 
 
+def add_enter_maze_sound():
+    try:
+        sound_path = Path(f"{ROOT_MUSIC_PATH}\\Start Game.wav")
+        sound = pygame.mixer.Sound(sound_path)
+        return sound
+    except (pygame.error, AttributeError):
+        return None
+
+
+def add_victory_sound():
+    try:
+        sound_path = Path(f"{ROOT_MUSIC_PATH}\\Victory.wav")
+        sound = pygame.mixer.Sound(sound_path)
+        return sound
+    except (pygame.error, AttributeError):
+        return None
+
+
 """
 Для MazeState
 """
@@ -409,6 +427,17 @@ def set_dialogue_music(rel_path: str | None = None):
         print(f"Ошибка загрузки {rel_path}: {e}")
 
 
+def add_dialogue_sound(rel_path: str | None = None):
+    if not rel_path:
+        return None
+    try:
+        sound_path = Path(f"{ROOT_MUSIC_PATH}\\{rel_path}")
+        sound = pygame.mixer.Sound(sound_path)
+        return sound
+    except (pygame.error, AttributeError):
+        return None
+
+
 """
 Для ChallengeState
 """
@@ -418,7 +447,7 @@ QUESTION_CARD_WIDTH = SCREEN_WIDTH - 200
 QUESTION_CARD_HEIGHT = SCREEN_HEIGHT - 100
 STAMP_WIDTH = 150
 STAMP_HEIGHT = 90
-TIP_CARD_WIDTH = SCREEN_WIDTH - 700
+TIP_CARD_WIDTH = SCREEN_WIDTH - 600
 TIP_CARD_HEIGHT = SCREEN_HEIGHT - 500
 
 
@@ -554,7 +583,25 @@ def add_challenge_start_sound():
 
 def add_challenge_transition_sound():
     try:
-        sound_path = Path(f"{ROOT_MUSIC_PATH}\\temporary deltarune sound.ogg")
+        sound_path = Path(f"{ROOT_MUSIC_PATH}\\Transition.wav")
+        sound = pygame.mixer.Sound(sound_path)
+        return sound
+    except (pygame.error, AttributeError):
+        return None
+
+
+def add_correct_stamp_sound():
+    try:
+        sound_path = Path(f"{ROOT_MUSIC_PATH}\\Correct Stamp.wav")
+        sound = pygame.mixer.Sound(sound_path)
+        return sound
+    except (pygame.error, AttributeError):
+        return None
+
+
+def add_incorrect_stamp_sound():
+    try:
+        sound_path = Path(f"{ROOT_MUSIC_PATH}\\Incorrect Stamp.wav")
         sound = pygame.mixer.Sound(sound_path)
         return sound
     except (pygame.error, AttributeError):

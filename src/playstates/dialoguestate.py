@@ -9,8 +9,15 @@ from src.config import Config
 from src.level_building.button import Button
 from src.level_building.dialogue import Dialogue
 from src.playstates.basestate import BaseState
-from src.util import (CHOICE_BUTTON_SIZE, SCREEN_HEIGHT, SCREEN_WIDTH,
-                      Awaiting, ButtonState, Command)
+from src.util import (
+    CHOICE_BUTTON_SIZE,
+    FILENAME_DISPLAY_PROTAG_DICT,
+    SCREEN_HEIGHT,
+    SCREEN_WIDTH,
+    Awaiting,
+    ButtonState,
+    Command,
+)
 
 # Константы
 TEXT_X = 100
@@ -24,6 +31,7 @@ CHOICE_BUTTON_DIST_X = (
 CHOICE_BUTTON_DIST_Y = (
     CHOICE_BUTTON_SIZE + 7
 )  # расстояние между кнопками выбора по вертикали
+PROTAGS_ORDER = ("Аня", "Денис", "Лера", "Даня")
 
 
 class Speaker(Enum):
@@ -59,9 +67,9 @@ class DialogueState(BaseState):
     def __init__(self):
         """Задание некоторых атрибутов, загрузка изображений для отрисовки и создание шрифтов"""
         super().__init__()
-        self.has_music = False
-        self.left_name = "Протагонист"
         self.story_mode = False
+        self.has_music = False
+        self.left_real_name = "Протагонист"
 
         """Параметры по умолчанию"""
         self.dialogue = None
@@ -88,9 +96,7 @@ class DialogueState(BaseState):
         self.choice_jumps = []
 
         # Текст поля ввода
-        self.current_input_text = (
-            ""  # необходимо очищать каждый раз, когда нажимаем Enter
-        )
+        self.current_input_text = ""  # тоже необходимо очищать
 
         """Управление"""
         self.stop_anim_bind, self.advance_bind = Config().get_dialogue_controls()
@@ -119,12 +125,12 @@ class DialogueState(BaseState):
         self.choice_button_sprites = assetscreation.add_dialogue_choice_buttons()
 
         # Шрифт диалога и выводимые тексты
-        self.dialogue_font = pygame.font.Font(None, 35)
+        self.dialogue_font = pygame.font.SysFont("comicsans", 24, bold=True)
         self.left_speaker_name_sprite = None
         self.right_speaker_name_sprite = None
         self.input_text_sprite = None
         self.button_text_sprites = []  # тоже необходимо очищать после нажатия кнопки
-        self.prepare_text = self.dialogue_font.render("Приготовься...", True, (0, 0, 0))
+        self.prepare_text = None
 
         # Кеш редко меняющегося содержимого дисплея
         self.need_cache = False
@@ -132,6 +138,57 @@ class DialogueState(BaseState):
 
         """Музыка"""
         self.start_music_time = 0
+
+    def render_base_left_name(self):
+        if self.dialogue.left_character == "Протагонист":
+            self.left_speaker_name_sprite = self.dialogue_font.render(
+                self.left_real_name,
+                True,
+                (0, 0, 0) if not self.story_mode else (255, 255, 255),
+            )
+        else:
+            self.left_speaker_name_sprite = self.dialogue_font.render(
+                self.dialogue.left_character,
+                True,
+                (0, 0, 0) if not self.story_mode else (255, 255, 255),
+            )
+
+    def render_line_name(
+        self, line_name: str, current_protag_ind: int = 0, right: bool = True
+    ):
+        if line_name[:-1] == "PROTAG" and line_name[-1] in "1234":
+            rendered_name = self.dialogue_font.render(
+                PROTAGS_ORDER[(current_protag_ind + int(line_name[-1]) - 1) % 4],
+                True,
+                (0, 0, 0) if not self.story_mode else (255, 255, 255),
+            )
+        else:
+            rendered_name = self.dialogue_font.render(
+                line_name, True, (0, 0, 0) if not self.story_mode else (255, 255, 255)
+            )
+        if right:
+            self.right_speaker_name_sprite = rendered_name
+        else:
+            self.left_speaker_name_sprite = rendered_name
+
+    def create_line_sprite(
+        self, line_sprite_path: str, current_protag_ind: int = 0, right: bool = True
+    ):
+        if line_sprite_path[:-1] == "PROTAG" and line_sprite_path[-1] in "1234":
+            filename = [
+                k
+                for k, v in FILENAME_DISPLAY_PROTAG_DICT.items()
+                if v
+                == PROTAGS_ORDER[
+                    (current_protag_ind + int(line_sprite_path[-1]) - 1) % 4
+                ]
+            ][0]
+        else:
+            filename = line_sprite_path
+        if right:
+            self.right_speaker = assetscreation.add_right_speak_sprite(filename)
+        else:
+            self.left_speaker = assetscreation.add_left_speak_sprite(filename)
 
     def setup_dialogue(
         self,
@@ -142,6 +199,22 @@ class DialogueState(BaseState):
 
         self.dialogue = Dialogue(json_path_or_dialogue_dict)
         self.finished = False
+
+        # Очистка кнопок выбора и поля ввода
+        self.choice_buttons = []
+        self.choice_jumps = []
+        self.current_input_text = ""
+
+        # Обновление параметров для диалогов-историй
+        if self.dialogue.story_dialogue:
+            self.story_mode = True
+        else:
+            self.story_mode = False
+        self.prepare_text = self.dialogue_font.render(
+            "Подожди немножко...",
+            True,
+            (0, 0, 0) if not self.story_mode else (255, 255, 255),
+        )
 
         # Прыжок на определённую линию, если диалог идёт после испытания
         if (
@@ -154,11 +227,6 @@ class DialogueState(BaseState):
             self.current_line_ind = self.dialogue.respect_jumps[jump_index]
         else:
             self.current_line_ind = 0
-
-        # Очистка кнопок выбора и поля ввода
-        self.choice_buttons = []
-        self.choice_jumps = []
-        self.current_input_text = ""
 
         # Установка базового заднего фона (может быть изменён по мере прочтения строчек)
         if self.screenshot_bg:
@@ -173,18 +241,7 @@ class DialogueState(BaseState):
         self.playing_line = False
 
         # Создание именных плашек говорящих
-        if self.dialogue.left_character == "Протагонист":
-            self.left_speaker_name_sprite = self.dialogue_font.render(
-                self.left_name,
-                True,
-                (0, 0, 0) if not self.story_mode else (255, 255, 255),
-            )
-        else:
-            self.left_speaker_name_sprite = self.dialogue_font.render(
-                self.dialogue.left_character,
-                True,
-                (0, 0, 0) if not self.story_mode else (255, 255, 255),
-            )
+        self.render_base_left_name()
         self.right_speaker_name_sprite = self.dialogue_font.render(
             self.dialogue.right_character,
             True,
@@ -196,7 +253,12 @@ class DialogueState(BaseState):
             self.dialogue.left_character
             and self.dialogue.left_character == "Протагонист"
         ):
-            self.left_speaker = assetscreation.add_left_speak_sprite()
+            if self.left_real_name and self.left_real_name != "Протагонист":
+                self.left_speaker = assetscreation.add_left_speak_sprite(
+                    f"{[k for k, v in FILENAME_DISPLAY_PROTAG_DICT.items() if v == self.left_real_name][0]}.png"
+                )
+            else:
+                self.left_speaker = assetscreation.add_left_speak_sprite()
 
         # Установка спрайта собеседника (если указан в файле диалога и если собеседник вообще есть)
         if self.dialogue.right_character_path:
@@ -209,6 +271,9 @@ class DialogueState(BaseState):
         # Если диалог зловещий - ставим музыку монстра, иначе музыку из файла диалога, если она указана
         if self.dialogue.ominous:
             assetscreation.set_dialogue_music("Monster.wav")
+            self.has_music = True
+        elif self.dialogue.victorious:
+            assetscreation.set_dialogue_music("Outro.wav")
             self.has_music = True
         elif self.dialogue.music_path:
             assetscreation.set_dialogue_music(self.dialogue.music_path)
@@ -231,8 +296,10 @@ class DialogueState(BaseState):
 
         # Ставим музыку диалога
         if (
-            self.dialogue.ominous or self.dialogue.music_path
-        ):  # временно за неимением лучшего
+            self.dialogue.ominous
+            or self.dialogue.victorious
+            or self.dialogue.music_path
+        ):
             pygame.mixer.music.play(-1)
             self.start_music_time = pygame.time.get_ticks()
 
@@ -287,8 +354,7 @@ class DialogueState(BaseState):
         action_type = self.dialogue.get_line_action_type(self.current_line_ind)
         new_bg = self.dialogue.get_line_bgswitch(self.current_line_ind)
         new_music = self.dialogue.get_line_musicswitch(self.current_line_ind)
-
-        # Преобразуем данные в формат, поддерживаемый DialogueState
+        sound = self.dialogue.get_line_sound(self.current_line_ind)
 
         # Если линию произносит один из участников
         if side:
@@ -300,6 +366,65 @@ class DialogueState(BaseState):
                 raise ValueError(f"This side cannot be processed: {side}")
         else:
             self.now_speaking = Speaker.NO_ONE
+
+        line_left_char = None
+        line_left_sprite_path = None
+        line_right_char = None
+        line_right_sprite_path = None
+        if self.now_speaking.name == Speaker.LEFT.name:
+            line_left_char = self.dialogue.get_line_character(self.current_line_ind)
+            line_left_sprite_path = self.dialogue.get_line_sprite(self.current_line_ind)
+        elif self.now_speaking.name == Speaker.RIGHT.name:
+            line_right_char = self.dialogue.get_line_character(self.current_line_ind)
+            line_right_sprite_path = self.dialogue.get_line_sprite(
+                self.current_line_ind
+            )
+
+        # Меняем персонажей, если требуется
+        current_protag_ind = 0
+        if self.left_real_name and self.left_real_name != "Протагонист":
+            current_protag_ind = PROTAGS_ORDER.index(self.left_real_name)
+
+        if line_left_char:
+            self.render_line_name(line_left_char, current_protag_ind, right=False)
+        else:
+            self.render_base_left_name()
+        if line_right_char:
+            self.render_line_name(line_right_char, current_protag_ind, right=True)
+        else:
+            self.right_speaker_name_sprite = self.dialogue_font.render(
+                self.dialogue.right_character,
+                True,
+                (0, 0, 0) if not self.story_mode else (255, 255, 255),
+            )
+
+        if line_left_sprite_path:
+            if line_left_char[:-1] == "PROTAG" and line_left_char[-1] in "1234":
+                filename = [
+                    k
+                    for k, v in FILENAME_DISPLAY_PROTAG_DICT.items()
+                    if v
+                    == PROTAGS_ORDER[
+                        (current_protag_ind + int(line_left_char[-1]) - 1) % 4
+                    ]
+                ][0]
+                self.left_speaker = assetscreation.add_left_speak_sprite(filename)
+            else:
+                self.left_speaker = assetscreation.add_left_speak_sprite(
+                    line_left_sprite_path
+                )
+        if line_right_sprite_path:
+            if line_right_char[:-1] == "PROTAG" and line_right_char[-1] in "1234":
+                filename = (
+                    f"protagonists\\{[k for k, v in FILENAME_DISPLAY_PROTAG_DICT.items()
+                            if v == PROTAGS_ORDER[(current_protag_ind + int(line_right_char[-1]) - 1) % 4]
+                            ][0]}_right.png"
+                )
+                self.right_speaker = assetscreation.add_right_speak_sprite(filename)
+            else:
+                self.right_speaker = assetscreation.add_right_speak_sprite(
+                    line_right_sprite_path
+                )
 
         # Если строчка требует действия от игрока
         if action_type:
@@ -342,14 +467,20 @@ class DialogueState(BaseState):
             # Остановка музыки
             if new_music == "STOP":
                 pygame.mixer.music.fadeout(1)
-                self.dialogue.ominous = (
-                    False  # Не стоит завершать диалог с меняющейся музыкой "в такт"
-                )
+                # Диалог с меняющейся музыкой слишком сложно завершить "в такт"
+                self.dialogue.ominous = False
+                self.dialogue.victorious = False
 
             # Загрузка другой музыки
             else:
                 assetscreation.set_dialogue_music(new_music)
                 pygame.mixer.music.play(-1)
+
+        # Если во время строчки один раз играет звук
+        if sound:
+            sound_object = assetscreation.add_dialogue_sound(sound)
+            if sound_object:
+                sound_object.play()
 
         # Запрашиваем обновление редко меняющихся элементов экрана
         self.need_cache = True
@@ -403,6 +534,15 @@ class DialogueState(BaseState):
             if (
                 0 <= (pygame.time.get_ticks() - self.start_music_time) % 2000 < 6
             ):  # FPS are imperfect - Vsevolod
+                self.finished = True
+                self.trying_to_finish = False
+                self.need_screen_update = True
+        elif self.dialogue.victorious:
+            if (
+                0
+                <= (pygame.time.get_ticks() - self.start_music_time) % (36000 / 23)
+                < 6
+            ):
                 self.finished = True
                 self.trying_to_finish = False
                 self.need_screen_update = True
@@ -606,11 +746,10 @@ class DialogueState(BaseState):
                         True,
                         (0, 0, 0) if not self.story_mode else (255, 255, 255),
                     )
-                    # TODO: play sound because it's cool
                     screen.blit(announce, (SCREEN_WIDTH / 2, SCREEN_HEIGHT - 100))
                 elif artifact:
                     announce = self.dialogue_font.render(
-                        f"Теперь у вас есть {artifact}!",
+                        f"Теперь у тебя есть {artifact}!",
                         True,
                         (0, 0, 0) if not self.story_mode else (255, 255, 255),
                     )
@@ -634,10 +773,12 @@ class DialogueState(BaseState):
                 elif self.awaiting.name == Awaiting.INPUT.name:
                     screen.blit(self.input_text_sprite, (TEXT_X, TEXT_Y + 100))
 
-            # Отрисовываем текст ожидания (если есть музыка монстра)
-            if self.dialogue.ominous and self.trying_to_finish:
+            # Отрисовываем текст ожидания (если есть музыка, которую надо завершить в ритм)
+            if (
+                self.dialogue.ominous or self.dialogue.victorious
+            ) and self.trying_to_finish:
                 screen.blit(
-                    self.prepare_text, (SCREEN_WIDTH - 300, SCREEN_HEIGHT - 100)
+                    self.prepare_text, (SCREEN_WIDTH - 350, SCREEN_HEIGHT - 100)
                 )
 
             # БЛОКИРУЕМ ПОВТОРНУЮ ОТРИСОВКУ ДО ОБНОВЛЕНИЯ ЭЛЕМЕНТОВ
@@ -669,7 +810,6 @@ class DialogueState(BaseState):
             cursor_sym = self.current_line[self.line_line][
                 max(int(self.line_cursor) - 1, 0)
             ]
-            # TODO: what if we put special unprintable symbols in the dialogue that will change talking speed?
             if cursor_sym in ".?!":
                 self.line_cursor += 0.02
             elif cursor_sym in ":;":

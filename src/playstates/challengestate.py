@@ -9,9 +9,17 @@ from src.config import Config
 from src.level_building.button import Button
 from src.level_building.challenge import Challenge
 from src.playstates.basestate import BaseState
-from src.util import (CHAL_BUTTON_HEIGHT, CHAL_BUTTON_WIDTH,
-                      CHOICE_BUTTON_SIZE, SCREEN_HEIGHT, SCREEN_WIDTH,
-                      Awaiting, ButtonState, Command, get_centered_point)
+from src.util import (
+    CHAL_BUTTON_HEIGHT,
+    CHAL_BUTTON_WIDTH,
+    CHOICE_BUTTON_SIZE,
+    SCREEN_HEIGHT,
+    SCREEN_WIDTH,
+    Awaiting,
+    ButtonState,
+    Command,
+    get_centered_point,
+)
 
 # Константы
 CHOICE_BUTTON_X = 150
@@ -168,7 +176,7 @@ class ChallengeState(BaseState):
         )
 
         # Шрифт испытания и выводимые тексты
-        self.challenge_font = pygame.font.Font(None, 35)
+        self.challenge_font = pygame.font.SysFont("comicsans", 24, bold=True)
 
         # Кэш для картинок, когда они появляются
         self.image_cache = {}
@@ -180,6 +188,8 @@ class ChallengeState(BaseState):
         """Звуки"""
         self.start_challenge_sound = assetscreation.add_challenge_start_sound()
         self.transition_sound = assetscreation.add_challenge_transition_sound()
+        self.correct_stamp_sound = assetscreation.add_correct_stamp_sound()
+        self.incorrect_stamp_sound = assetscreation.add_incorrect_stamp_sound()
 
     def setup_challenge(self, json_path: Path):
         """Задание структурных данных испытания, сброс параметров этапов испытания"""
@@ -283,7 +293,7 @@ class ChallengeState(BaseState):
     def play_window_check_anim(self):
         if self.playing_window_check_anim:
 
-            # Анимация штампа правильности
+            # Анимация и звук штампа правильности
             # TODO: maybe check the answer earlier such as in start_window_check_anim
             current_ticks = pygame.time.get_ticks()
             if (
@@ -307,6 +317,11 @@ class ChallengeState(BaseState):
                 self.current_stamp = (self.incorrect_stamp, self.correct_stamp)[
                     self.current_answer_correctness
                 ]
+                if self.current_answer_correctness:
+                    self.correct_stamp_sound.play()
+                else:
+                    self.incorrect_stamp_sound.play()
+
                 self.need_screen_update = True
 
             # Анимация плашки с комментарием
@@ -364,9 +379,7 @@ class ChallengeState(BaseState):
         ):
             self.current_window_ind += 1
             if self.current_window_ind >= len(self.challenge.windows):
-                self.current_window_ind -= (
-                    1  # на всякий случай остаёмся в пределах окон
-                )
+                self.current_window_ind -= 1
                 self.get_window_fields()  # последнее окно не будет видно, но обновятся параметры для отрисовки
                 self.verdicted = True
                 self.start_end_anim()

@@ -4,12 +4,20 @@ from src import assetscreation
 from src.config import Config
 from src.level_building.button import Button
 from src.playstates.basestate import BaseState
-from src.util import (BIND_BUTTON_HEIGHT, BIND_BUTTON_WIDTH, SCREEN_HEIGHT,
-                      SCREEN_WIDTH, START_BUTTON_HEIGHT, START_BUTTON_WIDTH,
-                      ButtonState, Command, get_centered_point)
+from src.util import (
+    BIND_BUTTON_HEIGHT,
+    BIND_BUTTON_WIDTH,
+    SCREEN_HEIGHT,
+    SCREEN_WIDTH,
+    START_BUTTON_HEIGHT,
+    START_BUTTON_WIDTH,
+    ButtonState,
+    Command,
+    get_centered_point,
+)
 
-START_BUTTON_X = get_centered_point(START_BUTTON_WIDTH, False)
-START_BUTTON_Y = SCREEN_HEIGHT / 2 + 100
+START_BUTTON_X = get_centered_point(START_BUTTON_WIDTH, False) - 50
+START_BUTTON_Y = SCREEN_HEIGHT / 2 + 130
 LEFT_BIND_BUTTON_X = 5
 RIGHT_BIND_BUTTON_X = SCREEN_WIDTH - 5 - BIND_BUTTON_WIDTH
 BIND_BUTTON_Y = 165
@@ -52,6 +60,7 @@ class MenuState(BaseState):
 
         self.just_lost = False
         self.just_won = False
+        self.played_victory_sound = False
         self.game_end_score = None
         self.game_end_artifacts = []
 
@@ -77,6 +86,7 @@ class MenuState(BaseState):
         self.bg_overlay.fill((255, 255, 255))
 
         self.loss_bg = assetscreation.add_menu_loss_bg()
+        self.win_bg = assetscreation.add_menu_win_bg()
 
         self.start_button_sprite = assetscreation.add_start_buttons()
         self.keybind_button_sprites_dict = {}
@@ -101,13 +111,14 @@ class MenuState(BaseState):
         self.btn_set.extend(self.keybind_button_dict.values())
 
         # Шрифт меню и выводимые тексты
-        self.menu_font = pygame.font.Font(None, 35)
+        self.menu_font = pygame.font.SysFont("comicsans", 24, bold=True)
         self.setting_text_sprite = None
         self.current_bind_sprite = None
 
         # Музыка
         assetscreation.set_menu_music()
         pygame.mixer.music.play(-1)
+        self.victory_sound = assetscreation.add_victory_sound()
 
         self.need_screen_update = True
 
@@ -142,8 +153,12 @@ class MenuState(BaseState):
     def handle_input(self, event):
         """Обработка назначения клавиш"""
 
-        if self.just_lost and event.unicode == self.keybind_dict["no_task_advance"]:
+        if (self.just_lost or self.just_won) and event.unicode == self.keybind_dict[
+            "no_task_advance"
+        ]:
             self.just_lost = False
+            self.just_won = False
+            self.played_victory_sound = False
             self.game_end_score = None
             self.game_end_artifacts.clear()
             assetscreation.set_menu_music()
@@ -210,6 +225,11 @@ class MenuState(BaseState):
             assetscreation.set_gameover_music()
             pygame.mixer.music.play(-1)
 
+        elif self.just_won and not self.played_victory_sound:
+            pygame.mixer.music.stop()
+            self.victory_sound.play()
+            self.played_victory_sound = True
+
         if self.awaiting_input:
             self.play_input_timer()
 
@@ -219,11 +239,22 @@ class MenuState(BaseState):
         # ТОЛЬКО ЕСЛИ ЧТО-ТО ИЗМЕНИЛОСЬ НА ЭКРАНЕ
         if self.need_screen_update:
 
-            if self.just_lost:
-                screen.blit(self.loss_bg, (0, 0))
+            if self.just_lost or self.just_won:
+                if self.just_lost:
+                    screen.blit(self.loss_bg, (0, 0))
+                else:
+                    screen.blit(self.win_bg, (0, 0))
 
-                cheer_text = self.menu_font.render(
-                    "Ничего страшного, игру можно пройти снова!", True, (255, 255, 255)
+                cheer_text = (
+                    self.menu_font.render(
+                        "Ничего страшного, игру можно пройти снова!",
+                        True,
+                        (255, 255, 255),
+                    )
+                    if self.just_lost
+                    else self.menu_font.render(
+                        "Практика закрыта, игра пройдена!", True, (255, 255, 255)
+                    )
                 )
                 score_text = self.menu_font.render(
                     f"Общий респект: {self.game_end_score}", True, (255, 255, 255)
@@ -256,15 +287,12 @@ class MenuState(BaseState):
                 )
 
                 screen.blit(
-                    cheer_text, (get_centered_point(cheer_text.get_width(), False), 300)
+                    cheer_text, (get_centered_point(cheer_text.get_width(), False), 350)
                 )
                 screen.blit(score_text, (SCREEN_WIDTH / 2, 500))
                 screen.blit(artifacts_text, (SCREEN_WIDTH / 2, 540))
                 screen.blit(artifacts_text_2, (SCREEN_WIDTH / 2, 580))
                 screen.blit(continue_text, (SCREEN_WIDTH / 2, 650))
-
-            elif self.just_won:
-                pass
 
             else:
                 screen.blit(self.bg, (0, 0))

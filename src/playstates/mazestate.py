@@ -6,8 +6,15 @@ from src.config import Config
 from src.level_building.enemy import Enemy, PatrollingEnemy
 from src.level_building.maze import Maze
 from src.playstates.basestate import BaseState
-from src.util import (PLAYER_SIZE, SCREEN_HEIGHT, SCREEN_WIDTH, TILE_SIZE,
-                      Border, Command, WallPattern)
+from src.util import (
+    PLAYER_SIZE,
+    SCREEN_HEIGHT,
+    SCREEN_WIDTH,
+    TILE_SIZE,
+    Border,
+    Command,
+    WallPattern,
+)
 
 # Трансформер спрайтов
 transformer = Transformer()
@@ -78,9 +85,9 @@ class MazeState(BaseState):
         self.current_player_image = self.player_tile
 
         # Темнота и её параметры
-        self.darkness_enabled = False  # Если темнота будет мешать тестированию других вещей, ее можно убрать
+        self.darkness_enabled = True  # Если темнота будет мешать тестированию других вещей, ее можно убрать
         self.darkness_alpha = 255
-        self.light_radius = 200
+        self.light_radius = 250
         self.darkness_surface = pygame.Surface(
             (SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA
         )

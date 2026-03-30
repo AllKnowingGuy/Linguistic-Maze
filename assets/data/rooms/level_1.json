@@ -43,8 +43,14 @@
 			"easy": [13, 2, 18, 8],
 			"medium": [13, 3, 21, 10],
 			"hard": [13, 3, 21, 17]
+		},
+		"monster_runner": {
+			"easy": [13, 13, 13, 13],
+			"medium": [13, 13, 13, 13],
+			"hard": [13, 19, 13, 19]
 		}
 	},
+	"moving_monsters": ["monster_runner"],
 	"max_respect": 20,
 	"respect_check": {
 		"easy": 8,
