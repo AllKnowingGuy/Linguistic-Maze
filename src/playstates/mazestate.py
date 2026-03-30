@@ -87,7 +87,7 @@ class MazeState(BaseState):
         # Темнота и её параметры
         self.darkness_enabled = True  # Если темнота будет мешать тестированию других вещей, ее можно убрать
         self.darkness_alpha = 255
-        self.light_radius = 300
+        self.light_radius = 250
         self.darkness_surface = pygame.Surface(
             (SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA
         )
