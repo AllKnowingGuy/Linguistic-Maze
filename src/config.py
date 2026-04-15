@@ -1,8 +1,10 @@
 import json
 from typing import Generator
 
+from src.util import resource_path
 
-def extract_decimal_code(bind: str):
+
+def extract_decimal_code(bind: str) -> int:
     if len(bind) == 1:
         return ord(bind)
     elif len(bind) == 4:
@@ -13,7 +15,7 @@ def extract_decimal_code(bind: str):
         )
 
 
-def extract_character(bind: str):
+def extract_character(bind: str) -> str:
     if len(bind) == 1:
         return bind
     elif len(bind) == 4:
@@ -24,7 +26,7 @@ def extract_character(bind: str):
         )
 
 
-def revert_to_unicode(bind: str):
+def revert_to_unicode(bind: str) -> str:
     if len(bind) == 1:
         hex_uni = hex(ord(bind))[2:]
         return "0" * (4 - len(hex_uni)) + hex_uni
@@ -38,7 +40,7 @@ def revert_to_unicode(bind: str):
 
 class Config:
     def __init__(self):
-        with open("..\\config.json", "r", encoding="utf-8") as f:
+        with open(resource_path("config.json"), "r", encoding="utf-8") as f:
             self.config_dict: dict = json.load(f)
 
     def get_all_controls(self) -> dict[str, str]:
@@ -52,17 +54,23 @@ class Config:
             )
         )
 
+    def get_sound_controls(self) -> tuple[int, int]:
+        return (
+            extract_decimal_code(self.config_dict["controls"]["increase_volume"]),
+            extract_decimal_code(self.config_dict["controls"]["decrease_volume"]),
+        )
+
     def get_maze_controls(self) -> Generator[int]:
         for control in ("move_up", "move_down", "move_left", "move_right"):
             yield extract_decimal_code(self.config_dict["controls"][control])
 
-    def get_dialogue_controls(self):
+    def get_dialogue_controls(self) -> tuple[int, int]:
         return (
             extract_decimal_code(self.config_dict["controls"]["end_text_animation"]),
             extract_decimal_code(self.config_dict["controls"]["no_task_advance"]),
         )
 
-    def get_challenge_controls(self):
+    def get_challenge_controls(self) -> int:
         return extract_decimal_code(self.config_dict["controls"]["end_text_animation"])
 
     def set_controls(self, controls: dict[str, str]):
@@ -90,5 +98,5 @@ class Config:
             self.update_config_json()
 
     def update_config_json(self):
-        with open("..\\config.json", "w", encoding="utf-8") as f:
+        with open(resource_path("config.json"), "w", encoding="utf-8") as f:
             json.dump(self.config_dict, f, indent=4)

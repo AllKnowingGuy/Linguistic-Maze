@@ -1,4 +1,3 @@
-import pytest
 import sys
 import os
 
@@ -12,14 +11,14 @@ class TestLoadOneObject:
     """Тесты для функции load_one_object из assetscreation.py"""
     def test_load_existing_file(self):
         """Проверка загрузки существующего файла"""
-        result = load_one_object(
-            Path('../assets/images/maze_tiles/player/student/player.png'), PLAYER_SIZE, PLAYER_SIZE)
+        result = load_one_graphic_object(Path('./assets/images/maze_tiles/player/student/player.png'), PLAYER_SIZE,
+                                         PLAYER_SIZE)
         assert result is not None
         assert isinstance(result, pygame.Surface)
 
     def test_load_nonexistent_file(self):
         """Проверка загрузки несуществующего файла"""
-        result = load_one_object(Path('fake.png'), PLAYER_SIZE, PLAYER_SIZE)
+        result = load_one_graphic_object(Path('fake.png'), PLAYER_SIZE, PLAYER_SIZE)
         assert result is None
 
 
@@ -27,9 +26,9 @@ class TestLoadAllObjects:
     """Тесты для функции load_all_objects"""
 
     def test_load_all_objects(self):
-        result = load_all_objects(Path('../assets/images/maze_tiles/level_0/walls'),
-                                  {WallPattern.SINGLE: Path('wall_single.png')},
-                                  {WallPattern.SINGLE: (TILE_SIZE, TILE_SIZE)})
+        result = load_all_graphic_objects(Path('./assets/images/maze_tiles/level_0/walls'),
+                                          {WallPattern.SINGLE: Path('wall_single.png')},
+                                          {WallPattern.SINGLE: (TILE_SIZE, TILE_SIZE)})
         assert isinstance(result, dict)
         assert WallPattern.SINGLE in result
 

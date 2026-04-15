@@ -1,12 +1,7 @@
 import json
-import re
 from pathlib import Path
 
-from transformers import pipeline
-
-RUBERT_MODEL = pipeline(
-    "text-classification", model="seara/rubert-base-cased-russian-sentiment"
-)
+from src.util import resource_path
 
 
 class Challenge:
@@ -17,11 +12,10 @@ class Challenge:
         self._read_and_fill(path)
 
     def _read_and_fill(self, path: Path):
-        with open(path, "r", encoding="utf-8") as f:
+        with open(resource_path(path), "r", encoding="utf-8") as f:
             challenge_dict: dict = json.load(f)
 
         self.windows = challenge_dict["windows"]
-        # TODO: maybe add some metadata? like special music or background
 
     def get_window_title(self, window_ind: int) -> str | None:
         if window_ind >= len(self.windows) or window_ind < 0:
@@ -111,41 +105,3 @@ class Challenge:
         if required and required in artifacts:
             return True
         return False
-
-    def check_current_answer(self, window_ind: int):
-        """Проверка текущего ответа на правильность методом, назначенным на это задание"""
-
-        user_input = self.answers[window_ind]
-        keys = self.get_window_correct_answers(window_ind)
-        supposed_action = self.windows[window_ind].get("action", {})
-        checker = self.get_window_answers_checker(window_ind)
-        if checker:
-            if checker == "plainequality":
-                return (
-                    user_input.strip().lower() in keys
-                )  # самый простой способ проверки
-            elif checker == "ling_terms":
-                pattern = r"(лингвист|язык|лингв|термин|фонет|социо|нейро)"
-                return bool(re.search(pattern, user_input, re.IGNORECASE))
-            elif checker == "wordmatch":
-                patterns = supposed_action.get("patterns", [])
-                return any(re.search(p, user_input, re.IGNORECASE) for p in patterns)
-            elif checker == "sentiment_rubert":
-                try:
-                    result = RUBERT_MODEL(user_input)[0]
-                    positive_score = float(result["score"])
-                    threshold = supposed_action.get("threshold", 0.6)
-                    if not 0 <= threshold <= 1:
-                        raise ValueError(
-                            f"Threshold must be between 0 and 1, got {threshold}"
-                        )
-                    return positive_score > threshold
-                except Exception as e:
-                    print(f"Ошибка в sentiment_rubert: {e}")
-                    return any(w in user_input.lower() for w in ["хорошо", "помощь"])
-            else:
-                raise ValueError(f"This checker cannot be recognized: {checker}")
-        else:
-            return (
-                user_input.strip().lower() in keys
-            )  # если проверщик не указан, то проверяем как plainequality

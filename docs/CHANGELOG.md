@@ -1,16 +1,41 @@
 # Changelog
 
+## 2026-04-14 - Pack it up(date) - v1.0 (GAME RELEASE)
+
+- **Built the executable file** of the game (can be found in the Releases tab)
+- Replaced all placeholder Paint-drawn assets with newer finger-drawn versions
+- Changed the font again to support Yakut characters in gloss monster's challenge
+- Implemented **sound and music volume control in-game**
+- Added a **drumroll sound** that plays before the answer is stamped as correct or incorrect
+- Made the game **zoom to the maze entrance** when pressing start
+- Made the game launch with some models missing but warn the player when pressing start
+- Greatly improved performance of the maze state when the player is idle and the moving monsters are out of sight
+- Added 2 buttons to the main menu to show and hide the 8 settings buttons
+- Made `ChallengeState` warn the player when trying to submit with unanswered questions
+- Created `checker.py` in `level_building`, the new `Checker` object handles challenge answers checking as well as several dialogue input checks
+- Removed `check_current_answer` from `Challenge` and most monster dialogue checks from `StoryScript`
+- Improved button pressing in all playstates: at the moment of the mouse release the button under the cursor becomes hovered
+- Fixed several issues with NLP models, Pymorphy params are now kept in the `assets` folder
+- Made patrolling enemies avoid walking into doors
+- Updated path building and checking to reduce `os` lib usage
+- Updated some checks to reduce nesting
+- Updated a ton of docstrings
+- Fixed a jump error in the gloss monster's dialogue
+- Fixed a critical post-challenge dialogue jump error when scoring 0 in challenges
+
 ## 2026-03-30 - W update
 
 - Created **boss and outro dialogues** with proper transitions
 - Added remaining monster checks to `StoryScript`
 - Finished Room 3 and Room 4 planning
 - Added remaining monster portraits and **all character portraits**
-- Updated some graphic assets and added a bunch of **sounds and music**
+- Updated many graphic assets and added a bunch of **sounds and music**
 - Implemented **win screen** and even better game restart
 - Dialogue files now have info on whether they are story dialogues and require transparent boxes
 - Dialogue files can now have info on the sound to be played before the line is printed if needed
 - Dialogues can now set protagonists as right speakers, checking that they're different from the chosen one
+- Changed the font to match the game vibe better
+- Created a (not so) secret folder
 
 ## 2026-03-28 - Skin update
 - Implemented differentiated skins for four playable characters, chosen during the intro

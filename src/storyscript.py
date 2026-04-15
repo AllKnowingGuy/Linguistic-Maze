@@ -1,49 +1,33 @@
 import json
-import os
 import random
-import re
 from datetime import datetime
 from pathlib import Path
 
-from mawo_pymorphy3 import create_analyzer
-
 from main import Main
 from src import assetscreation
-from src.level_building.challenge import RUBERT_MODEL
 from src.level_building.enemy import Enemy
-from util import FILENAME_DISPLAY_PROTAG_DICT, TILE_SIZE, Border, StateType
+from src.util import (
+    FILENAME_DISPLAY_PROTAG_DICT,
+    TILE_SIZE,
+    Border,
+    StateType,
+    resource_path,
+)
 
-INTRO_DIALOGUE_PATH = Path("..\\assets\\data\\dialogues\\intro.json")
-BOSS_DIALOGUE_PATH = Path("..\\assets\\data\\dialogues\\boss.json")
-OUTRO_DIALOGUE_PATH = Path("..\\assets\\data\\dialogues\\outro.json")
+INTRO_DIALOGUE_PATH = Path("assets\\data\\dialogues\\intro.json")
+BOSS_DIALOGUE_PATH = Path("assets\\data\\dialogues\\boss.json")
+OUTRO_DIALOGUE_PATH = Path("assets\\data\\dialogues\\outro.json")
 DEBUG_DIALOGUE_SKIP = False
 
 
 LAST_ROOM_IND = 4
-existing_words_analyzer = create_analyzer()
 
 
-def check_all_words_exist(text: str) -> bool:
-    punctuation = r"""[\.,:;\?!<>\(\)\[\]"'&~]"""
-    text = re.sub(punctuation, "", text).split()
-    # TODO: probably make the check softer
-    return all(
-        [1 in [form.score for form in existing_words_analyzer.parse(w)] for w in text]
-    )
-
-
-def check_sentiment_with_rubert(
-    text: str, threshold: float = 0.6
-) -> bool:  # thank you so much Dasha - Vsevolod
-    try:
-        result = RUBERT_MODEL(text)[0]
-        positive_score = float(result["score"])
-        if not 0 <= threshold <= 1:
-            raise ValueError(f"Threshold must be between 0 and 1, got {threshold}")
-        return positive_score > threshold
-    except Exception as e:
-        print(f"Ошибка в sentiment_rubert: {e}")
-        return any(w in text.lower() for w in ["хорош", "помог", "помоч", "привет"])
+def start_game(game: Main):
+    game.current_state_type = StateType.DIALOGUE
+    game.dialogue_state.setup_dialogue(INTRO_DIALOGUE_PATH)
+    game.associate_current_state()
+    game.dialogue_state.start_playing()
 
 
 class StoryScript:
@@ -89,13 +73,15 @@ class StoryScript:
         # Внесение данных обо всех комнатах
         for i in range(LAST_ROOM_IND + 1):
             with open(
-                Path(f"..\\assets\\data\\rooms\\level_{i}.json"), "r", encoding="utf-8"
+                resource_path(Path(f"assets\\data\\rooms\\level_{i}.json")),
+                "r",
+                encoding="utf-8",
             ) as f:
                 raw_room = json.load(f)
             self.rooms_data[i] = {
                 # "completed": False,
                 "difficulty": 0,
-                "respect": 0,
+                "respect": 0,  # ПРИ ТЕСТИРОВАНИИ поставьте очень большое значение, чтобы пройти через все двери
                 "sizes": raw_room["sizes"],  # по сложностям
                 "walls_with_doors": raw_room[
                     "walls_with_doors"
@@ -135,7 +121,7 @@ class StoryScript:
             game.current_state_type.name == StateType.MENU.name
             and game.menu_state.game_started
         ):
-            self.start_game(game)
+            start_game(game)
 
         # Когда игрок на диалоге
         elif game.current_state_type.name == StateType.DIALOGUE.name:
@@ -145,21 +131,23 @@ class StoryScript:
             # Собираем бонусы строчек из ЛЮБОГО диалога (в том числе из заскриптованных)
             self.collect_dialogue_bonuses(game)
 
-            # Особые диалоги с заскриптованным поведением
-            if (
-                self.current_room == -1
-            ):  # Интро: единственный диалог до начала лабиринта
+            # Интро
+            if self.current_room == -1:
                 self.handle_intro_dialogue(game)
 
+            # Концовка
             elif self.general_progress["passed_boss"]:
                 self.handle_outro_dialogue(game)
 
+            # Босс
             elif self.general_progress["passed_maze"]:
                 self.handle_boss_dialogue(game)
 
+            # Диалог монстра
             elif self.on_monster:
                 self.handle_monster_dialogue(game)
 
+            # Диалог двери
             elif self.on_door:
                 self.handle_door_dialogue(game)
 
@@ -188,11 +176,11 @@ class StoryScript:
                     "respect"
                 ] += game.challenge_state.score
                 supposed_end_dialogue = Path(
-                    f"..\\assets\\data\\dialogues\\level_{self.current_room}\\{self.on_monster.enemy_name}_end.json"
+                    f"assets\\data\\dialogues\\level_{self.current_room}\\{self.on_monster.enemy_name}_end.json"
                 )
 
                 # Если есть диалог после испытания - играем его
-                if os.path.exists(supposed_end_dialogue):
+                if resource_path(supposed_end_dialogue).exists():
                     game.current_state_type = StateType.DIALOGUE
                     game.dialogue_state.setup_dialogue(
                         supposed_end_dialogue, game.challenge_state.score
@@ -210,12 +198,6 @@ class StoryScript:
                         self.on_monster.deactivate()
                         self.on_monster = None
 
-    def start_game(self, game: Main):
-        game.current_state_type = StateType.DIALOGUE
-        game.dialogue_state.setup_dialogue(INTRO_DIALOGUE_PATH)
-        game.associate_current_state()
-        game.dialogue_state.start_playing()
-
     def launch_app(self, game: Main):
         self.general_progress["launched_app"] = True
         game.current_state_type = StateType.MENU
@@ -231,32 +213,29 @@ class StoryScript:
 
         # Когда игрок выбирает персонажа
         if game.dialogue_state.current_line_ind == 5:
-            chosen_name = game.dialogue_state.dialogue.saved_choices.get(5)
-            if chosen_name:
-                # Преобразование русского имени в диалоге в английское для папок с файлами
-                player_sprite_name = [
-                    k
-                    for k, v in FILENAME_DISPLAY_PROTAG_DICT.items()
-                    if v == chosen_name
-                ][0]
-                game.maze_state.get_player_name(player_sprite_name)
-                self.player_name = chosen_name
-                game.dialogue_state.left_real_name = chosen_name
-                game.dialogue_state.left_speaker_name_sprite = (
-                    game.dialogue_state.dialogue_font.render(
-                        chosen_name, True, (255, 255, 255)
-                    )
+            chosen_name = game.dialogue_state.dialogue.saved_choices.get(5, "Аня")
+            # Преобразование русского имени в диалоге в английское для папок с файлами
+            player_sprite_name = [
+                k for k, v in FILENAME_DISPLAY_PROTAG_DICT.items() if v == chosen_name
+            ][0]
+            game.maze_state.get_player_name(player_sprite_name)
+            self.player_name = chosen_name
+            game.dialogue_state.left_real_name = chosen_name
+            game.dialogue_state.left_speaker_name_sprite = (
+                game.dialogue_state.ps_font.render(chosen_name, True, (255, 255, 255))
+            )
+            game.dialogue_state.dialogue_left_speaker = (
+                game.dialogue_state.current_left_speaker
+            ) = assetscreation.add_left_speak_sprite(
+                f"{[k for k, v in FILENAME_DISPLAY_PROTAG_DICT.items() if v == chosen_name][0]}.png"
+            )
+            game.dialogue_state.right_speaker_name_sprite = (
+                game.dialogue_state.ps_font.render(
+                    game.dialogue_state.dialogue.right_character,
+                    True,
+                    (255, 255, 255),
                 )
-                game.dialogue_state.left_speaker = assetscreation.add_left_speak_sprite(
-                    f"{[k for k, v in FILENAME_DISPLAY_PROTAG_DICT.items() if v == chosen_name][0]}.png"
-                )
-                game.dialogue_state.right_speaker_name_sprite = (
-                    game.dialogue_state.dialogue_font.render(
-                        game.dialogue_state.dialogue.right_character,
-                        True,
-                        (255, 255, 255),
-                    )
-                )
+            )
 
         # Когда игрок завершает вступление
         if game.dialogue_state.finished:
@@ -265,9 +244,13 @@ class StoryScript:
     def handle_boss_dialogue(self, game: Main):
         """Действия во время диалога с боссом"""
 
-        if game.dialogue_state.current_line_ind == 5:
+        if game.dialogue_state.current_line_ind == 9:
+            mail_path = resource_path(Path("MAILBOX"))
+            if not (mail_path.exists()):
+                mail_path.mkdir()
             with open(
-                Path(f"..\\mailbox\\{str(datetime.now()).replace(":", "-")}.txt"),
+                mail_path
+                / Path(f"Письмо от {str(datetime.now()).replace(":", ".")}.txt"),
                 "w",
                 encoding="utf-8",
             ) as f:
@@ -315,27 +298,6 @@ class StoryScript:
         """Особые диалоги монстров (с проверкой введённого ответа или разными строчками по персонажам)"""
 
         if (
-            self.on_monster.enemy_name == "monster_gloss"
-            and game.dialogue_state.dialogue.ominous
-        ):
-            # Выбор формы слова: "студентка" или "студент"
-            if game.dialogue_state.current_line_ind == 0 and self.player_name in (
-                "Денис",
-                "Даня",
-            ):
-                game.dialogue_state.current_line_ind += 1
-
-        elif self.on_monster.enemy_name == "monster_amateur":
-            # Проверка введённого ответа: он должен содержать определённые стемы
-            keywords = ("редукци", "редуцир", "позици", "слаб", "предударн")
-            if game.dialogue_state.current_line_ind == 2:
-                if not any(
-                    kw in game.dialogue_state.dialogue.saved_inputs.get(2, "").lower()
-                    for kw in keywords
-                ):
-                    game.dialogue_state.current_line_ind += 1
-
-        elif (
             self.on_monster.enemy_name in ("monster_phontermin", "monster_terminology")
             and game.dialogue_state.dialogue.ominous
         ):
@@ -355,57 +317,19 @@ class StoryScript:
             )
             if game.dialogue_state.current_line_ind == 0:
                 response = game.dialogue_state.dialogue.saved_inputs.get(0, "")
-                if check_all_words_exist(response):
-                    if any([kw in response for kw in keywords]):
-                        game.dialogue_state.dialogue.lines[1]["rpoints"] = 2
-                else:
-                    game.dialogue_state.current_line_ind += 2
-
-        elif self.on_monster.enemy_name == "monster_sphinx" and self.current_room == 2:
-            # Проверка ответа "полисемия"
-            if game.dialogue_state.current_line_ind == 0:
-                response = game.dialogue_state.dialogue.saved_inputs.get(0, "")
-                if not response.lower() in (
-                    "полисемия",
-                    "многозначность",
-                    "многозначное слово",
-                ):
-                    game.dialogue_state.current_line_ind += 1
-
-        elif self.on_monster.enemy_name == "monster_communicator":
-            # Проверка введённого ответа: он должен содержать определённые стемы
-            keywords = (
-                "корпус",
-                "тэг",
-                "тег",
-                "tag",
-                "метаинформаци",
-                "метаданн",
-                "мета-информаци",
-                "мета-данн",
-                "размет",
-                "размеч",
-            )
-            if game.dialogue_state.current_line_ind == 3:
-                if not any(
-                    kw in game.dialogue_state.dialogue.saved_inputs.get(3, "").lower()
-                    for kw in keywords
-                ):
-                    game.dialogue_state.current_line_ind += 1
+                if any([kw in response for kw in keywords]):
+                    game.dialogue_state.dialogue.lines[1]["rpoints"] = 2
 
         elif (
-            self.on_monster.enemy_name == "monster_helper"
-            or self.on_monster.enemy_name == "monster_sphinx"
-            and self.current_room == 3
+            self.on_monster.enemy_name == "monster_gloss"
+            and game.dialogue_state.dialogue.ominous
         ):
-            # Проверка введённого ответа на позитивный настрой
-            bonus_malus = 1 if self.on_monster.enemy_name == "monster_sphinx" else 2
-            if game.dialogue_state.current_line_ind == 0:
-                response = game.dialogue_state.dialogue.saved_inputs.get(0, "")
-                if check_sentiment_with_rubert(response, 0.6):
-                    game.dialogue_state.dialogue.lines[1]["rpoints"] = bonus_malus
-                else:
-                    game.dialogue_state.dialogue.lines[1]["rpoints"] = -bonus_malus
+            # Выбор формы слова: "студентка" или "студент"
+            if game.dialogue_state.current_line_ind == 0 and self.player_name in (
+                "Денис",
+                "Даня",
+            ):
+                game.dialogue_state.current_line_ind += 1
 
         elif (
             self.on_monster.enemy_name == "monster_questioner"
@@ -415,13 +339,6 @@ class StoryScript:
             if game.dialogue_state.current_line_ind == 0:
                 jump = ("Аня", "Денис", "Лера", "Даня").index(self.player_name)
                 game.dialogue_state.current_line_ind += jump
-
-        elif self.on_monster.enemy_name == "monster_silent":
-            # Проверка того, что игрок говорит реальные слова
-            if game.dialogue_state.current_line_ind == 2:
-                response = game.dialogue_state.dialogue.saved_inputs.get(2, "")
-                if not check_all_words_exist(response):
-                    game.dialogue_state.current_line_ind += 1
 
     def handle_monster_dialogue_finish(self, game: Main):
         """Действия при завершении диалога с монстром"""
@@ -436,7 +353,7 @@ class StoryScript:
             game.current_state_type = StateType.CHALLENGE
             game.challenge_state.setup_challenge(
                 Path(
-                    f"..\\assets\\data\\challenges\\level_{self.current_room}\\"
+                    f"assets\\data\\challenges\\level_{self.current_room}\\"
                     f"{self.on_monster.enemy_name}.json"
                 )
             )
@@ -533,7 +450,6 @@ class StoryScript:
             else:
                 self.total_respect += respect
             game.dialogue_state.dialogue.record_collected_respect_points(line_ind)
-            # print(f"GOT {respect} RESPECT AND RECORDED {game.dialogue_state.dialogue.collected_respect_points}")
         if artifact:
             self.artifacts.add(artifact)
 
@@ -548,7 +464,7 @@ class StoryScript:
         game.current_state_type = StateType.DIALOGUE
         game.dialogue_state.setup_dialogue(
             Path(
-                f"..\\assets\\data\\dialogues\\level_{self.current_room}\\{supposed_monster.enemy_name}.json"
+                f"assets\\data\\dialogues\\level_{self.current_room}\\{supposed_monster.enemy_name}.json"
             )
         )
         game.associate_current_state()
@@ -595,9 +511,8 @@ class StoryScript:
         self.current_door_code = code_req
 
         # Получение собранных респектов
-        respect = room_data[
-            "respect"
-        ]  # I made sure there are such attributes in rooms_data - Vsevolod
+        respect = room_data["respect"]
+        # I made sure there are such attributes in rooms_data - Vsevolod
 
         # Проверка всех 3 способов прохода через дверь
         scored_respect, got_artifact, scored_discounted_respect, can_enter_code = (
@@ -897,6 +812,11 @@ class StoryScript:
                 difficulty = 2  # сложно
             else:
                 difficulty = 1  # средне
+            print(
+                f"Набрано {prev_room_data["respect"]} "
+                f"респектов из {max_respects}, "
+                f"следующая сложность {difficulty}"
+            )
         else:
             difficulty = set_difficulty
         diff_word = ("easy", "medium", "hard")[difficulty]

@@ -1,6 +1,8 @@
 import json
 from pathlib import Path
 
+from src.util import resource_path
+
 
 class Dialogue:
     dialogue_dict: dict[str, ...]
@@ -26,7 +28,7 @@ class Dialogue:
 
     def _read_and_fill(self, path_or_dict: Path | dict[str, ...]):
         if isinstance(path_or_dict, Path):
-            with open(path_or_dict, "r", encoding="utf-8") as f:
+            with open(resource_path(path_or_dict), "r", encoding="utf-8") as f:
                 dialogue_dict: dict = json.load(f)
         elif isinstance(path_or_dict, dict):
             dialogue_dict = path_or_dict
@@ -72,11 +74,30 @@ class Dialogue:
             return supposed_action["options"]
         return None
 
-    def get_line_choose_jumps(self, line_ind: int) -> list[int | None] | None:
+    def get_line_check_keys(self, line_ind: int) -> list[str] | None:
         if line_ind >= len(self.lines):
             return None
         supposed_action = self.lines[line_ind].get("action")
-        if type(supposed_action) == dict and supposed_action["type"] == "choosefrom":
+        if type(supposed_action) == dict and supposed_action["type"] == "savetyped":
+            return supposed_action.get("keys", [])
+        return None
+
+    def get_line_checker(self, line_ind: int) -> str | None:
+        if line_ind >= len(self.lines):
+            return None
+        supposed_action = self.lines[line_ind].get("action")
+        if type(supposed_action) == dict and supposed_action["type"] == "savetyped":
+            return supposed_action.get("checker")
+        return None
+
+    def get_line_answer_jumps(self, line_ind: int) -> list[int | None] | None:
+        if line_ind >= len(self.lines):
+            return None
+        supposed_action = self.lines[line_ind].get("action")
+        if type(supposed_action) == dict and supposed_action["type"] in (
+            "choosefrom",
+            "savetyped",
+        ):
             return supposed_action.get("jumps", [])
         return None
 

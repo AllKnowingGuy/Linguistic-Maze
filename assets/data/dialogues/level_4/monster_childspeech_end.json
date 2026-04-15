@@ -1,7 +1,7 @@
 {
 	"right": "Детвор",
 	"rightsprite": "monsters\\level_4\\monster_childspeech.png",
-	"challengerpoints": [1, 0],
+	"challengerpoints": [1, -1],
 	"challengejumps": [0, 1],
 	"lines": [
 		{

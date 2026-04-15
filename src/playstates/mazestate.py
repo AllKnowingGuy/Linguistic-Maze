@@ -85,9 +85,11 @@ class MazeState(BaseState):
         self.current_player_image = self.player_tile
 
         # Темнота и её параметры
-        self.darkness_enabled = True  # Если темнота будет мешать тестированию других вещей, ее можно убрать
+        self.darkness_enabled = (
+            True  # Если темнота будет мешать тестированию других вещей, ее можно убрать
+        )
         self.darkness_alpha = 255
-        self.light_radius = 250
+        self.light_radius = 220
         self.darkness_surface = pygame.Surface(
             (SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA
         )
@@ -112,14 +114,14 @@ class MazeState(BaseState):
         """Задание структурных данных лабиринта и его генерация, задание позиции игрока
 
         Args:
-            width (int): Ширина лабиринта (должна быть нечётным числом!)
-            height (int): Высота лабиринта (должна быть нечётным числом!)
-            doors_near_borders (tuple[Border]): Границы лабиринта, в которых расположены двери входа и выхода соответственно
-            other_door_coords (tuple[int, int]): Определяющие координаты дверей входа и выхода (если дверь в северной или южной стене - координата X, иначе - координата Y)
-            monster_dict (dict[str, tuple[int]]): Области генерации монстров: ключи - идентификаторы монстров, значения - 4 числа: X и Y левого верхнего угла области и X и Y правого нижнего угла
-            moving_monsters (list[str]): Идентификаторы монстров, которые двигаются. Этих монстров НУЖНО также указать в monsters_dict
-            more_random (bool): Должен ли лабиринт генерироваться по альтернативному алгоритму для увеличения ветвления
-            curving (bool): Должен ли лабиринт избегать генерации прямых коридоров, если это возможно
+            width (int): ширина лабиринта (должна быть нечётным числом!)
+            height (int): высота лабиринта (должна быть нечётным числом!)
+            doors_near_borders (tuple[Border]): границы лабиринта, в которых расположены двери входа и выхода соответственно
+            other_door_coords (tuple[int, int]): определяющие координаты дверей входа и выхода (если дверь в северной или южной стене - координата X, иначе - координата Y)
+            monster_dict (dict[str, tuple[int]]): области генерации монстров: ключи - идентификаторы монстров, значения - 4 числа: X и Y левого верхнего угла области и X и Y правого нижнего угла
+            moving_monsters (list[str]): идентификаторы монстров, которые двигаются. Этих монстров НУЖНО также указать в monsters_dict
+            more_random (bool): должен ли лабиринт генерироваться по альтернативному алгоритму для увеличения ветвления
+            curving (bool): должен ли лабиринт избегать генерации прямых коридоров, если это возможно
         """
 
         self.maze = Maze(width, height, doors_near_borders, other_door_coords)
@@ -145,10 +147,19 @@ class MazeState(BaseState):
             Config().get_maze_controls()
         )
 
-        return self.maze
+        # return self.maze
 
     def get_enemy_sprite(self, level: int, enemy_name: str) -> pygame.Surface:
-        """Получение спрайта монстра по имени"""
+        """
+        Получение спрайта монстра по имени
+
+        Args:
+            level (int): уровень лабиринта
+            enemy_name (str): внутриигровое имя монстра
+
+        Returns:
+            Surface: спрайт монстра
+        """
 
         if level not in self.enemy_sprites:
             self.enemy_sprites[level] = {}
@@ -161,7 +172,13 @@ class MazeState(BaseState):
         return sprite
 
     def get_player_name(self, name: str):
-        """Получение имени персонажа для персонализированных спрайтов"""
+        """
+        Получение имени персонажа и переустановка его спрайтов
+
+        Args:
+            name (str): внутриигровое имя персонажа
+        """
+
         self.player_name = name
         self.reload_tiles()
 
@@ -196,52 +213,13 @@ class MazeState(BaseState):
                 self.current_player_image, True
             )
 
-    def apply_darkness(self, screen):
-        """Наложение темноты на экран"""
-
-        if not self.darkness_enabled:
-            return
-
-        self.darkness_surface.fill((0, 0, 0, 0))
-        pygame.draw.rect(
-            self.darkness_surface,
-            (0, 0, 0, self.darkness_alpha),
-            (0, 0, SCREEN_WIDTH, SCREEN_HEIGHT),
-        )
-
-        # Кружок света вокруг игрока - зависит от положения камеры
-        player_screen_x, player_screen_y = self.apply_shift(
-            self.player_pos[0] - HALF_PLAYER, self.player_pos[1] - HALF_PLAYER
-        )
-        player_center_x = player_screen_x + HALF_PLAYER
-        player_center_y = player_screen_y + HALF_PLAYER
-
-        # "Плавный" переход от света к темноте путем создания нескольких кружков разных радиусов (от центра к краям)
-        pygame.draw.circle(
-            self.darkness_surface,
-            (0, 0, 0, self.darkness_alpha - 30),
-            (player_center_x, player_center_y),
-            self.light_radius,
-        )
-
-        pygame.draw.circle(
-            self.darkness_surface,
-            (0, 0, 0, self.darkness_alpha // 2),
-            (player_center_x, player_center_y),
-            self.light_radius - 20,
-        )
-
-        pygame.draw.circle(
-            self.darkness_surface,
-            (0, 0, 0, 0),
-            (player_center_x, player_center_y),
-            self.light_radius - 40,
-        )
-
-        screen.blit(self.darkness_surface, (0, 0))
-
     def set_level(self, level: int):
-        """Задание уровня и перезагрузка изображений"""
+        """
+        Задание уровня и перезагрузка изображений стен
+
+        Args:
+            level (int): уровень лабиринта
+        """
 
         self.current_level = level
         self.reload_tiles()
@@ -265,7 +243,12 @@ class MazeState(BaseState):
         self.wall_cache.clear()
 
     def check_enemy_collision(self) -> Enemy | None:
-        """Проверка столкновения врага и героя"""
+        """
+        Проверка столкновения врага и игрока
+
+        Returns:
+            Enemy: враг, с которым столкнулся игрок
+        """
 
         player_tile_x = self.player_pos[0] // TILE_SIZE
         player_tile_y = self.player_pos[1] // TILE_SIZE
@@ -277,7 +260,7 @@ class MazeState(BaseState):
         return None
 
     def check_win(self):
-        """Проверка победы"""
+        """Проверка прохождения комнаты"""
 
         return (
             self.maze.end_door.x
@@ -292,23 +275,34 @@ class MazeState(BaseState):
     Функции модификации и кеширования тайлов
     """
 
-    def get_wall_patterns_and_transforms(self, x, y):
-        """Определение паттерна стены и необходимых трансформаций"""
+    def get_wall_patterns_and_transforms(
+        self, x: int, y: int
+    ) -> tuple[list[WallPattern], list[bool], list[int]]:
+        """
+        Определение паттерна стены и необходимых трансформаций
 
-        def is_floor(nx, ny):
+        Args:
+            x (int): координата клетки по оси абсцисс
+            y (int): координата клетки по оси ординат
+
+        Returns:
+            tuple[list[WallPattern], list[bool], list[int]]: список паттернов, список отметок о необходимости отразить паттерны и список градусов, на которые паттерны нужно повернуть
+        """
+
+        def _is_floor(nx, ny):
             if 0 <= nx < self.maze.width and 0 <= ny < self.maze.height:
                 return self.maze.pattern[ny][nx] == 0
             return False
 
         # Проверяем соседей
-        north = is_floor(x, y - 1)
-        south = is_floor(x, y + 1)
-        west = is_floor(x - 1, y)
-        east = is_floor(x + 1, y)
-        north_west = is_floor(x - 1, y - 1)
-        north_east = is_floor(x + 1, y - 1)
-        south_west = is_floor(x - 1, y + 1)
-        south_east = is_floor(x + 1, y + 1)
+        north = _is_floor(x, y - 1)
+        south = _is_floor(x, y + 1)
+        west = _is_floor(x - 1, y)
+        east = _is_floor(x + 1, y)
+        north_west = _is_floor(x - 1, y - 1)
+        north_east = _is_floor(x + 1, y - 1)
+        south_west = _is_floor(x - 1, y + 1)
+        south_east = _is_floor(x + 1, y + 1)
 
         # Задаём хранение слоев и их трансформаций
         x_flips = [False]
@@ -354,9 +348,25 @@ class MazeState(BaseState):
 
         return patterns, x_flips, rotations
 
-    def get_transformed_tile(self, patterns, x_flips=(False,), rotations=(0,)):
-        """Получение трансформированного тайла (сначала отражение, потом поворот)"""
-        layers = []
+    def get_transformed_tile(
+        self,
+        patterns: list[WallPattern],
+        x_flips: tuple[bool] | list[bool] = (False,),
+        rotations: tuple[int] | list[int] = (0,),
+    ):
+        """
+        Получение трансформированного тайла
+
+        Args:
+            patterns (list[WallPattern]): список паттернов для наложения друг на друга
+            x_flips (tuple[bool] | list[bool]): список отметок о необходимости отразить паттерны
+            rotations (tuple[int] | list[int]): список градусов, на которые нужно повернуть паттерны
+
+        Returns:
+            Surface: итоговый тайл
+        """
+
+        layers: list[pygame.Surface] = []
 
         # Трансформация границ (сначала применяем отражение, потом поворот)
         for p_id, pattern in enumerate(patterns):
@@ -381,6 +391,7 @@ class MazeState(BaseState):
 
     def precalculate_walls(self):
         """Предварительный расчёт всех стен для оптимизации"""
+
         for y in range(self.maze.height):
             for x in range(self.maze.width):
                 if self.maze.pattern[y][x] == 1:
@@ -397,7 +408,9 @@ class MazeState(BaseState):
     """
 
     def handle_hold_input(self, pressed_keys):
-        """Обработка кнопок перемещения"""
+        """
+        Обработка кнопок перемещения
+        """
 
         new_pos = list(self.player_pos)
         move_by = PLAYER_SIZE // 11  # please keep move_by integer - Vsevolod
@@ -438,8 +451,11 @@ class MazeState(BaseState):
         return ((Command.CHECK_PROGRESS, None),)
 
     def handle_button_release(self, event, pressed_keys):
-        """Сброс анимации движения при отпуске всех кнопок"""
-        if not any(
+        """
+        Сброс анимации движения при отпуске всех кнопок
+        """
+
+        if any(
             key in pressed_keys
             for key in (
                 pygame.K_LEFT,
@@ -452,9 +468,11 @@ class MazeState(BaseState):
                 self.down_bind,
             )
         ):
-            self.is_moving = False
-            self.update_animation()
-            self.need_screen_update = True
+            return
+
+        self.is_moving = False
+        self.update_animation()
+        self.need_screen_update = True
 
     def execute_before_draw(self):
         """Вызов перед отрисовкой каждого кадра"""
@@ -470,78 +488,100 @@ class MazeState(BaseState):
 
         for enemy in self.maze.monsters:
             if isinstance(enemy, PatrollingEnemy):
-                enemy.update(self.maze, dt)
-
-        self.need_screen_update = True
+                enemy_moved = enemy.update(
+                    self.maze.width,
+                    self.maze.height,
+                    self.maze.pattern,
+                    self.maze.start_door.x,
+                    self.maze.start_door.y,
+                    self.maze.end_door.x,
+                    self.maze.end_door.y,
+                    dt,
+                )
+                rad = self.light_radius + TILE_SIZE
+                ex, ey = enemy.get_pixel_position()
+                distx = abs(self.player_pos[0] - ex)
+                disty = abs(self.player_pos[1] - ey)
+                if (distx**2 + disty**2) < rad**2 and enemy_moved:
+                    self.need_screen_update = True
 
         return ((Command.CHECK_PROGRESS, None),)
 
     def draw(self, screen):
-        """Отрисовка лабиринта"""
+        """
+        Отрисовка лабиринта
+
+        Args:
+            screen (Surface): экран-поверхность для отрисовки
+        """
 
         # ТОЛЬКО ЕСЛИ ЧТО-ТО ИЗМЕНИЛОСЬ НА ЭКРАНЕ
-        if self.need_screen_update:
+        if not self.need_screen_update:
+            return None
 
-            # Отрисовываем пол и стены
-            for y in range(self.maze.height):
-                for x in range(self.maze.width):
-                    if self.maze.pattern[y][x] == 1:
-                        # в этой клетке стена
-                        cache_key = (x, y)
-                        screen.blit(
-                            self.wall_cache[cache_key],
-                            self.apply_shift(x * TILE_SIZE, y * TILE_SIZE),
-                        )
-                    else:
-                        # в этой клетке пол
-                        screen.blit(
-                            self.floor_tile,
-                            self.apply_shift(x * TILE_SIZE, y * TILE_SIZE),
-                        )
+        # Отрисовываем пол и стены
+        for y in range(self.maze.height):
+            for x in range(self.maze.width):
+                if self.maze.pattern[y][x] == 1:
+                    # в этой клетке стена
+                    cache_key = (x, y)
+                    screen.blit(
+                        self.wall_cache[cache_key],
+                        self.apply_shift(x * TILE_SIZE, y * TILE_SIZE),
+                    )
+                else:
+                    # в этой клетке пол
+                    screen.blit(
+                        self.floor_tile,
+                        self.apply_shift(x * TILE_SIZE, y * TILE_SIZE),
+                    )
 
-            # Отрисовываем вход и выход
-            self.draw_exits(screen)
+        # Отрисовываем вход и выход
+        self.draw_exits(screen)
 
-            # Отрисовываем игрока (поверх стен, но за монстрами + с текущим кадром анимации)
-            screen.blit(
-                self.current_player_image,
-                self.apply_shift(
-                    (self.player_pos[0]) - HALF_PLAYER,
-                    (self.player_pos[1]) - HALF_PLAYER,
-                ),
-            )
+        # Отрисовываем игрока (поверх стен, но за монстрами + с текущим кадром анимации)
+        screen.blit(
+            self.current_player_image,
+            self.apply_shift(
+                (self.player_pos[0]) - HALF_PLAYER,
+                (self.player_pos[1]) - HALF_PLAYER,
+            ),
+        )
 
-            # Отрисовываем врагов
-            for enemy in self.maze.monsters:
-                if enemy.active:
-                    sprite = self.get_enemy_sprite(self.current_level, enemy.enemy_name)
-                    if isinstance(enemy, PatrollingEnemy):
-                        # Для движущихся врагов отрисовка использует пиксельную позицию
-                        x, y = enemy.get_pixel_position()
-                        screen.blit(sprite, self.apply_shift(x, y))
-                    else:
-                        screen.blit(
-                            sprite,
-                            self.apply_shift(enemy.x * TILE_SIZE, enemy.y * TILE_SIZE),
-                        )
+        # Отрисовываем монстров
+        for enemy in self.maze.monsters:
+            if enemy.active:
+                sprite = self.get_enemy_sprite(self.current_level, enemy.enemy_name)
+                if isinstance(enemy, PatrollingEnemy):
+                    # Для движущихся врагов отрисовка использует пиксельную позицию
+                    x, y = enemy.get_pixel_position()
+                    screen.blit(sprite, self.apply_shift(x, y))
+                else:
+                    screen.blit(
+                        sprite,
+                        self.apply_shift(enemy.x * TILE_SIZE, enemy.y * TILE_SIZE),
+                    )
 
-            # Накладываем темноту поверх всего-всего
-            self.apply_darkness(screen)
+        # Накладываем темноту поверх всего-всего
+        self.apply_darkness(screen)
 
-            # БЛОКИРУЕМ ПОВТОРНУЮ ОТРИСОВКУ ДО ОБНОВЛЕНИЯ ЭЛЕМЕНТОВ
-            self.need_screen_update = False
+        # БЛОКИРУЕМ ПОВТОРНУЮ ОТРИСОВКУ ДО ОБНОВЛЕНИЯ ЭЛЕМЕНТОВ
+        self.need_screen_update = False
 
-            # Сообщаем об изменениях функции главного цикла
-            return ((Command.UPDATE_DISPLAY, None),)
-
-        return None
+        # Сообщаем об изменениях функции главного цикла
+        return ((Command.UPDATE_DISPLAY, None),)
 
     """
     Вспомогательные функции для обработки нажатых кнопок
     """
 
-    def move_player(self, new_pos):
-        """Перемещение игрока на одну из возможных позиций для текущих нажатых кнопок"""
+    def move_player(self, new_pos: tuple[int, int] | list[int]):
+        """
+        Перемещение игрока на одну из возможных позиций для текущих нажатых кнопок
+
+        Args:
+            new_pos (tuple[int, int] | list[int]): координаты, на которые собирается переместиться игрок
+        """
 
         # Новые и предыдущие координаты игрока
         nx, ny = new_pos
@@ -585,26 +625,39 @@ class MazeState(BaseState):
                 self.player_pos = [bunch[4], bunch[5]]
                 return
 
-    def check_new_pos(self, x_tile, x_tile_neighbor, y_tile, y_tile_neighbor):
-        """Проверка окружения позиции, в которую собирается переместиться игрок"""
+    def check_new_pos(
+        self, x_tile: int, x_tile_neighbor: int, y_tile: int, y_tile_neighbor: int
+    ) -> bool:
+        """
+        Проверка окружения позиции, в которую собирается переместиться игрок
+
+        Args:
+            x_tile (int): новая позиция по оси абсцисс
+            x_tile_neighbor (int): абсцисса клетки, соседней с новой позицией по оси абсцисс
+            y_tile (int): новая позиция по оси ординат
+            y_tile_neighbor (int): ордината клетки, соседней с новой позицией по оси ординат
+
+        Returns:
+            bool: можно ли переместиться в новую позицию
+        """
 
         for x in (x_tile_neighbor, x_tile):
             for y in (y_tile_neighbor, y_tile):
                 if not self.maze.pattern[int(y)][int(x)] == 0:
-                    break
-            else:
-                continue
-            break
-        else:
-            return True
-        return False
+                    return False
+        return True
 
     """
     Вспомогательные функции для отрисовки
     """
 
     def draw_exits(self, screen):
-        """Отрисовка входа и выхода с использованием кастомных тайлов"""
+        """
+        Отрисовка входа и выхода с использованием кастомных тайлов
+
+        Args:
+            screen (Surface): экран-поверхность для отрисовки
+        """
 
         # Отрисовка входа
         screen.blit(
@@ -622,7 +675,69 @@ class MazeState(BaseState):
             ),
         )
 
-    def apply_shift(self, x, y):
+    def apply_darkness(self, screen):
+        """
+        Наложение темноты на экран
+
+        Args:
+            screen (Surface): экран-поверхность для отрисовки
+        """
+
+        if not self.darkness_enabled:
+            return
+
+        self.darkness_surface.fill((0, 0, 0, 0))
+        pygame.draw.rect(
+            self.darkness_surface,
+            (0, 0, 0, self.darkness_alpha),
+            (0, 0, SCREEN_WIDTH, SCREEN_HEIGHT),
+        )
+
+        # Кружок света вокруг игрока - зависит от положения камеры
+        player_screen_x, player_screen_y = self.apply_shift(
+            self.player_pos[0] - HALF_PLAYER, self.player_pos[1] - HALF_PLAYER
+        )
+        player_center_x = player_screen_x + HALF_PLAYER
+        player_center_y = player_screen_y + HALF_PLAYER
+
+        # "Плавный" переход от света к темноте путем создания нескольких кружков разных радиусов (от центра к краям)
+        pygame.draw.circle(
+            self.darkness_surface,
+            (0, 0, 0, self.darkness_alpha - 30),
+            (player_center_x, player_center_y),
+            self.light_radius,
+        )
+
+        pygame.draw.circle(
+            self.darkness_surface,
+            (0, 0, 0, self.darkness_alpha // 2),
+            (player_center_x, player_center_y),
+            self.light_radius - 20,
+        )
+
+        pygame.draw.circle(
+            self.darkness_surface,
+            (0, 0, 0, 0),
+            (player_center_x, player_center_y),
+            self.light_radius - 40,
+        )
+
+        screen.blit(self.darkness_surface, (0, 0))
+
+    def apply_shift(
+        self, x: int | float, y: int | float
+    ) -> tuple[int | float, int | float]:
+        """
+        Получение координат для отрисовки изображения с учётом расположения игрока в лабиринте
+
+        Args:
+            x (int | float): координата изображения по оси абсцисс
+            y (int | float): координата изображения по оси ординат
+
+        Returns:
+            tuple[int | float, int | float]: новые координаты
+        """
+
         east_x_margin = self.maze.width * TILE_SIZE - HALF_WIDTH
         south_y_margin = self.maze.height * TILE_SIZE - HALF_HEIGHT
         x_shift = (
