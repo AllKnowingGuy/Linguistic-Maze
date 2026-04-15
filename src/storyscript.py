@@ -24,6 +24,7 @@ LAST_ROOM_IND = 4
 
 
 def start_game(game: Main):
+    print("Игра началась!")
     game.current_state_type = StateType.DIALOGUE
     game.dialogue_state.setup_dialogue(INTRO_DIALOGUE_PATH)
     game.associate_current_state()
@@ -239,6 +240,7 @@ class StoryScript:
 
         # Когда игрок завершает вступление
         if game.dialogue_state.finished:
+            print("Игрок вошёл в лабиринт!")
             self.generate_next_room(game, 0)
 
     def handle_boss_dialogue(self, game: Main):
@@ -282,6 +284,7 @@ class StoryScript:
 
         # Когда игрок завершает концовку
         if game.dialogue_state.finished:
+            print("Игра пройдена!")
             game.menu_state.just_won = True
             game.menu_state.game_end_score = self.total_respect + sum(
                 room["respect"] for _, room in self.rooms_data.items()
@@ -408,6 +411,7 @@ class StoryScript:
                 if (
                     self.current_room == LAST_ROOM_IND
                 ):  # особый случай для последней комнаты
+                    print("Игрок вышел из последней комнаты!")
                     self.general_progress["passed_maze"] = True
                     game.dialogue_state.setup_dialogue(BOSS_DIALOGUE_PATH)
                     game.dialogue_state.start_playing()
@@ -416,6 +420,7 @@ class StoryScript:
             elif game.dialogue_state.dialogue.get_line_room_restart(line_ind):
                 self.restart_current_room(game)
             elif game.dialogue_state.dialogue.get_line_gameover(line_ind):
+                print("Игра не пройдена!")
                 game.menu_state.just_lost = True
                 game.menu_state.game_end_score = self.total_respect + sum(
                     room["respect"] for _, room in self.rooms_data.items()
@@ -813,7 +818,8 @@ class StoryScript:
             else:
                 difficulty = 1  # средне
             print(
-                f"Набрано {prev_room_data["respect"]} "
+                f"В комнате {self.current_room} "
+                f"набрано {prev_room_data["respect"]} "
                 f"респектов из {max_respects}, "
                 f"следующая сложность {difficulty}"
             )

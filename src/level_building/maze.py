@@ -71,8 +71,7 @@ class Maze:
 
         while pile:
             if more_random:
-                growing_tile = random.choice(pile)
-                # TODO: try picking from tiles closer to the end of the pile, not from all tiles
+                growing_tile = random.choice(pile[len(pile) // 2:])
             else:
                 growing_tile = pile[-1]
             growing_ind = pile.index(growing_tile)

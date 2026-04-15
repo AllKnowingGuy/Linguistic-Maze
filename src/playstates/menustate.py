@@ -255,6 +255,26 @@ class MenuState(BaseState):
             self.game_end_score = None
             self.game_end_artifacts.clear()
             assetscreation.set_menu_music()
+
+            # Восстановление кнопок (кроме настроек, если они спрятаны)
+            self.start_button.state = ButtonState.REGULAR
+            self.left_settings_button.state = ButtonState.REGULAR
+            self.right_settings_button.state = ButtonState.REGULAR
+            for btn in tuple(self.keybind_button_dict.values())[
+                0 : (len(self.keybind_button_dict) + 1) // 2
+            ]:
+                if self.left_settings_shown:
+                    btn.state = ButtonState.REGULAR
+                else:
+                    btn.state = ButtonState.DISABLED
+            for btn in tuple(self.keybind_button_dict.values())[
+                (len(self.keybind_button_dict) + 1) // 2 : len(self.keybind_button_dict)
+            ]:
+                if self.right_settings_shown:
+                    btn.state = ButtonState.REGULAR
+                else:
+                    btn.state = ButtonState.DISABLED
+
             pygame.mixer.music.play(-1)
             self.need_screen_update = True
             return
@@ -384,23 +404,6 @@ class MenuState(BaseState):
 
             self.game_started = False
             self.bg_scale = 1.0
-            self.start_button.state = ButtonState.REGULAR
-            self.left_settings_button.state = ButtonState.REGULAR
-            self.right_settings_button.state = ButtonState.REGULAR
-            for btn in tuple(self.keybind_button_dict.values())[
-                0 : (len(self.keybind_button_dict) + 1) // 2
-            ]:
-                if self.left_settings_shown:
-                    btn.state = ButtonState.DISABLED
-                else:
-                    btn.state = ButtonState.REGULAR
-            for btn in tuple(self.keybind_button_dict.values())[
-                (len(self.keybind_button_dict) + 1) // 2 : len(self.keybind_button_dict)
-            ]:
-                if self.right_settings_shown:
-                    btn.state = ButtonState.DISABLED
-                else:
-                    btn.state = ButtonState.REGULAR
 
         if self.awaiting_input:
             return self.play_setting_timer()

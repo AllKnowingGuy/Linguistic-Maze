@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-04-15 - The quick update - v1.0.1 (CRASH FIX)
+
+- Made the app write all output to a log file instead of a console to fix issues where stdout was None in some checks
+- Added some progress-tracking prints to `StoryScript`
+- Added some funnies to the `MAILBOX`
+- Slightly tweaked maze generation to make mazes even more chaotic
+
 ## 2026-04-14 - Pack it up(date) - v1.0 (GAME RELEASE)
 
 - **Built the executable file** of the game (can be found in the Releases tab)
