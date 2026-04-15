@@ -1,5 +1,14 @@
 import sys
+from datetime import datetime
 from pathlib import Path
+
+from src.util import resource_path
+
+# Настройка вывода в файл вместо консоли
+if __name__ == "__main__":
+    log_path = resource_path(Path(f"log\\{str(datetime.now()).replace(":", ".")}.log"))
+    sys.stdout = open(log_path, "w", encoding="utf-8")
+    sys.stderr = sys.stdout
 
 import pygame
 
@@ -10,7 +19,7 @@ from src.playstates.challengestate import ChallengeState
 from src.playstates.dialoguestate import DialogueState
 from src.playstates.mazestate import MazeState
 from src.playstates.menustate import MenuState
-from src.util import SCREEN_HEIGHT, SCREEN_WIDTH, Command, StateType, resource_path
+from src.util import SCREEN_HEIGHT, SCREEN_WIDTH, Command, StateType
 
 # Инициализация Pygame (теперь с музыкой!)
 if pygame.get_sdl_version()[0] == 2:
@@ -252,7 +261,9 @@ class Main:
             self.clock.tick(self.framerate)
 
         # Выход из игры
+        print("Игра завершена!")
         pygame.quit()
+        sys.stdout.close()
         sys.exit()
 
 

@@ -9,6 +9,7 @@ a = Analysis(
         ('icon.ico', '.'),
         ('config.json', '.'),
         ('assets', 'assets'),
+        ('log', 'log'),
         ('MAILBOX', 'MAILBOX'),
         ('docs/CHANGELOG.md', '.'),
     ],

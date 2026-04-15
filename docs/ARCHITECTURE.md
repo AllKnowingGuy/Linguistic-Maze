@@ -426,11 +426,6 @@
 │   │   │       ├── suffixes.json
 │   │   │       └── words.dawg
 │   │   └── sentiment_analysis
-│   │       └── rubert_sentiment_model
-│   │           ├── config.json
-│   │           ├── model.safetensors
-│   │           ├── tokenizer.json
-│   │           └── tokenizer_config.json
 │   └── music
 │       ├── Boss.wav
 │       ├── Challenge.wav
@@ -456,7 +451,11 @@
 │   ├── CHANGELOG.md
 │   ├── INSTALL.md
 │   └── README.md
+├── log
+│   └── console_output_goes_here
 ├── MAILBOX
+│   ├── Листок.txt
+│   └── Фото.png
 ├── src
 │   ├── level_building
 │   │   ├── button.py

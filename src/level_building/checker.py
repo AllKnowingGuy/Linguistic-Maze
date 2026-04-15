@@ -12,7 +12,7 @@ EXISTING_WORDS_ANALYZER_PATH = resource_path(
 )
 
 RUBERT_MODEL = "seara/rubert-base-cased-russian-sentiment"
-LOCAL_ROBERT_MODEL_PATH = resource_path(
+LOCAL_RUBERT_MODEL_PATH = resource_path(
     Path("assets\\models\\sentiment_analysis\\rubert_sentiment_model")
 )
 
@@ -37,8 +37,8 @@ class Checker:
         self.existing_words_analyzer = create_analyzer(EXISTING_WORDS_ANALYZER_PATH)
         self._setup_tf_pipeline(
             RUBERT_MODEL,
-            LOCAL_ROBERT_MODEL_PATH,
-            saved=LOCAL_ROBERT_MODEL_PATH.exists(),
+            LOCAL_RUBERT_MODEL_PATH,
+            saved=LOCAL_RUBERT_MODEL_PATH.exists(),
         )
 
     def _setup_tf_pipeline(
