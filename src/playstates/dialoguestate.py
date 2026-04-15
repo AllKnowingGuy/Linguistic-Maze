@@ -375,80 +375,8 @@ class DialogueState(BaseState):
         else:
             self.now_speaking = Speaker.NO_ONE
 
-        line_left_char = None
-        line_left_sprite_path = None
-        line_right_char = None
-        line_right_sprite_path = None
-        if self.now_speaking.name == Speaker.LEFT.name:
-            line_left_char = self.dialogue.get_line_character(self.current_line_ind)
-            line_left_sprite_path = self.dialogue.get_line_sprite(self.current_line_ind)
-        elif self.now_speaking.name == Speaker.RIGHT.name:
-            line_right_char = self.dialogue.get_line_character(self.current_line_ind)
-            line_right_sprite_path = self.dialogue.get_line_sprite(
-                self.current_line_ind
-            )
-
         # Меняем персонажей, если требуется
-        current_protag_ind = 0
-        if self.left_real_name and self.left_real_name != "Протагонист":
-            current_protag_ind = PROTAGS_ORDER.index(self.left_real_name)
-
-        if line_left_char:
-            self.render_line_name(line_left_char, current_protag_ind, right=False)
-        else:
-            self.render_base_left_name()
-        if line_right_char:
-            self.render_line_name(line_right_char, current_protag_ind, right=True)
-        else:
-            self.right_speaker_name_sprite = self.ps_font.render(
-                self.dialogue.right_character,
-                True,
-                (0, 0, 0) if not self.story_mode else (255, 255, 255),
-            )
-
-        if line_left_sprite_path:
-            if (
-                line_right_char
-                and line_left_char[:-1] == "PROTAG"
-                and line_left_char[-1] in "1234"
-            ):
-                filename = [
-                    k
-                    for k, v in FILENAME_DISPLAY_PROTAG_DICT.items()
-                    if v
-                    == PROTAGS_ORDER[
-                        (current_protag_ind + int(line_left_char[-1]) - 1) % 4
-                    ]
-                ][0]
-                self.current_left_speaker = assetscreation.add_left_speak_sprite(
-                    filename
-                )
-            else:
-                self.current_left_speaker = assetscreation.add_left_speak_sprite(
-                    line_left_sprite_path
-                )
-        else:
-            self.current_left_speaker = self.dialogue_left_speaker
-        if line_right_sprite_path:
-            if (
-                line_right_char
-                and line_right_char[:-1] == "PROTAG"
-                and line_right_char[-1] in "1234"
-            ):
-                filename = (
-                    f"protagonists\\{[k for k, v in FILENAME_DISPLAY_PROTAG_DICT.items()
-                            if v == PROTAGS_ORDER[(current_protag_ind + int(line_right_char[-1]) - 1) % 4]
-                            ][0]}_right.png"
-                )
-                self.current_right_speaker = assetscreation.add_right_speak_sprite(
-                    filename
-                )
-            else:
-                self.current_right_speaker = assetscreation.add_right_speak_sprite(
-                    line_right_sprite_path
-                )
-        else:
-            self.current_right_speaker = self.dialogue_right_speaker
+        self.handle_line_speakers()
 
         # Если строчка требует действия от игрока
         if action_type:
@@ -557,6 +485,83 @@ class DialogueState(BaseState):
 
         # Получаем индексы строчек, на которые нас перемещают определённые кнопки
         self.answer_jumps = self.dialogue.get_line_answer_jumps(self.current_line_ind)
+
+    def handle_line_speakers(self):
+        """Обработка данных о персонажах текущей строчки диалогового файла"""
+
+        line_left_char = None
+        line_left_sprite_path = None
+        line_right_char = None
+        line_right_sprite_path = None
+        if self.now_speaking.name == Speaker.LEFT.name:
+            line_left_char = self.dialogue.get_line_character(self.current_line_ind)
+            line_left_sprite_path = self.dialogue.get_line_sprite(self.current_line_ind)
+        elif self.now_speaking.name == Speaker.RIGHT.name:
+            line_right_char = self.dialogue.get_line_character(self.current_line_ind)
+            line_right_sprite_path = self.dialogue.get_line_sprite(
+                self.current_line_ind
+            )
+
+        current_protag_ind = 0
+        if self.left_real_name and self.left_real_name != "Протагонист":
+            current_protag_ind = PROTAGS_ORDER.index(self.left_real_name)
+
+        if line_left_char:
+            self.render_line_name(line_left_char, current_protag_ind, right=False)
+        else:
+            self.render_base_left_name()
+        if line_right_char:
+            self.render_line_name(line_right_char, current_protag_ind, right=True)
+        else:
+            self.right_speaker_name_sprite = self.ps_font.render(
+                self.dialogue.right_character,
+                True,
+                (0, 0, 0) if not self.story_mode else (255, 255, 255),
+            )
+
+        if line_left_sprite_path:
+            if (
+                    line_right_char
+                    and line_left_char[:-1] == "PROTAG"
+                    and line_left_char[-1] in "1234"
+            ):
+                filename = [
+                    k
+                    for k, v in FILENAME_DISPLAY_PROTAG_DICT.items()
+                    if v
+                       == PROTAGS_ORDER[
+                           (current_protag_ind + int(line_left_char[-1]) - 1) % 4
+                           ]
+                ][0]
+                self.current_left_speaker = assetscreation.add_left_speak_sprite(
+                    filename
+                )
+            else:
+                self.current_left_speaker = assetscreation.add_left_speak_sprite(
+                    line_left_sprite_path
+                )
+        else:
+            self.current_left_speaker = self.dialogue_left_speaker
+        if line_right_sprite_path:
+            if (
+                    line_right_char
+                    and line_right_char[:-1] == "PROTAG"
+                    and line_right_char[-1] in "1234"
+            ):
+                filename = (
+                    f"protagonists\\{[k for k, v in FILENAME_DISPLAY_PROTAG_DICT.items()
+                                      if v == PROTAGS_ORDER[(current_protag_ind + int(line_right_char[-1]) - 1) % 4]
+                                      ][0]}_right.png"
+                )
+                self.current_right_speaker = assetscreation.add_right_speak_sprite(
+                    filename
+                )
+            else:
+                self.current_right_speaker = assetscreation.add_right_speak_sprite(
+                    line_right_sprite_path
+                )
+        else:
+            self.current_right_speaker = self.dialogue_right_speaker
 
     def finish(self):
         if self.dialogue.ominous:

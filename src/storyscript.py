@@ -246,7 +246,7 @@ class StoryScript:
 
         if game.dialogue_state.current_line_ind == 9:
             mail_path = resource_path(Path("MAILBOX"))
-            if not (mail_path.exists()):
+            if not mail_path.exists():
                 mail_path.mkdir()
             with open(
                 mail_path

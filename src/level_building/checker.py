@@ -61,7 +61,7 @@ class Checker:
         keys: list[str] | tuple[str] = (),
         checker: str = "plainequality",
     ):
-        if not checker in (
+        if checker not in (
             "plainequality",
             "rematch",
             "sentiment_rubert",

@@ -299,9 +299,11 @@ class MenuState(BaseState):
     def handle_mouse_release(self, event):
         """Обработка отпуска ЛКМ после щелчка по кнопке навигации"""
 
+        if not event.button == pygame.BUTTON_LEFT:
+            return None
+
         if (
-            not event.button == pygame.BUTTON_LEFT
-            or self.awaiting_input
+            self.awaiting_input
             or self.starting_game
             or self.just_lost
             or self.just_won
