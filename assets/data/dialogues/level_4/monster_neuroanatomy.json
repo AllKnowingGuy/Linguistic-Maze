@@ -18,12 +18,14 @@
 			"text": "В точку, человек! Чтобы пройти, угадай латинские имена\nмоих любимых зон головного мозга!",
 			"rpoints": 2,
 			"music": "STOP",
+			"sound": "Transition.wav",
 			"jump": 4
 		},
 		{
 			"speaker": "right",
 			"text": "Неплохо, человек! Чтобы пройти, угадай латинские имена\nмоих любимых зон головного мозга!",
 			"music": "STOP",
+			"sound": "Transition.wav",
 			"jump": 4
 		},
 		{
@@ -77,6 +79,7 @@
 			"speaker": "right",
 			"text": "Невероятно! Сразу видно, учил нейролингвистику!\nДам тебе в путь важный артефакт: дудку. Не потеряй!",
 			"music": "STOP",
+			"sound": "Transition.wav",
 			"artifact": "дудка",
 			"jump": -1
 		},
@@ -84,6 +87,7 @@
 			"speaker": "right",
 			"text": "Окей, может, ты и не совсем бестолковый. Проходи дальше!",
 			"music": "STOP",
+			"sound": "Transition.wav",
 			"rpoints": 1,
 			"jump": -1
 		},
@@ -91,12 +95,14 @@
 			"speaker": "right",
 			"text": "Ладно, ты, видимо, легко угадываешь. Проходи дальше!",
 			"music": "STOP",
+			"sound": "Transition.wav",
 			"jump": -1
 		},
 		{
 			"speaker": "right",
 			"text": "Совсем бестолково с тобой разговаривать, уходи с глаз долой!\nНе дам тебе подсказки!",
 			"music": "STOP",
+			"sound": "Transition.wav",
 			"rpoints": -1,
 			"jump": -1
 		}

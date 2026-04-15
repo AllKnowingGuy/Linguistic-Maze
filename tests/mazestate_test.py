@@ -1,4 +1,3 @@
-import pytest
 import sys
 import os
 from unittest.mock import patch
@@ -7,7 +6,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 
 from src.playstates.mazestate import *
 from src.level_building.enemy import Enemy
-from src.util import Border, TILE_SIZE, PLAYER_SIZE
+from src.util import TILE_SIZE
 
 
 TEST_MONSTER_DATA = {"monster_esperanto": (1, 1, 1, 1)}
@@ -29,11 +28,10 @@ class TestSetupMaze:
     """Проверки создания лабиринта"""
     def test_setup_maze(self):
         maze = MazeState()
-        result = maze.setup_maze(width=5, height=5)
+        maze.setup_maze(width=5, height=5)
 
-        assert result is not None
-        assert result.height == 5
-        assert result.width == 5
+        assert maze.maze.height == 5
+        assert maze.maze.width == 5
 
     def test_creates_enemies(self):
         maze = MazeState()

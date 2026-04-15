@@ -1,4 +1,7 @@
+import os
+import sys
 from enum import Enum
+from pathlib import Path
 
 """
 Для всей игры
@@ -29,10 +32,14 @@ class Command(Enum):
     """Команды циклу игры"""
 
     STOP = 1  # Прекратить себя
-    WAIT = 2  # Временно перестать обновляться
-    SET_FPS = 3  # Изменить частоту обновления
-    CHECK_PROGRESS = 4  # Проверить и обновить прогресс
+    WAIT = 2  # Временно перестать обновлять экран
+    SET_FPS = 3  # Изменить частоту обновления экрана
+    CHECK_PROGRESS = 4  # Проверить и обновить прогресс в StoryScript
     UPDATE_DISPLAY = 5  # Обновить дисплей игры (не влияет на счётчик FPS)
+    ADD_SOUNDS = 6  # Добавить звук в кэш для регулировки громкости
+    UPDATE_MAIN_SETTINGS = (
+        7  # Обновить настройки, которые распространяются на все состояния
+    )
 
 
 def get_centered_point(length: float, is_height: bool = False):
@@ -42,27 +49,38 @@ def get_centered_point(length: float, is_height: bool = False):
         return SCREEN_WIDTH / 2 - length / 2
 
 
+def resource_path(relative_path: str | Path, return_as_str: bool = False) -> str | Path:
+    """Получает путь к файлу. Нужен, чтобы программа видела файлы как в IDE, так и в собранном виде."""
+    try:
+        # Атрибут _MEIPASS появляется, когда программа собрана PyInstaller
+        # В этом случае файлы лежат рядом с exe
+        base_path = sys._MEIPASS
+    except AttributeError:
+        # Если программа запущена как скрипт (python main.py) - файлы ищем в папке с проектом
+        base_path = os.path.abspath(".")
+
+    final_path = os.path.join(base_path, relative_path)
+    return final_path if return_as_str else Path(final_path)
+
+
 """
 Для MenuState
 """
 
-START_BUTTON_WIDTH = 150
-START_BUTTON_HEIGHT = 90
-BIND_BUTTON_WIDTH = 113
-BIND_BUTTON_HEIGHT = 90
+START_BUTTON_WIDTH = 300
+START_BUTTON_HEIGHT = 350
+BIND_BUTTON_WIDTH = 110
+BIND_BUTTON_HEIGHT = 110
 
 
 """
-Для Maze и MazeState (а также StoryScript и AssetsCreation)
+Для Maze и MazeState (а также StoryScript и assetscreation)
 """
 
 TILE_SIZE = 45
 PLAYER_SIZE = (
     34  # при расчёте позиции игрока делится пополам, поэтому лучше брать чётные числа
 )
-
-
-# TODO: maybe make the player rectangular and not square?
 
 
 class WallPattern(Enum):
@@ -85,7 +103,7 @@ class Border(Enum):
 
 
 """
-Для DialogueState и ChallengeState (а также AssetsCreation)
+Для DialogueState и ChallengeState (а также assetscreation)
 """
 
 CHOICE_BUTTON_SIZE = 30

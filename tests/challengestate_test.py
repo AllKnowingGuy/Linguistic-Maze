@@ -1,33 +1,32 @@
-import pytest
 import sys
 import os
-from unittest.mock import patch
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from src.playstates.challengestate import *
 
 
-TEST_CHALLENGE_PATH = Path('../assets/data/challenges/level_0/monster_esperanto.json')
+TEST_CHALLENGE_PATH = Path('./assets/data/challenges/level_0/monster_esperanto.json')
+CHECKER = Checker()
 
 
 class TestChallengeStateInit:
     """Проверки инициализации испытания"""
     def test_init_creates_challenge(self):
-        challenge = ChallengeState()
+        challenge = ChallengeState(CHECKER)
         assert challenge.challenge is None
         assert challenge.score == 0
         assert challenge.submitted is False
         assert challenge.finished is False
 
     def test_init_has_nav_buttons(self):
-        challenge = ChallengeState()
+        challenge = ChallengeState(CHECKER)
         assert challenge.back_button is not None
         assert challenge.forth_button is not None
         assert challenge.submit_button is not None
 
     def test_init_creates_dicts(self):
-        challenge = ChallengeState()
+        challenge = ChallengeState(CHECKER)
         assert isinstance(challenge.choice_buttons_sets, dict)
         assert isinstance(challenge.input_texts, dict)
 
@@ -35,14 +34,13 @@ class TestSetupChallenge:
     """Проверки создания испытания"""
 
     def test_setup_challenge_loads_from_json(self):
-        challenge = ChallengeState()
-        result = challenge.setup_challenge(TEST_CHALLENGE_PATH)
+        challenge = ChallengeState(CHECKER)
+        challenge.setup_challenge(TEST_CHALLENGE_PATH)
 
-        assert result is not None
         assert challenge.challenge is not None
 
     def test_setup_challenge_resets_data(self):
-        challenge = ChallengeState()
+        challenge = ChallengeState(CHECKER)
         challenge.score = 5
         challenge.submitted = True
         challenge.current_window_ind = 10
@@ -54,7 +52,7 @@ class TestSetupChallenge:
         assert challenge.current_window_ind == 0
 
     def test_setup_challenge_resets_answers(self):
-        challenge = ChallengeState()
+        challenge = ChallengeState(CHECKER)
         challenge.input_texts = {67: 'fake_answer'}
         challenge.choice_buttons_sets = {999: []}
 
@@ -66,7 +64,7 @@ class TestSetupChallenge:
 class TestChallengeStateCard:
     """Проверки окна заданий"""
     def test_change_card_forth(self):
-        challenge = ChallengeState()
+        challenge = ChallengeState(CHECKER)
         challenge.setup_challenge(TEST_CHALLENGE_PATH)
         original_ind = challenge.current_window_ind
 
@@ -77,7 +75,7 @@ class TestChallengeStateCard:
         assert challenge.text_cursor == 0
 
     def test_change_card_back(self):
-        challenge = ChallengeState()
+        challenge = ChallengeState(CHECKER)
         challenge.setup_challenge(TEST_CHALLENGE_PATH)
         challenge.current_window_ind = 2
 
@@ -88,7 +86,7 @@ class TestChallengeStateCard:
         assert challenge.text_cursor == 0
 
     def test_forth_button_on_first_window(self):
-        challenge = ChallengeState()
+        challenge = ChallengeState(CHECKER)
         challenge.setup_challenge(TEST_CHALLENGE_PATH)
         challenge.current_window_ind = 0
         challenge.get_window_fields()
@@ -96,7 +94,7 @@ class TestChallengeStateCard:
         assert challenge.forth_button.state == ButtonState.REGULAR
 
     def test_no_back_button_on_first_window(self):
-        challenge = ChallengeState()
+        challenge = ChallengeState(CHECKER)
         challenge.setup_challenge(TEST_CHALLENGE_PATH)
         challenge.current_window_ind = 0
         challenge.get_window_fields()
@@ -106,7 +104,7 @@ class TestChallengeStateCard:
 class TestChallengeStateChooseFrom:
     """Проверки кнопок с выбором ответа"""
     def test_set_choosefrom_creates_buttons(self):
-        challenge = ChallengeState()
+        challenge = ChallengeState(CHECKER)
         challenge.setup_challenge(TEST_CHALLENGE_PATH)
 
         for i in range(len(challenge.challenge.windows)):
@@ -121,7 +119,7 @@ class TestChallengeStateChooseFrom:
 class TestChallengeStateInput:
     """Проверки ввода текста"""
     def test_input_field_updates_while_typing(self):
-        challenge = ChallengeState()
+        challenge = ChallengeState(CHECKER)
         challenge.setup_challenge(TEST_CHALLENGE_PATH)
 
         for ind in range(len(challenge.challenge.windows)):
@@ -137,7 +135,7 @@ class TestChallengeStateInput:
         assert 'a' in challenge.input_texts[challenge.current_window_ind]
 
     def test_input_field_updates_while_erasing(self):
-        challenge = ChallengeState()
+        challenge = ChallengeState(CHECKER)
         challenge.setup_challenge(TEST_CHALLENGE_PATH)
 
         for ind in range(len(challenge.challenge.windows)):
@@ -155,7 +153,7 @@ class TestChallengeStateInput:
 class TestChallengeStateSubmit:
     """Проверки отправки ответов"""
     def test_check_save_and_submit_returns_none_when_empty(self):
-        challenge = ChallengeState()
+        challenge = ChallengeState(CHECKER)
         challenge.setup_challenge(TEST_CHALLENGE_PATH)
         challenge.get_window_fields()
         for i in range(len(challenge.challenge.windows) - 1):
@@ -171,7 +169,7 @@ class TestChallengeStateMouse:
     """Проверки действий мыши"""
 
     def test_handle_mouse_motion_updates_button_state(self):
-        challenge = ChallengeState()
+        challenge = ChallengeState(CHECKER)
         challenge.setup_challenge(TEST_CHALLENGE_PATH)
         challenge.current_window_ind = 0
         challenge.get_window_fields()
@@ -186,7 +184,7 @@ class TestChallengeStateMouse:
         assert button.state == ButtonState.HOVERED
 
     def test_mouse_click_changes_card(self):
-        challenge = ChallengeState()
+        challenge = ChallengeState(CHECKER)
         challenge.setup_challenge(TEST_CHALLENGE_PATH)
         challenge.current_window_ind = 0
         challenge.get_window_fields()
@@ -206,13 +204,13 @@ class TestChallengeStateMouse:
                                            {'button': pygame.BUTTON_LEFT, 'pos': (button_x + 10, button_y + 10)})
 
         challenge.handle_mouse_click(test_press_event)
-        result = challenge.handle_mouse_release(test_release_event)
+        challenge.handle_mouse_release(test_release_event)
 
         assert challenge.current_window_ind > original_ind
         assert challenge.playing_text is True
 
     def test_mouse_clicks_on_choice_buttons(self):
-        challenge = ChallengeState()
+        challenge = ChallengeState(CHECKER)
         challenge.setup_challenge(TEST_CHALLENGE_PATH)
 
         for ind in range(len(challenge.challenge.windows)):

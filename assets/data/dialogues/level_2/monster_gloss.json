@@ -26,7 +26,7 @@
 			"action": {
 				"type": "choosefrom",
 				"options": ["Да, конечно, знаю!", "Не очень помню..."],
-				"jumps": [null, 4]
+				"jumps": [null, 5]
 			}
 		},
 		{

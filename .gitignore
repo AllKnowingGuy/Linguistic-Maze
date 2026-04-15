@@ -11,6 +11,10 @@ src/level_building/__pycache__/
 src/playstates/__pycache__/
 tests/__pycache__/
 
+# Built project
+/build/
+/dist/
+
 # Default ignored files
 /shelf/
 /workspace.xml

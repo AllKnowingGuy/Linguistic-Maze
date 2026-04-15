@@ -8,7 +8,11 @@
 		{
 			"speaker": "right",
 			"text": "Остановись, человек! Куда направляешься?",
-			"action": {"type": "savetyped"},
+			"action": {
+				"type": "savetyped",
+				"checker": "existing_words",
+				"jumps": [null, 3]
+			},
 			"bg": "PREVSCREEN"
 		},
 		{

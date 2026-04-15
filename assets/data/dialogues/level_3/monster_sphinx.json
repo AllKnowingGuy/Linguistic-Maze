@@ -5,11 +5,22 @@
 		{
 			"speaker": "right",
 			"text": "Ты не пройдёшь.",
-			"action": {"type": "savetyped"},
+			"action": {
+				"type": "savetyped",
+				"checker": "sentiment_rubert",
+				"jumps": [null, 2]
+			},
 			"bg": "PREVSCREEN"
 		},
 		{
-			"text": "Сфинкс проверил твой ответ на дружелюбие. И вынес вердикт:"
+			"text": "Сфинкс проверил твой ответ на дружелюбие. И вынес вердикт:",
+			"rpoints": 1,
+			"jump": -1
+		},
+		{
+			"text": "Сфинкс проверил твой ответ на дружелюбие. И вынес вердикт:",
+			"rpoints": -1,
+			"jump": -1
 		}
 	]
 }
