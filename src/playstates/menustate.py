@@ -338,7 +338,6 @@ class MenuState(BaseState):
                         else:
                             btn2.state = ButtonState.REGULAR
                     self.left_settings_shown = not self.left_settings_shown
-                    return None
 
                 # Кнопка правого меню настроек
                 elif btn is self.right_settings_button:
@@ -351,13 +350,11 @@ class MenuState(BaseState):
                         else:
                             btn2.state = ButtonState.REGULAR
                     self.right_settings_shown = not self.right_settings_shown
-                    return None
 
                 # Кнопки самих настроек
                 elif btn in self.keybind_button_dict.values():
                     self.current_action_binding = btn.text
                     self.start_setting()
-                    return None
 
                 else:
                     raise ValueError(f"This button is foreign: {btn.text}")
@@ -371,7 +368,7 @@ class MenuState(BaseState):
                     else:
                         btn.state = ButtonState.HOVERED
             self.need_screen_update = True
-            return None
+        return None
 
     def execute_before_draw(self):
         """Проверка истечения таймера настройки, а также возвратов в меню"""
